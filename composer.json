@@ -1,0 +1,17 @@
+{
+    "name": "fwt/framework",
+    "autoload": {
+        "psr-4": {
+            "Fwt\\Framework\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Maxim Svechihin",
+            "email": "folsinap@yandex.ru"
+        }
+    ],
+    "require": {
+        "symfony/var-dumper": "^5.4"
+    }
+}
