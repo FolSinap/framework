@@ -1,6 +1,6 @@
-#inherit('layout/main.php')
+<!--#inherit('layout/main.php')-->
 
-#block('content')
+<!--#block('content')-->
 <form method="post" action="/form">
     <div class="mb-3">
         <label for="email" class="form-label">Email address</label>
@@ -13,4 +13,4 @@
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
-#endblock
+<!--#endblock-->

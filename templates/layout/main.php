@@ -14,7 +14,8 @@
     </ul>
 </header>
 <div class="container">
-    #content('content')
+    {{content}}
+<!--    #content('content')-->
 </div>
 </body>
 </html>

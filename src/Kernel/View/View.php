@@ -9,12 +9,14 @@ use Fwt\Framework\Kernel\View\TemplateEngine\TemplateFactory;
 
 class View
 {
-    protected Template $template;
+//    protected Template $template;
+    protected string $template;
     protected array $data;
 
     protected function __construct(string $template, array $data = [])
     {
-        $template = (new TemplateFactory())->create($template);
+//        $template = (new TemplateFactory())->create($template);
+        $template = App::$app->getProjectDir() . '/templates/' . $template;
 
         $this->setTemplate($template);
         $this->data = $data;
@@ -27,14 +29,14 @@ class View
 
     public function render(): string
     {
-        $this->template->renderIncludes();
-        dd($this->template->getContent());
+//        $this->template->renderIncludes();
+//        dd($this->template->getContent());
 
 
-//        $layout = $this->renderLayouts();
-//        $content = $this->renderContent();
-//
-//        return str_replace('{{content}}', $content, $layout);
+        $layout = $this->renderLayouts();
+        $content = $this->renderContent();
+
+        return str_replace('{{content}}', $content, $layout);
     }
 
     public function renderLayouts(): string
@@ -52,8 +54,13 @@ class View
         return $this->render();
     }
 
-    protected function setTemplate(Template $template): void
+    protected function setTemplate(string $template): void
     {
         $this->template = $template;
     }
+
+//    protected function setTemplate(Template $template): void
+//    {
+//        $this->template = $template;
+//    }
 }
