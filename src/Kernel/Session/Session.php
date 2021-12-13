@@ -24,7 +24,7 @@ class Session
         return self::$instance;
     }
 
-    public function set(string $key, $value)
+    public function set(string $key, $value): void
     {
         $_SESSION[$key] = $value;
     }
@@ -32,6 +32,11 @@ class Session
     public function get(string $key)
     {
         return $_SESSION[$key];
+    }
+
+    public function has(string $key): bool
+    {
+        return isset($_SESSION[$key]);
     }
 
     public function clean(): void

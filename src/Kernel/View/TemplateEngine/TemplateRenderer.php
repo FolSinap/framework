@@ -2,26 +2,51 @@
 
 namespace Fwt\Framework\Kernel\View\TemplateEngine;
 
+use Fwt\Framework\Kernel\View\TemplateEngine\Directives\FlashDirective;
+use Fwt\Framework\Kernel\View\TemplateEngine\Templates\Template;
+
 class TemplateRenderer
 {
-    public const INCLUDE = 'include';
-    public const INHERIT = 'inherit';
+    public const FLASH = '#flash';
+    public const EXECUTABLE_DIRECTIVES = [
+        self::FLASH => FlashDirective::class,
+    ];
 
-    public function render(Template $template)
+    public function render(Template $template): string
     {
-        $content = $template->getContent();
+        $template->renderIncludes();
+        $parent = $template->getParent();
+
+        if ($parent) {
+            $parent->renderIncludes();
+            $parent->renderBlocks();
+            $template = $parent;
+        }
+
+        $template->renderArgs();
+
+        $this->executeDirectives($template);
+
+        return $template->getContent();
     }
 
-    protected function renderIncludes(Template $template)
+    protected function executeDirectives(Template $template)
     {
-        $includedTemplate = $template->nextInclude();
+        foreach (self::EXECUTABLE_DIRECTIVES as $name => $class) {
+            $regex = TemplateRegexBuilder::getBuilder()
+                ->name($name)
+                ->useNumbers()
+                ->includeForSearch('?\'.')
+                ->setParentheses()
+                ->useQuotes(false)
+                ->getRegex();
 
-//        $this
-        $content = $template->getContent();
-    }
+            $directive = new $class();
 
-    protected function parse(string $content)
-    {
-        $this->renderIncludes($content);
+            $template->setContent(preg_replace_callback($regex,
+                function ($matches) use ($directive) {
+                    return $directive->execute($matches[1]);
+                }, $template->getContent()));
+        }
     }
 }
