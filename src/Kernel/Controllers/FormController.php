@@ -5,7 +5,6 @@ namespace Fwt\Framework\Kernel\Controllers;
 use Fwt\Framework\Kernel\Response\RedirectResponse;
 use Fwt\Framework\Kernel\Response\Response;
 use Fwt\Framework\Kernel\Request;
-use Fwt\Framework\Kernel\Session\Session;
 use Fwt\Framework\Kernel\Validator\Rules\TypeRule;
 use Fwt\Framework\Kernel\Validator\Validator;
 
@@ -23,14 +22,10 @@ class FormController extends AbstractController
             'password' => [new TypeRule(TypeRule::TYPE_STRING)],
         ]);
 
-        $errors = $validator->validate($request->getBodyParameters());
-
-        if ($errors) {
-            Session::start()->set('errors', $errors);
-
+        if (!$validator->validate($request->getBodyParameters())) {
             return $this->redirectBack();
         }
 
-        return $this->redirect('form_show');
+        return $this->redirect('/', ['success' => 'Success!']);
     }
 }

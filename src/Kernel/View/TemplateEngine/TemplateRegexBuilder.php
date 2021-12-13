@@ -11,12 +11,14 @@ class TemplateRegexBuilder
     public const CONTENT = '#content';
     public const BLOCK = '#block';
     public const ENDBLOCK = '#endblock';
+    public const FLASH = '#flash';
     public const DIRECTIVES = [
         self::INCLUDE,
         self::INHERIT,
         self::CONTENT,
         self::BLOCK,
         self::ENDBLOCK,
+        self::FLASH,
     ];
     public const BRACKETS = [
         '(' => ')',

@@ -74,6 +74,15 @@ class Template
         return $this->content;
     }
 
+    public function setContent($content): void
+    {
+        if (!is_string($content)) {
+            throw new \Exception('Something went wrong');
+        }
+
+        $this->content = $content;
+    }
+
     public function getTemplate(): string
     {
         return $this->template;
@@ -108,7 +117,7 @@ class Template
                 $return = $this->getArgs()[$argName];
 
                 foreach ($keys as $key) {
-                    $return = $return[$key];
+                    $return = $return[is_numeric($key) ? (int) $key : $key];
                 }
 
                 return $return;
@@ -248,14 +257,5 @@ class Template
         } else {
             throw new TemplateNotFoundException($path);
         }
-    }
-
-    protected function setContent($content): void
-    {
-        if (!is_string($content)) {
-            throw new \Exception('Something went wrong');
-        }
-
-        $this->content = $content;
     }
 }
