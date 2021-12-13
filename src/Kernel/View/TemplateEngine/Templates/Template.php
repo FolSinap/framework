@@ -85,11 +85,33 @@ class Template
 
         $this->setContent(preg_replace_callback($regex,
             function ($matches) {
-                if (!array_key_exists($matches[1], $this->getArgs())) {
+                $argName = $matches[1];
+                $explode = explode('[', $argName);
+                $keys = [];
+
+                if ($explode > 1) {
+                    array_shift($explode);
+
+                    foreach ($explode as $key) {
+                        $keys[] = trim($key, ']');
+                    }
+                }
+
+                if (!empty($keys)) {
+                    $argName = str_replace('[' . implode('][', $keys) . ']', '', $argName);
+                }
+
+                if (!array_key_exists($argName, $this->getArgs())) {
                     throw new UnknownArgumentException($matches[0]);
                 }
 
-                return $this->getArgs()[$matches[1]];
+                $return = $this->getArgs()[$argName];
+
+                foreach ($keys as $key) {
+                    $return = $return[$key];
+                }
+
+                return $return;
             }, $this->content));
     }
 

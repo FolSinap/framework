@@ -3,7 +3,10 @@
     "autoload": {
         "psr-4": {
             "Fwt\\Framework\\": "src/"
-        }
+        },
+        "files": [
+            "src/helpers.php"
+        ]
     },
     "authors": [
         {

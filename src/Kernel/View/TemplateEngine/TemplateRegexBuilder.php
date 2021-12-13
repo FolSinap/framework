@@ -31,6 +31,7 @@ class TemplateRegexBuilder
     protected string $content;
     protected string $brackets = '(';
     protected string $closingBrackets = ')';
+    protected string $includes;
 
     public static function getBuilder(): self
     {
@@ -43,7 +44,16 @@ class TemplateRegexBuilder
             ->setParentheses()
             ->useQuotes(false)
             ->setBrackets('{{')
+            ->useNumbers()
+            ->includeForSearch('[]')
             ->getRegex();
+    }
+
+    public function includeForSearch(string $includes): self
+    {
+        $this->includes = preg_quote($includes, '/');
+
+        return $this;
     }
 
     public function setParentheses(bool $parentheses = true): self
@@ -114,7 +124,7 @@ class TemplateRegexBuilder
             if (isset($this->content)) {
                 $definition .= preg_quote($this->content, '/');
             } else {
-                $definition .= '([a-zA-Z' . ($this->useNumbers ? '0-9' : '') . '-_\.\/]+)';
+                $definition .= '([a-zA-Z' . ($this->useNumbers ? '0-9' : '') . ($this->includes ?? '') . '-_\.\/]+)';
             }
 
             $definition .= ($this->useQuotes ? '[\'"]' : '') . preg_quote($this->closingBrackets);
