@@ -14,8 +14,8 @@
     </ul>
 </header>
 <div class="container">
-    {{content}}
-<!--    #content('content')-->
+    #content('content')
+    #content('qwerty')
 </div>
 </body>
 </html>

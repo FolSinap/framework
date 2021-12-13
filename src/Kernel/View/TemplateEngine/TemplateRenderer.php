@@ -2,26 +2,21 @@
 
 namespace Fwt\Framework\Kernel\View\TemplateEngine;
 
+use Fwt\Framework\Kernel\View\TemplateEngine\Templates\Template;
+
 class TemplateRenderer
 {
-    public const INCLUDE = 'include';
-    public const INHERIT = 'inherit';
-
-    public function render(Template $template)
+    public function render(Template $template): string
     {
-        $content = $template->getContent();
-    }
+        $template->renderIncludes();
+        $parent = $template->getParent();
 
-    protected function renderIncludes(Template $template)
-    {
-        $includedTemplate = $template->nextInclude();
+        if ($parent) {
+            $parent->renderIncludes();
+            $parent->renderBlocks();
+            $template = $parent;
+        }
 
-//        $this
-        $content = $template->getContent();
-    }
-
-    protected function parse(string $content)
-    {
-        $this->renderIncludes($content);
+        return $template->getContent();
     }
 }
