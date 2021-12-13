@@ -6,8 +6,8 @@ use Fwt\Framework\Kernel\View\TemplateEngine\Templates\Template;
 
 class TemplateFactory
 {
-    public function create(string $path): Template
+    public function create(string $path, array $data): Template
     {
-        return new Template($path);
+        return new Template($path, $data);
     }
 }

@@ -4,6 +4,6 @@
 hello
 #endblock
 
-#block('qwerty')
+#block('content2')
 hello2
 #endblock

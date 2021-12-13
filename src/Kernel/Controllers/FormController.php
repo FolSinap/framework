@@ -13,7 +13,7 @@ class FormController extends AbstractController
 {
     public function show(): Response
     {
-        return $this->render('form.php');
+        return $this->render('form.php', ['arg' => 'value']);
     }
 
     public function process(Request $request): RedirectResponse

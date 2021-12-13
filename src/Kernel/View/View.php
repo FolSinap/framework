@@ -9,15 +9,13 @@ use Fwt\Framework\Kernel\View\TemplateEngine\TemplateRenderer;
 class View
 {
     protected Template $template;
-    protected array $data;
     protected TemplateRenderer $renderer;
 
     protected function __construct(string $template, array $data = [])
     {
-        $template = (new TemplateFactory())->create($template);
+        $template = (new TemplateFactory())->create($template, $data);
 
         $this->setTemplate($template);
-        $this->data = $data;
         $this->renderer = new TemplateRenderer();
     }
 

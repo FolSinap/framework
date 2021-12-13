@@ -17,6 +17,8 @@ class TemplateRenderer
             $template = $parent;
         }
 
+        $template->renderArgs();
+
         return $template->getContent();
     }
 }

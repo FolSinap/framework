@@ -5,6 +5,7 @@ namespace Fwt\Framework\Kernel\View\TemplateEngine\Templates;
 use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Exceptions\View\InheritException;
 use Fwt\Framework\Kernel\Exceptions\View\TemplateNotFoundException;
+use Fwt\Framework\Kernel\Exceptions\View\UnknownArgumentException;
 use Fwt\Framework\Kernel\View\TemplateEngine\TemplateFactory;
 use Fwt\Framework\Kernel\View\TemplateEngine\TemplateRegexBuilder;
 
@@ -23,11 +24,13 @@ class Template
      * @var Block[] $blocks
      */
     protected array $blocks;
+    protected array $args;
 
-    public function __construct(string $template)
+    public function __construct(string $template, array $args = [])
     {
         $this->factory = new TemplateFactory();
         $this->template = $template;
+        $this->args = $args;
         $this->setPath(App::$app->getProjectDir() . '/templates/' . $template);
 
         $this->loadContent();
@@ -45,6 +48,11 @@ class Template
     public function getParent(): ?self
     {
         return $this->parent;
+    }
+
+    public function getArgs(): array
+    {
+        return $this->args;
     }
 
     public function getIncludes(): array
@@ -71,21 +79,39 @@ class Template
         return $this->template;
     }
 
+    public function renderArgs(): void
+    {
+        $regex = TemplateRegexBuilder::getRegexForVars();
+
+        $this->setContent(preg_replace_callback($regex,
+            function ($matches) {
+                if (!array_key_exists($matches[1], $this->getArgs())) {
+                    throw new UnknownArgumentException($matches[0]);
+                }
+
+                return $this->getArgs()[$matches[1]];
+            }, $this->content));
+    }
+
     public function renderIncludes(): void
     {
-        $include = TemplateRegexBuilder::getBuilder(TemplateRegexBuilder::INCLUDE)
+        $include = TemplateRegexBuilder::getBuilder()
             ->setParentheses()
+            ->name(TemplateRegexBuilder::INCLUDE)
             ->getRegex();
 
-        $this->content = preg_replace_callback($include,
+        $this->setContent(preg_replace_callback($include,
             function ($matches) {
                 return $this->getIncludes()[$matches[1]]->getContent();
-            }, $this->content);
+            }, $this->content));
     }
 
     public function renderBlocks(): self
     {
-        $regexBuilder = TemplateRegexBuilder::getBuilder(TemplateRegexBuilder::CONTENT)->setParentheses();
+        $regexBuilder = TemplateRegexBuilder::getBuilder()
+            ->name(TemplateRegexBuilder::CONTENT)
+            ->useNumbers()
+            ->setParentheses();
 
         foreach ($this->blocks as $block) {
             $regexBuilder->setContent($block->getName());
@@ -98,7 +124,7 @@ class Template
                 throw InheritException::invalidContentBlocksCount($block->getName(), count($content));
             }
 
-            $this->content = preg_replace($regexBuilder->getRegex(), $block->getContent(), $this->content);
+            $this->setContent(preg_replace($regexBuilder->getRegex(), $block->getContent(), $this->content));
         }
 
         $this->removeExtraBlocks();
@@ -108,9 +134,12 @@ class Template
 
     protected function removeExtraBlocks(): self
     {
-        $regexBuilder = TemplateRegexBuilder::getBuilder(TemplateRegexBuilder::CONTENT)->setParentheses();
+        $regexBuilder = TemplateRegexBuilder::getBuilder()
+            ->useNumbers()
+            ->name(TemplateRegexBuilder::CONTENT)
+            ->setParentheses();
 
-        $this->content = preg_replace($regexBuilder->getRegex(), '', $this->content);
+        $this->setContent(preg_replace($regexBuilder->getRegex(), '', $this->content));
 
         return $this;
     }
@@ -122,7 +151,8 @@ class Template
 
     protected function initIncludes(): void
     {
-        $include = TemplateRegexBuilder::getBuilder(TemplateRegexBuilder::INCLUDE)
+        $include = TemplateRegexBuilder::getBuilder()
+            ->name(TemplateRegexBuilder::INCLUDE)
             ->setParentheses()
             ->getRegex();
 
@@ -131,13 +161,15 @@ class Template
         );
 
         foreach ($matches as $match) {
-            $this->include($this->factory->create($match[1]));
+            $this->include($this->factory->create($match[1], $this->args));
         }
     }
 
     protected function initInherits(): void
     {
-        $regexBuilder = TemplateRegexBuilder::getBuilder(TemplateRegexBuilder::INHERIT)->setParentheses();
+        $regexBuilder = TemplateRegexBuilder::getBuilder()
+            ->name(TemplateRegexBuilder::INHERIT)
+            ->setParentheses();
 
         preg_match_all($regexBuilder->getRegex(),
             $this->content, $inherits, PREG_SET_ORDER
@@ -151,15 +183,17 @@ class Template
             return;
         }
 
-        $parent = new self($inherits[0][1]);
+        $parent = new self($inherits[0][1], $this->args);
 
-        $regexBuilder->name(TemplateRegexBuilder::BLOCK);
+        $regexBuilder->name(TemplateRegexBuilder::BLOCK)->useNumbers();
 
         preg_match_all($regexBuilder->getRegex(),
             $this->content, $blocks, PREG_OFFSET_CAPTURE + PREG_SET_ORDER
         );
 
-        $regexBuilder->name(TemplateRegexBuilder::ENDBLOCK)->setParentheses(false);
+        $regexBuilder->name(TemplateRegexBuilder::ENDBLOCK)
+            ->useNumbers(false)
+            ->setParentheses(false);
 
         preg_match_all($regexBuilder->getRegex(),
             $this->content, $endBlocks, PREG_OFFSET_CAPTURE + PREG_SET_ORDER
@@ -192,5 +226,14 @@ class Template
         } else {
             throw new TemplateNotFoundException($path);
         }
+    }
+
+    protected function setContent($content): void
+    {
+        if (!is_string($content)) {
+            throw new \Exception('Something went wrong');
+        }
+
+        $this->content = $content;
     }
 }
