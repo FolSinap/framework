@@ -12,7 +12,7 @@ $app->getRouter()->get('/', function () {
     return Response::create(View::create('index.php'));
 });
 
-$app->getRouter()->get('/form', [\Fwt\Framework\Kernel\Controllers\FormController::class, 'show'], 'form_show');
-$app->getRouter()->post('/form', [\Fwt\Framework\Kernel\Controllers\FormController::class, 'process']);
+$app->getRouter()->get('/form', [\App\Controllers\FormController::class, 'show'], 'form_show');
+$app->getRouter()->post('/form', [\App\Controllers\FormController::class, 'process']);
 
 $app->run();
