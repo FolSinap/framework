@@ -15,6 +15,17 @@ class DirectiveRegexBuilder extends TemplateRegexBuilder
         return $this;
     }
 
+    public static function getRegexForVars(): string
+    {
+        return self::getBuilder()
+            ->setParentheses()
+            ->useQuotes(false)
+            ->setBrackets('{{')
+            ->useNumbers()
+            ->includeForSearch('[]')
+            ->getRegex();
+    }
+
     public function getRegex(): string
     {
         $definition = '/' . (isset($this->name) ? preg_quote($this->name, '/') : '');

@@ -26,17 +26,6 @@ class TemplateRegexBuilder
         return new static();
     }
 
-    public static function getRegexForVars(): string
-    {
-        return self::getBuilder()
-            ->setParentheses()
-            ->useQuotes(false)
-            ->setBrackets('{{')
-            ->useNumbers()
-            ->includeForSearch('[]')
-            ->getRegex();
-    }
-
     public function includeForSearch(string $includes): self
     {
         $this->includes = preg_quote($includes, '/');

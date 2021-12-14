@@ -3,10 +3,10 @@
 namespace Fwt\Framework\Kernel\View\TemplateEngine;
 
 use Fwt\Framework\Kernel\ObjectResolver;
-use Fwt\Framework\Kernel\View\TemplateEngine\Directives\Directive;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\FlashDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\IfDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\IncludeDirective;
+use Fwt\Framework\Kernel\View\TemplateEngine\Directives\RenderParametersDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Templates\Template;
 
 class TemplateRenderer
@@ -15,6 +15,7 @@ class TemplateRenderer
         IncludeDirective::class,
         IfDirective::class,
         FlashDirective::class,
+        RenderParametersDirective::class,
     ];
 
     protected ObjectResolver $resolver;
@@ -32,8 +33,6 @@ class TemplateRenderer
             $parent->renderBlocks();
             $template = $parent;
         }
-
-        $template->renderArgs();
 
         $this->executeDirectives($template);
 

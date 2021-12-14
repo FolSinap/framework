@@ -21,13 +21,11 @@ class Template
      * @var Block[] $blocks
      */
     protected array $blocks;
-    protected ?VariableContainer $variables;
 
-    public function __construct(string $template, VariableContainer $variables = null)
+    public function __construct(string $template)
     {
         $this->factory = new TemplateFactory();
         $this->template = $template;
-        $this->variables = $variables;
         $this->setPath(App::$app->getProjectDir() . '/templates/' . $template);
 
         $this->loadContent();
@@ -37,11 +35,6 @@ class Template
     public function getParent(): ?self
     {
         return $this->parent;
-    }
-
-    public function getArgs(): array
-    {
-        return $this->variables->toArray();
     }
 
     public function inherit(self $template, array $blocks): self
@@ -70,42 +63,6 @@ class Template
     public function getTemplate(): string
     {
         return $this->template;
-    }
-
-    public function renderArgs(): void
-    {
-        $regex = TemplateRegexBuilder::getRegexForVars();
-
-        $this->setContent(preg_replace_callback($regex,
-            function ($matches) {
-                $argName = $matches[1];
-                $explode = explode('[', $argName);
-                $keys = [];
-
-                if ($explode > 1) {
-                    array_shift($explode);
-
-                    foreach ($explode as $key) {
-                        $keys[] = trim($key, ']');
-                    }
-                }
-
-                if (!empty($keys)) {
-                    $argName = str_replace('[' . implode('][', $keys) . ']', '', $argName);
-                }
-
-                if (!array_key_exists($argName, $this->getArgs())) {
-                    throw new UnknownArgumentException($matches[0]);
-                }
-
-                $return = $this->getArgs()[$argName];
-
-                foreach ($keys as $key) {
-                    $return = $return[is_numeric($key) ? (int) $key : $key];
-                }
-
-                return $return;
-            }, $this->content));
     }
 
     public function renderBlocks(): self
@@ -169,7 +126,7 @@ class Template
             return;
         }
 
-        $parent = new self($inherits[0][1], $this->variables);
+        $parent = new self($inherits[0][1]);
 
         $regexBuilder->name('#block')->useNumbers();
 

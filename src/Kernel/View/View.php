@@ -15,7 +15,7 @@ class View
     protected function __construct(string $template, array $data = [])
     {
         App::$app->getContainer()->set(VariableContainer::class, VariableContainer::getInstance($data));
-        $template = (new TemplateFactory())->create($template, VariableContainer::getInstance());
+        $template = (new TemplateFactory())->create($template);
 
         $this->setTemplate($template);
         $this->renderer = new TemplateRenderer();
