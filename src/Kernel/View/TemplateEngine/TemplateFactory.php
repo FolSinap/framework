@@ -3,11 +3,12 @@
 namespace Fwt\Framework\Kernel\View\TemplateEngine;
 
 use Fwt\Framework\Kernel\View\TemplateEngine\Templates\Template;
+use Fwt\Framework\Kernel\View\VariableContainer;
 
 class TemplateFactory
 {
-    public function create(string $path, array $data): Template
+    public function create(string $path, VariableContainer $container): Template
     {
-        return new Template($path, $data);
+        return new Template($path, $container);
     }
 }

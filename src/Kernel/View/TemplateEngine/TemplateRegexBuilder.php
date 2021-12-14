@@ -6,20 +6,6 @@ use Fwt\Framework\Kernel\Exceptions\IllegalValueException;
 
 class TemplateRegexBuilder
 {
-    public const INCLUDE = '#include';
-    public const INHERIT = '#inherit';
-    public const CONTENT = '#content';
-    public const BLOCK = '#block';
-    public const ENDBLOCK = '#endblock';
-    public const FLASH = '#flash';
-    public const DIRECTIVES = [
-        self::INCLUDE,
-        self::INHERIT,
-        self::CONTENT,
-        self::BLOCK,
-        self::ENDBLOCK,
-        self::FLASH,
-    ];
     public const BRACKETS = [
         '(' => ')',
         '[' => ']',
@@ -37,7 +23,7 @@ class TemplateRegexBuilder
 
     public static function getBuilder(): self
     {
-        return new self();
+        return new static();
     }
 
     public static function getRegexForVars(): string
@@ -107,10 +93,6 @@ class TemplateRegexBuilder
 
     public function name(string $name): self
     {
-        if (!in_array($name, self::DIRECTIVES)) {
-            throw new IllegalValueException($name, self::DIRECTIVES);
-        }
-
         $this->name = $name;
 
         return $this;

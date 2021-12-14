@@ -7,7 +7,7 @@ use ArrayAccess;
 class Container implements ArrayAccess
 {
     protected array $data;
-    protected static self $container;
+    protected static array $instances;
 
     protected function __construct(array $data = [])
     {
@@ -16,13 +16,12 @@ class Container implements ArrayAccess
 
     public static function getInstance(array $data = []): self
     {
-        if (isset(self::$container)) {
-            return self::$container;
+        $class = static::class;
+        if (!isset(self::$instances[$class])) {
+            self::$instances[$class] = new static($data);
         }
 
-        self::$container = new self($data);
-
-        return self::$container;
+        return self::$instances[$class];
     }
 
     public function set(string $key, $value): void
@@ -38,6 +37,11 @@ class Container implements ArrayAccess
     public function exists(string $key): bool
     {
         return array_key_exists($key, $this->data);
+    }
+
+    public function toArray(): array
+    {
+        return $this->data;
     }
 
     public function offsetExists($offset): bool
@@ -58,5 +62,12 @@ class Container implements ArrayAccess
     public function offsetUnset($offset): void
     {
         unset($this->data[$offset]);
+    }
+
+    protected function __clone() { }
+
+    public function __wakeup()
+    {
+        throw new \Exception("Cannot unserialize a singleton.");
     }
 }

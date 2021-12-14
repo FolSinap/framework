@@ -15,4 +15,13 @@
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
+#if(! false)
+<div>first</div>
+#elif(false)
+<div>second</div>
+#elif(true)
+<div>third</div>
+#elif(false)
+<div>fourth</div>
+#endif
 #endblock
