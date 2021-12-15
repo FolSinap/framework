@@ -24,13 +24,17 @@ class App extends BaseApp
 
     public function run(): void
     {
-        trim(fgets(STDIN)); // reads one line from STDIN
+        $output = new Output();
+        $answer = $output->print("\e[31msadasd?");
+        dd($answer);
 
-        fscanf(STDIN, "%d\n", $number); // reads number from STDIN
-
-
-        $stderr = fopen('php://stderr', 'w');
-        dd($stderr);
+//        trim(fgets(STDIN)); // reads one line from STDIN
+//
+//        fscanf(STDIN, "%d\n", $number); // reads number from STDIN
+//
+//
+//        $stderr = fopen('php://stderr', 'w');
+//        dd($stderr);
         echo 'works' . "\n";
 
 //        print "Type your message. Type '.' on a line by itself when you're done.\n";
