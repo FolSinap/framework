@@ -1,7 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Controllers;
+namespace App\Controllers;
 
+use Fwt\Framework\Kernel\Controllers\AbstractController;
 use Fwt\Framework\Kernel\Response\RedirectResponse;
 use Fwt\Framework\Kernel\Response\Response;
 use Fwt\Framework\Kernel\Request;

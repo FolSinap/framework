@@ -2,7 +2,8 @@
     "name": "fwt/framework",
     "autoload": {
         "psr-4": {
-            "Fwt\\Framework\\": "src/"
+            "Fwt\\Framework\\": "src/",
+            "App\\": "app/"
         },
         "files": [
             "src/helpers.php"

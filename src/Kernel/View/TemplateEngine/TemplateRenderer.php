@@ -2,28 +2,39 @@
 
 namespace Fwt\Framework\Kernel\View\TemplateEngine;
 
+use Fwt\Framework\Kernel\ObjectResolver;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\FlashDirective;
+use Fwt\Framework\Kernel\View\TemplateEngine\Directives\IfDirective;
+use Fwt\Framework\Kernel\View\TemplateEngine\Directives\IncludeDirective;
+use Fwt\Framework\Kernel\View\TemplateEngine\Directives\RenderParametersDirective;
+use Fwt\Framework\Kernel\View\TemplateEngine\Directives\RenderParametersWithoutEscapeDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Templates\Template;
 
 class TemplateRenderer
 {
-    public const FLASH = '#flash';
     public const EXECUTABLE_DIRECTIVES = [
-        self::FLASH => FlashDirective::class,
+        IncludeDirective::class,
+        IfDirective::class,
+        FlashDirective::class,
+        RenderParametersDirective::class,
+        RenderParametersWithoutEscapeDirective::class,
     ];
+
+    protected ObjectResolver $resolver;
+
+    public function __construct()
+    {
+        $this->resolver = new ObjectResolver();
+    }
 
     public function render(Template $template): string
     {
-        $template->renderIncludes();
         $parent = $template->getParent();
 
         if ($parent) {
-            $parent->renderIncludes();
             $parent->renderBlocks();
             $template = $parent;
         }
-
-        $template->renderArgs();
 
         $this->executeDirectives($template);
 
@@ -32,20 +43,12 @@ class TemplateRenderer
 
     protected function executeDirectives(Template $template)
     {
-        foreach (self::EXECUTABLE_DIRECTIVES as $name => $class) {
-            $regex = TemplateRegexBuilder::getBuilder()
-                ->name($name)
-                ->useNumbers()
-                ->includeForSearch('?\'.')
-                ->setParentheses()
-                ->useQuotes(false)
-                ->getRegex();
+        foreach (self::EXECUTABLE_DIRECTIVES as $class) {
+            $directive = $this->resolver->resolve($class);
 
-            $directive = new $class();
-
-            $template->setContent(preg_replace_callback($regex,
+            $template->setContent(preg_replace_callback($directive->getRegex(),
                 function ($matches) use ($directive) {
-                    return $directive->execute($matches[1]);
+                    return $directive->execute($matches);
                 }, $template->getContent()));
         }
     }

@@ -2,6 +2,7 @@
 
 namespace Fwt\Framework\Kernel\View;
 
+use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\View\TemplateEngine\Templates\Template;
 use Fwt\Framework\Kernel\View\TemplateEngine\TemplateFactory;
 use Fwt\Framework\Kernel\View\TemplateEngine\TemplateRenderer;
@@ -13,7 +14,8 @@ class View
 
     protected function __construct(string $template, array $data = [])
     {
-        $template = (new TemplateFactory())->create($template, $data);
+        App::$app->getContainer()->set(VariableContainer::class, VariableContainer::getInstance($data));
+        $template = (new TemplateFactory())->create($template);
 
         $this->setTemplate($template);
         $this->renderer = new TemplateRenderer();

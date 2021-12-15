@@ -8,56 +8,33 @@ use Fwt\Framework\Kernel\Exceptions\View\TemplateNotFoundException;
 use Fwt\Framework\Kernel\Exceptions\View\UnknownArgumentException;
 use Fwt\Framework\Kernel\View\TemplateEngine\TemplateFactory;
 use Fwt\Framework\Kernel\View\TemplateEngine\TemplateRegexBuilder;
+use Fwt\Framework\Kernel\View\VariableContainer;
 
 class Template
 {
     protected string $path;
     protected string $template;
     protected string $content;
-    /**
-     * @var Template[] $includes
-     */
-    protected array $includes = [];
     protected ?self $parent = null;
     protected TemplateFactory $factory;
     /**
      * @var Block[] $blocks
      */
     protected array $blocks;
-    protected array $args;
 
-    public function __construct(string $template, array $args = [])
+    public function __construct(string $template)
     {
         $this->factory = new TemplateFactory();
         $this->template = $template;
-        $this->args = $args;
         $this->setPath(App::$app->getProjectDir() . '/templates/' . $template);
 
         $this->loadContent();
-        $this->initIncludes();
         $this->initInherits();
-    }
-
-    public function include(self $template): self
-    {
-        $this->includes[$template->getTemplate()] = $template;
-
-        return $this;
     }
 
     public function getParent(): ?self
     {
         return $this->parent;
-    }
-
-    public function getArgs(): array
-    {
-        return $this->args;
-    }
-
-    public function getIncludes(): array
-    {
-        return $this->includes;
     }
 
     public function inherit(self $template, array $blocks): self
@@ -88,59 +65,10 @@ class Template
         return $this->template;
     }
 
-    public function renderArgs(): void
-    {
-        $regex = TemplateRegexBuilder::getRegexForVars();
-
-        $this->setContent(preg_replace_callback($regex,
-            function ($matches) {
-                $argName = $matches[1];
-                $explode = explode('[', $argName);
-                $keys = [];
-
-                if ($explode > 1) {
-                    array_shift($explode);
-
-                    foreach ($explode as $key) {
-                        $keys[] = trim($key, ']');
-                    }
-                }
-
-                if (!empty($keys)) {
-                    $argName = str_replace('[' . implode('][', $keys) . ']', '', $argName);
-                }
-
-                if (!array_key_exists($argName, $this->getArgs())) {
-                    throw new UnknownArgumentException($matches[0]);
-                }
-
-                $return = $this->getArgs()[$argName];
-
-                foreach ($keys as $key) {
-                    $return = $return[is_numeric($key) ? (int) $key : $key];
-                }
-
-                return $return;
-            }, $this->content));
-    }
-
-    public function renderIncludes(): void
-    {
-        $include = TemplateRegexBuilder::getBuilder()
-            ->setParentheses()
-            ->name(TemplateRegexBuilder::INCLUDE)
-            ->getRegex();
-
-        $this->setContent(preg_replace_callback($include,
-            function ($matches) {
-                return $this->getIncludes()[$matches[1]]->getContent();
-            }, $this->content));
-    }
-
     public function renderBlocks(): self
     {
         $regexBuilder = TemplateRegexBuilder::getBuilder()
-            ->name(TemplateRegexBuilder::CONTENT)
+            ->name('#content')
             ->useNumbers()
             ->setParentheses();
 
@@ -167,7 +95,7 @@ class Template
     {
         $regexBuilder = TemplateRegexBuilder::getBuilder()
             ->useNumbers()
-            ->name(TemplateRegexBuilder::CONTENT)
+            ->name('#content')
             ->setParentheses();
 
         $this->setContent(preg_replace($regexBuilder->getRegex(), '', $this->content));
@@ -180,26 +108,10 @@ class Template
         $this->content = file_get_contents($this->path);
     }
 
-    protected function initIncludes(): void
-    {
-        $include = TemplateRegexBuilder::getBuilder()
-            ->name(TemplateRegexBuilder::INCLUDE)
-            ->setParentheses()
-            ->getRegex();
-
-        preg_match_all($include,
-            $this->content, $matches, PREG_SET_ORDER
-        );
-
-        foreach ($matches as $match) {
-            $this->include($this->factory->create($match[1], $this->args));
-        }
-    }
-
     protected function initInherits(): void
     {
         $regexBuilder = TemplateRegexBuilder::getBuilder()
-            ->name(TemplateRegexBuilder::INHERIT)
+            ->name('#inherit')
             ->setParentheses();
 
         preg_match_all($regexBuilder->getRegex(),
@@ -214,15 +126,15 @@ class Template
             return;
         }
 
-        $parent = new self($inherits[0][1], $this->args);
+        $parent = new self($inherits[0][1]);
 
-        $regexBuilder->name(TemplateRegexBuilder::BLOCK)->useNumbers();
+        $regexBuilder->name('#block')->useNumbers();
 
         preg_match_all($regexBuilder->getRegex(),
             $this->content, $blocks, PREG_OFFSET_CAPTURE + PREG_SET_ORDER
         );
 
-        $regexBuilder->name(TemplateRegexBuilder::ENDBLOCK)
+        $regexBuilder->name('#endblock')
             ->useNumbers(false)
             ->setParentheses(false);
 
