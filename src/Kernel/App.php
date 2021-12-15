@@ -3,6 +3,8 @@
 namespace Fwt\Framework\Kernel;
 
 use Dotenv\Dotenv;
+use Fwt\Framework\Kernel\Database\Connection;
+use Fwt\Framework\Kernel\Database\Database;
 use Fwt\Framework\Kernel\Exceptions\Router\InvalidResponseValue;
 use Fwt\Framework\Kernel\Response\Response;
 
@@ -20,6 +22,8 @@ class App
         $this->bootContainer();
 
         self::$app = $this;
+
+        $this->initRoutes();
     }
 
     public function run(): void
@@ -62,11 +66,25 @@ class App
         $this->container[Request::class] = new Request();
         $resolver = $this->container[ObjectResolver::class] = new ObjectResolver();
         $this->container[Router::class] = Router::getRouter($resolver);
+
+        $this->container[Connection::class] = new Connection(
+            getenv('DB'),
+            getenv('DB_HOST'),
+            getenv('DB_NAME'),
+            getenv('DB_USER'),
+            getenv('DB_PASSWORD')
+        );
+        $this->container[Database::class] = new Database($this->container[Connection::class]);
     }
 
     protected function initEnv(): void
     {
-        $env = Dotenv::createImmutable($this->projectDir);
+        $env = Dotenv::createUnsafeImmutable($this->projectDir);
         $env->load();
+    }
+
+    protected function initRoutes(): void
+    {
+        require_once $this->projectDir . '/routes/routes.php';
     }
 }
