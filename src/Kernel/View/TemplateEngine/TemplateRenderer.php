@@ -7,6 +7,7 @@ use Fwt\Framework\Kernel\View\TemplateEngine\Directives\FlashDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\IfDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\IncludeDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\RenderParametersDirective;
+use Fwt\Framework\Kernel\View\TemplateEngine\Directives\RenderParametersWithoutEscapeDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Templates\Template;
 
 class TemplateRenderer
@@ -16,6 +17,7 @@ class TemplateRenderer
         IfDirective::class,
         FlashDirective::class,
         RenderParametersDirective::class,
+        RenderParametersWithoutEscapeDirective::class,
     ];
 
     protected ObjectResolver $resolver;

@@ -26,6 +26,17 @@ class DirectiveRegexBuilder extends TemplateRegexBuilder
             ->getRegex();
     }
 
+    public static function getRegexForVarsNoEscape(): string
+    {
+        return self::getBuilder()
+            ->setParentheses()
+            ->useQuotes(false)
+            ->setBrackets('{')
+            ->useNumbers()
+            ->includeForSearch('[]')
+            ->getRegex();
+    }
+
     public function getRegex(): string
     {
         $definition = '/' . (isset($this->name) ? preg_quote($this->name, '/') : '');
