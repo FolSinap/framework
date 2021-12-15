@@ -2,6 +2,7 @@
 
 namespace Fwt\Framework\Kernel;
 
+use Dotenv\Dotenv;
 use Fwt\Framework\Kernel\Exceptions\Router\InvalidResponseValue;
 use Fwt\Framework\Kernel\Response\Response;
 
@@ -15,6 +16,7 @@ class App
     {
         $this->projectDir = $projectDir;
 
+        $this->initEnv();
         $this->bootContainer();
 
         self::$app = $this;
@@ -60,5 +62,11 @@ class App
         $this->container[Request::class] = new Request();
         $resolver = $this->container[ObjectResolver::class] = new ObjectResolver();
         $this->container[Router::class] = Router::getRouter($resolver);
+    }
+
+    protected function initEnv(): void
+    {
+        $env = Dotenv::createImmutable($this->projectDir);
+        $env->load();
     }
 }

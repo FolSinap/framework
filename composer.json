@@ -16,6 +16,8 @@
         }
     ],
     "require": {
-        "symfony/var-dumper": "^5.4"
+        "symfony/var-dumper": "^5.4",
+      "ext-pdo": "*",
+        "vlucas/phpdotenv": "^5.4"
     }
 }
