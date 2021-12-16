@@ -3,7 +3,8 @@
     "autoload": {
         "psr-4": {
             "Fwt\\Framework\\": "src/",
-            "App\\": "app/"
+            "App\\": "app/",
+            "App\\Migrations\\": "migrations/"
         },
         "files": [
             "src/helpers.php"

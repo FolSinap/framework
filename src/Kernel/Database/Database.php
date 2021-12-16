@@ -22,10 +22,18 @@ class Database
         return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function selectClass(string $from, string $class, array $constructorArgs = [])
+    public function selectClass(string $from, string $class, array $where = [], array $constructorArgs = [])
     {
         $columns = empty($columns) ? '*' : '(' . implode(', ', $columns) . ')' ;
-        $statement = $this->connection->createStatement("SELECT $columns FROM $from");
+
+        $expression = '';
+
+        foreach ($where as $column => $value) {
+            $expression .= "AND $column = $value";
+        }
+
+        $where = empty($where) ? '' : 'WHERE ' . $expression;
+        $statement = $this->connection->createStatement("SELECT $columns FROM $from $where");
         $statement->execute();
 
         return $statement->fetchAll(PDO::FETCH_CLASS, $class, $constructorArgs);

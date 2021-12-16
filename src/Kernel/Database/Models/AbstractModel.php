@@ -16,10 +16,37 @@ abstract class AbstractModel
 
     public static function find($id): self
     {
-        /*** @var Database $database */
-        $database = App::$app->getContainer()->get(Database::class);
-        $explode = explode('\\', static::class);
+        $database = self::getDatabase();
 
-        return $database->selectClass(strtolower(array_pop($explode)), static::class, [$database]);
+        return $database->selectClass(static::getTableName(), static::class, ['id' => $id], [$database]);
+    }
+
+    public static function all(): array
+    {
+        $database = self::getDatabase();
+
+        return $database->selectClass(static::getTableName(), static::class, [], [$database]);
+    }
+
+    public static function where(array $where): array
+    {
+        $database = self::getDatabase();
+
+        return $database->selectClass(static::getTableName(), static::class, $where, [$database]);
+    }
+
+    public static function getTableName(): string
+    {
+        $explode = explode('\\', static::class);
+        $single = strtolower(array_pop($explode));
+
+        return str_ends_with($single, 'y')
+            ? rtrim($single, 'y') . 'ies'
+            : $single . 's';
+    }
+
+    private static function getDatabase(): Database
+    {
+        return App::$app->getContainer()->get(Database::class);
     }
 }

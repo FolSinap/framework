@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Migrations;
+
 use Fwt\Framework\Kernel\Database\Migration;
 
 class m0001_create_user_table extends Migration
