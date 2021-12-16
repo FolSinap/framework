@@ -3,9 +3,11 @@
 namespace Fwt\Framework\Kernel\Console;
 
 use Fwt\Framework\Kernel\App as BaseApp;
+use Fwt\Framework\Kernel\Console\Commands\Command;
 use Fwt\Framework\Kernel\Container;
 use Fwt\Framework\Kernel\Database\Connection;
 use Fwt\Framework\Kernel\Database\Database;
+use Fwt\Framework\Kernel\Exceptions\Console\CommandNotFoundException;
 use Fwt\Framework\Kernel\ObjectResolver;
 use Fwt\Framework\Kernel\Router;
 
@@ -24,33 +26,22 @@ class App extends BaseApp
 
     public function run(): void
     {
-        $output = new Output();
-        $answer = $output->print("\e[31msadasd?");
-        dd($answer);
+        try {
+            $command = isset($this->argv[1])
+                ? $this->getCommandRouter()->map($this->argv[1])
+                : $this->getCommandRouter()->map('help');
 
-//        trim(fgets(STDIN)); // reads one line from STDIN
-//
-//        fscanf(STDIN, "%d\n", $number); // reads number from STDIN
-//
-//
-//        $stderr = fopen('php://stderr', 'w');
-//        dd($stderr);
-        echo 'works' . "\n";
+            $dependencies = $this->container[ObjectResolver::class]->resolveDependencies(get_class($command), 'execute');
 
-//        print "Type your message. Type '.' on a line by itself when you're done.\n";
-//
-//        $fp = fopen('php://stdin', 'r');
-//        $last_line = false;
-//        $message = '';
-//        while (!$last_line) {
-//            $next_line = fgets($fp, 1024); // read the special file to get the user input from keyboard
-//            if (".\n" == $next_line) {
-//                $last_line = true;
-//            } else {
-//                $message .= $next_line;
-//            }
-//        }
-//        echo $message;
+            $command->execute(...$dependencies);
+        } catch (CommandNotFoundException $exception) {
+            (new Output())->error($exception->getMessage());
+        }
+    }
+
+    public function getCommandRouter(): CommandRouter
+    {
+        return $this->getContainer()->get(CommandRouter::class);
     }
 
     protected function bootContainer(): void
@@ -60,6 +51,7 @@ class App extends BaseApp
         $resolver = $this->container[ObjectResolver::class] = new ObjectResolver();
         $this->container[Router::class] = Router::getRouter($resolver);
         $this->container[Input::class] = Input::getInstance($this->argv);
+        $this->container[CommandRouter::class] = new CommandRouter($this->container[ObjectResolver::class]);
 
         $this->container[Connection::class] = new Connection(
             getenv('DB'),
