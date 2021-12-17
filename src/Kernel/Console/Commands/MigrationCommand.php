@@ -7,6 +7,7 @@ use Fwt\Framework\Kernel\Console\Input;
 use Fwt\Framework\Kernel\Console\Output;
 use Fwt\Framework\Kernel\Database\Database;
 use Fwt\Framework\Kernel\Database\Models\Migration;
+use Fwt\Framework\Kernel\Database\QueryBuilder\StructureQueryBuilder;
 use Fwt\Framework\Kernel\ObjectResolver;
 
 class MigrationCommand implements Command
@@ -32,7 +33,12 @@ class MigrationCommand implements Command
 
     public function execute(Input $input, Output $output): void
     {
-        $sql = 'CREATE TABLE IF NOT EXISTS migrations (id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR (255) NOT NULL, PRIMARY KEY (id))';
+        $sql = StructureQueryBuilder::getBuilder()
+            ->create('migrations')
+            ->ifNotExists()
+            ->id()
+            ->string('name')
+            ->getQuery();
 
         $this->database->execute($sql);
 
@@ -56,9 +62,7 @@ class MigrationCommand implements Command
 
                 $migration->up();
 
-                $sql = "INSERT INTO migrations (name) VALUES ('$migrationName')";
-
-                $this->database->execute($sql);
+                Migration::create(['name' => $migrationName]);
 
                 $numberOfExecutions++;
             }

@@ -2,45 +2,69 @@
 
 namespace Fwt\Framework\Kernel\Database;
 
+use Fwt\Framework\Kernel\Database\QueryBuilder\QueryBuilder;
+use Fwt\Framework\Kernel\Database\QueryBuilder\StructureQueryBuilder;
 use PDO;
 
 class Database
 {
     protected Connection $connection;
+    protected QueryBuilder $queryBuilder;
 
     public function __construct(Connection $connection)
     {
         $this->connection = $connection->establish();
+        $this->queryBuilder = new QueryBuilder();
     }
 
-    public function select(string $from, array $columns = [])
+    public function select(array $columns = []): QueryBuilder
     {
-        $columns = empty($columns) ? '*' : '(' . implode(', ', $columns) . ')' ;
-        $statement = $this->connection->createStatement("SELECT $columns FROM $from");
-        $statement->execute();
-
-        return $statement->fetchAll(PDO::FETCH_ASSOC);
+        return $this->queryBuilder->select($columns);
     }
 
-    public function selectClass(string $from, string $class, array $where = [], array $constructorArgs = [])
+    public function insert(array $data, string $table): bool
     {
-        $columns = empty($columns) ? '*' : '(' . implode(', ', $columns) . ')' ;
+        $return = $this->execute($this->queryBuilder->insert($data, $table)->getQuery(), $this->queryBuilder->getParams());
+        $this->refresh();
 
-        $expression = '';
+        return $return;
+    }
 
-        foreach ($where as $column => $value) {
-            $expression .= "AND $column = $value";
-        }
-
-        $where = empty($where) ? '' : 'WHERE ' . $expression;
-        $statement = $this->connection->createStatement("SELECT $columns FROM $from $where");
-        $statement->execute();
+    public function fetchAsObject(string $class, array $constructorArgs = []): array
+    {
+        $statement = $this->connection->createStatement($this->queryBuilder->getQuery());
+        $statement->execute($this->queryBuilder->getParams());
+        $this->refresh();
 
         return $statement->fetchAll(PDO::FETCH_CLASS, $class, $constructorArgs);
     }
 
-    public function execute(string $sql): bool
+    public function fetchAssoc(): array
     {
-        return $this->connection->createStatement($sql)->execute();
+        $statement = $this->connection->createStatement($this->queryBuilder->getQuery());
+        $statement->execute($this->queryBuilder->getParams());
+        $this->refresh();
+
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getQueryBuilder(): QueryBuilder
+    {
+        return $this->queryBuilder;
+    }
+
+    public function refresh(): void
+    {
+        $this->queryBuilder = new QueryBuilder();
+    }
+
+    public function getStructureQueryBuilder(): StructureQueryBuilder
+    {
+        return StructureQueryBuilder::getBuilder();
+    }
+
+    public function execute(string $sql, array $parameters = []): bool
+    {
+        return $this->connection->createStatement($sql)->execute($parameters);
     }
 }

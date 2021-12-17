@@ -7,42 +7,70 @@ use Fwt\Framework\Kernel\Database\Database;
 
 abstract class AbstractModel
 {
-    public Database $database;
-
-    public function __construct(Database $database)
-    {
-        $this->database = $database;
-    }
-
-    public static function find($id): self
+    public static function find($id): ?self
     {
         $database = self::getDatabase();
 
-        return $database->selectClass(static::getTableName(), static::class, ['id' => $id], [$database]);
+        $database->getQueryBuilder()->select()
+            ->from(static::getTableName())
+            ->where('id', ':id')
+            ->setParams(['id' => $id]);
+
+        $object = $database->fetchAsObject(static::class);
+        return empty($object) ? null : $object[0];
     }
 
     public static function all(): array
     {
         $database = self::getDatabase();
 
-        return $database->selectClass(static::getTableName(), static::class, [], [$database]);
+        $database->getQueryBuilder()->select()->from(static::getTableName());
+
+        return $database->fetchAsObject(static::class);
     }
 
-    public static function where(array $where): array
+    public static function create(array $data): self
     {
+        $object = new static();
+
+        foreach ($data as $property => $value) {
+            $object->$property = $value;
+        }
+
         $database = self::getDatabase();
 
-        return $database->selectClass(static::getTableName(), static::class, $where, [$database]);
+        $database->insert($data, $object::getTableName());
+
+        return $object;
     }
+
+//    public static function where(array $where): array
+//    {
+//        $database = self::getDatabase();
+//
+//        $database->getQueryBuilder()->select()
+//            ->from(static::getTableName())
+//            ->where('id', ':id')
+//            ->setParams(['id' => $id]);
+//
+//        return $database->selectClass(static::getTableName(), static::class, $where, [$database]);
+//    }
 
     public static function getTableName(): string
     {
         $explode = explode('\\', static::class);
         $single = strtolower(array_pop($explode));
 
-        return str_ends_with($single, 'y')
-            ? rtrim($single, 'y') . 'ies'
-            : $single . 's';
+        $lastLetter = substr($single, -1);
+        $lastTwoLetter = substr($single, -2);
+
+        if (in_array($lastLetter, ['x', 's']) || in_array($lastTwoLetter, ['sh', 'ch'])) {
+            return $single . 'es';
+        } elseif ($lastLetter === 'y') {
+            return rtrim($single, 'y') . 'ies';
+        } else {
+            return $single . 's';
+        }
     }
 
     private static function getDatabase(): Database
