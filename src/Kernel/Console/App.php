@@ -3,7 +3,6 @@
 namespace Fwt\Framework\Kernel\Console;
 
 use Fwt\Framework\Kernel\App as BaseApp;
-use Fwt\Framework\Kernel\Console\Commands\Command;
 use Fwt\Framework\Kernel\Container;
 use Fwt\Framework\Kernel\Database\Connection;
 use Fwt\Framework\Kernel\Database\Database;
@@ -28,7 +27,7 @@ class App extends BaseApp
     {
         try {
             $command = isset($this->argv[1])
-                ? $this->getCommandRouter()->map($this->argv[1])
+                ? $this->getCommandRouter()->map($this->getInput()->getCommandName())
                 : $this->getCommandRouter()->map('help');
 
             $dependencies = $this->container[ObjectResolver::class]->resolveDependencies(get_class($command), 'execute');
@@ -42,6 +41,11 @@ class App extends BaseApp
     public function getCommandRouter(): CommandRouter
     {
         return $this->getContainer()->get(CommandRouter::class);
+    }
+
+    public function getInput(): Input
+    {
+        return $this->getContainer()->get(Input::class);
     }
 
     protected function bootContainer(): void

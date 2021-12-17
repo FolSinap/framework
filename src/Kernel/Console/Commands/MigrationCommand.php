@@ -31,6 +31,11 @@ class MigrationCommand implements Command
         return [];
     }
 
+    public function getOptionalParams(): array
+    {
+        return [];
+    }
+
     public function execute(Input $input, Output $output): void
     {
         $sql = StructureQueryBuilder::getBuilder()

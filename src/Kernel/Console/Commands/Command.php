@@ -11,5 +11,7 @@ interface Command
 
     public function getRequiredParams(): array;
 
+    public function getOptionalParams(): array;
+
     public function execute(Input $input, Output $output): void;
 }
