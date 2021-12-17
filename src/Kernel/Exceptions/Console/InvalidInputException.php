@@ -11,6 +11,6 @@ class InvalidInputException extends UnexpectedValueException
     {
         $message = "Input options shouldn't contain $char.";
 
-        return new self($message);
+        return new self($message, $code, $previous);
     }
 }

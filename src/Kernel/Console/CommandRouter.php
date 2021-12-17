@@ -3,6 +3,7 @@
 namespace Fwt\Framework\Kernel\Console;
 
 use Fwt\Framework\Kernel\Console\Commands\Command;
+use Fwt\Framework\Kernel\Console\Commands\CommandWrapper;
 use Fwt\Framework\Kernel\Console\Commands\MigrationCommand;
 use Fwt\Framework\Kernel\Exceptions\Console\CommandNotFoundException;
 use Fwt\Framework\Kernel\Exceptions\Console\InvalidCommand;
@@ -30,7 +31,7 @@ class CommandRouter
             throw new CommandNotFoundException($name);
         }
 
-        return $map[$name];
+        return CommandWrapper::wrap($map[$name]);
     }
 
     public function addCommands(array $commands): void
