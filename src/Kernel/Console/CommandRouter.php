@@ -4,6 +4,7 @@ namespace Fwt\Framework\Kernel\Console;
 
 use Fwt\Framework\Kernel\Console\Commands\Command;
 use Fwt\Framework\Kernel\Console\Commands\CommandWrapper;
+use Fwt\Framework\Kernel\Console\Commands\HelpCommand;
 use Fwt\Framework\Kernel\Console\Commands\MigrationCommand;
 use Fwt\Framework\Kernel\Exceptions\Console\CommandNotFoundException;
 use Fwt\Framework\Kernel\Exceptions\Console\InvalidCommand;
@@ -13,12 +14,14 @@ class CommandRouter
 {
     protected ObjectResolver $resolver;
     protected array $commands;
+    protected array $map;
 
     public function __construct(ObjectResolver $resolver)
     {
         $this->resolver = $resolver;
 
         $this->commands = [
+            HelpCommand::class,
             MigrationCommand::class,
         ];
     }
@@ -32,6 +35,17 @@ class CommandRouter
         }
 
         return CommandWrapper::wrap($map[$name]);
+    }
+
+    public function getMap(): array
+    {
+        if (isset($this->map)) {
+            return $this->map;
+        }
+
+        $this->map = $this->createMap();
+
+        return $this->map;
     }
 
     public function addCommands(array $commands): void
