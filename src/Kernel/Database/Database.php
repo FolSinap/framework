@@ -67,4 +67,14 @@ class Database
     {
         return $this->connection->createStatement($sql)->execute($parameters);
     }
+
+    public function selfExecute(): bool
+    {
+        $return = $this->connection->createStatement($this->queryBuilder->getQuery())
+            ->execute($this->queryBuilder->getParams());
+
+        $this->refresh();
+
+        return $return;
+    }
 }

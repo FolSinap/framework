@@ -50,6 +50,13 @@ class QueryBuilder
         return $this;
     }
 
+    public function delete(): self
+    {
+        $this->type = self::DELETE;
+
+        return $this;
+    }
+
     public function from(string $table): self
     {
         $this->table = $table;
@@ -111,6 +118,8 @@ class QueryBuilder
                 return $this->buildUpdate();
             case self::INSERT:
                 return $this->buildInsert();
+            case self::DELETE:
+                return $this->buildDelete();
             default:
                 return $this->buildSelect();
         }
@@ -122,7 +131,9 @@ class QueryBuilder
             throw new IllegalValueException($expression, self::WHERE_EXPRESSIONS);
         }
 
-        return "$field $expression $value";
+        $this->params[$field] = $value;
+
+        return "$field $expression :$field";
     }
 
     protected function buildWhere(): string
@@ -159,10 +170,17 @@ class QueryBuilder
         return "INSERT INTO $this->table $columns VALUES $values";
     }
 
+    protected function buildDelete(): string
+    {
+        $sql = "DELETE FROM $this->table";
+
+        $sql .= $this->buildWhere();
+
+        return $sql;
+    }
+
     protected function buildUpdate(): string
     {
-
-
-//        return $sql;
+        //todo: write update method
     }
 }

@@ -20,19 +20,24 @@ class Input extends Container
         parent::__construct($data);
     }
 
+    public function get(string $key)
+    {
+        return $this->data[self::LONG][$key] ?? $this->data[self::SHORT][$key] ?? null;
+    }
+
     public function getFullOptions(): array
     {
-        return $this->data[self::LONG];
+        return $this->data[self::LONG] ?? [];
     }
 
     public function getShortOptions(): array
     {
-        return $this->data[self::SHORT];
+        return $this->data[self::SHORT] ?? [];
     }
 
     public function getParameters(): array
     {
-        return $this->data[self::PARAMS];
+        return $this->data[self::PARAMS] ?? [];
     }
 
     public function getCommandName(): string

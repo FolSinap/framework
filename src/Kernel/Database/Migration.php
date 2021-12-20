@@ -15,6 +15,13 @@ abstract class Migration
         $this->queryBuilder = $this->database->getStructureQueryBuilder();
     }
 
+    public function getName(): string
+    {
+        $namespace = explode('\\', static::class);
+
+        return array_pop($namespace);
+    }
+
     protected function getStructureBuilder(): StructureQueryBuilder
     {
         return $this->queryBuilder;

@@ -28,6 +28,7 @@ class App extends BaseApp
         try {
             $command = isset($this->argv[1])
                 ? $this->getCommandRouter()->map($this->getInput()->getCommandName())
+                //todo: write help command
                 : $this->getCommandRouter()->map('help');
 
             $dependencies = $this->container[ObjectResolver::class]->resolveDependencies(get_class($command), 'execute');

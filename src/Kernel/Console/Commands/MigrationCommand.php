@@ -2,16 +2,20 @@
 
 namespace Fwt\Framework\Kernel\Console\Commands;
 
+use Exception;
 use Fwt\Framework\Kernel\Console\App;
 use Fwt\Framework\Kernel\Console\Input;
 use Fwt\Framework\Kernel\Console\Output;
 use Fwt\Framework\Kernel\Database\Database;
 use Fwt\Framework\Kernel\Database\Models\Migration;
+use Fwt\Framework\Kernel\Database\Migration as ExecutableMigration;
 use Fwt\Framework\Kernel\Database\QueryBuilder\StructureQueryBuilder;
 use Fwt\Framework\Kernel\ObjectResolver;
 
 class MigrationCommand implements Command
 {
+    protected const MIGRATION_NAMESPACE = '\\App\\Migrations\\';
+
     protected Database $database;
     protected ObjectResolver $resolver;
 
@@ -33,10 +37,95 @@ class MigrationCommand implements Command
 
     public function getOptionalParams(): array
     {
-        return [];
+        return [
+            'down' => ['Run down all migrations', 'd'],
+            'back' => ['Rollback last migration', 'b'],
+        ];
     }
 
     public function execute(Input $input, Output $output): void
+    {
+        $this->createMigrationsTable();
+
+        $executedMigrations = Migration::all();
+        $executedMigrations = array_map(function ($migration) {
+            return $migration->name;
+        }, $executedMigrations);
+
+        $down = $input->get('d') || $input->get('down');
+        $back = $input->get('b') || $input->get('back');
+
+        $migrations = $this->resolveMigrationObjects();
+
+        $numberOfExecutions = 0;
+
+        if ($back) {
+            $last = array_pop($executedMigrations);
+
+            $this->runDown($migrations[$last]);
+
+            $numberOfExecutions++;
+        } else {
+            foreach ($migrations as $migration) {
+                if ($down && in_array($migration->getName(), $executedMigrations)) {
+                    $this->runDown($migration);
+
+                    $numberOfExecutions++;
+                } elseif (!$down && !in_array($migration->getName(), $executedMigrations)) {
+                    $this->runUp($migration);
+
+                    $numberOfExecutions++;
+                }
+            }
+        }
+
+        $output->success($numberOfExecutions . ' migrations were executed.');
+    }
+
+    protected function runDown(ExecutableMigration $migration): void
+    {
+        $migration->down();
+
+        $migration = Migration::where(['name' => $migration->getName()]);
+
+        if (count($migration) !== 1) {
+            throw new Exception('This should never happen!');
+        } else {
+            $migration = $migration[0];
+        }
+
+        $migration->delete();
+    }
+
+    protected function runUp(ExecutableMigration $migration): void
+    {
+        $migration->up();
+
+        Migration::create(['name' => $migration->getName()]);
+    }
+
+    protected function resolveMigrationObjects(): array
+    {
+        $migrations = scandir(App::$app->getProjectDir() . '/migrations');
+
+        foreach ($migrations as $key => $migration) {
+            if (in_array($migration, ['.', '..'])) {
+                unset($migrations[$key]);
+
+                continue;
+            }
+
+            $migrationName = rtrim($migration, '.php');
+
+            $migrations[$migrationName] = $this->resolver->resolve(self::MIGRATION_NAMESPACE . $migrationName);
+
+            unset($migrations[$key]);
+        }
+
+        return $migrations;
+    }
+
+    protected function createMigrationsTable(): void
     {
         $sql = StructureQueryBuilder::getBuilder()
             ->create('migrations')
@@ -46,33 +135,5 @@ class MigrationCommand implements Command
             ->getQuery();
 
         $this->database->execute($sql);
-
-        $executedMigrations = Migration::all();
-        $executedMigrations = array_map(function ($migration) {
-            return $migration->name;
-        }, $executedMigrations);
-
-        $migrations = scandir(App::$app->getProjectDir() . '/migrations');
-        $numberOfExecutions = 0;
-
-        foreach ($migrations as $migration) {
-            if (in_array($migration, ['.', '..'])) {
-                continue;
-            }
-
-            $migrationName = rtrim($migration, '.php');
-
-            if (!in_array($migrationName, $executedMigrations)) {
-                $migration = $this->resolver->resolve('\\App\\Migrations\\' . $migrationName);
-
-                $migration->up();
-
-                Migration::create(['name' => $migrationName]);
-
-                $numberOfExecutions++;
-            }
-        }
-
-        $output->success($numberOfExecutions . ' migrations were executed.');
     }
 }

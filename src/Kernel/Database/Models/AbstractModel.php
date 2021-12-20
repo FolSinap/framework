@@ -13,8 +13,7 @@ abstract class AbstractModel
 
         $database->getQueryBuilder()->select()
             ->from(static::getTableName())
-            ->where('id', ':id')
-            ->setParams(['id' => $id]);
+            ->where(static::getIdColumn(), $id);
 
         $object = $database->fetchAsObject(static::class);
         return empty($object) ? null : $object[0];
@@ -44,17 +43,53 @@ abstract class AbstractModel
         return $object;
     }
 
-//    public static function where(array $where): array
-//    {
-//        $database = self::getDatabase();
-//
-//        $database->getQueryBuilder()->select()
-//            ->from(static::getTableName())
-//            ->where('id', ':id')
-//            ->setParams(['id' => $id]);
-//
-//        return $database->selectClass(static::getTableName(), static::class, $where, [$database]);
-//    }
+    public function delete()
+    {
+        $database = self::getDatabase();
+        $id = static::getIdColumn();
+
+        $database->getQueryBuilder()
+            ->delete()->from(static::getTableName())
+            ->where($id, $this->$id);
+
+        $database->selfExecute();
+    }
+
+    public static function getIdColumn(): string
+    {
+        //todo: add cases where primary key includes multiple cols
+
+        return 'id';
+    }
+
+    public static function where(array $where): array
+    {
+        $database = self::getDatabase();
+
+        $queryBuilder = $database->getQueryBuilder()->select()
+            ->from(static::getTableName());
+
+        $firstField = array_key_first($where);
+        $firstValue = array_shift($where);
+
+        if (is_array($firstValue)) {
+            $firstValue = $firstValue[0];
+            $expression = $firstValue[1];
+        }
+
+        $queryBuilder->where($firstField, $firstValue, $expression ?? '=');
+
+        foreach ($where as $field => $value) {
+            if (is_array($value)) {
+                $value = $value[0];
+                $expression = $value[1];
+            }
+
+            $queryBuilder->andWhere($field, $value, $expression ?? '=');
+        }
+
+        return $database->fetchAsObject(static::class);
+    }
 
     public static function getTableName(): string
     {
