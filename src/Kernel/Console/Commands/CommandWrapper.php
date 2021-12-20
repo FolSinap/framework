@@ -3,8 +3,8 @@
 namespace Fwt\Framework\Kernel\Console\Commands;
 
 use Fwt\Framework\Kernel\Console\Input;
-use Fwt\Framework\Kernel\Console\MessageBuilder;
-use Fwt\Framework\Kernel\Console\Output;
+use Fwt\Framework\Kernel\Console\Output\MessageBuilder;
+use Fwt\Framework\Kernel\Console\Output\Output;
 use Fwt\Framework\Kernel\Exceptions\Console\InvalidInputException;
 
 class CommandWrapper implements Command

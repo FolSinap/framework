@@ -3,6 +3,7 @@
 namespace Fwt\Framework\Kernel\Console;
 
 use Fwt\Framework\Kernel\App as BaseApp;
+use Fwt\Framework\Kernel\Console\Output\Output;
 use Fwt\Framework\Kernel\Container;
 use Fwt\Framework\Kernel\Database\Connection;
 use Fwt\Framework\Kernel\Database\Database;

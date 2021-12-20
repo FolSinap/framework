@@ -5,7 +5,7 @@ namespace Fwt\Framework\Kernel\Console\Commands;
 use Exception;
 use Fwt\Framework\Kernel\Console\App;
 use Fwt\Framework\Kernel\Console\Input;
-use Fwt\Framework\Kernel\Console\Output;
+use Fwt\Framework\Kernel\Console\Output\Output;
 use Fwt\Framework\Kernel\Database\Database;
 use Fwt\Framework\Kernel\Database\Models\Migration;
 use Fwt\Framework\Kernel\Database\Migration as ExecutableMigration;

@@ -3,7 +3,7 @@
 namespace Fwt\Framework\Kernel\Console\Commands;
 
 use Fwt\Framework\Kernel\Console\Input;
-use Fwt\Framework\Kernel\Console\Output;
+use Fwt\Framework\Kernel\Console\Output\Output;
 
 interface Command
 {

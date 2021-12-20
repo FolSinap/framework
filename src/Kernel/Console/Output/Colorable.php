@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Console;
+namespace Fwt\Framework\Kernel\Console\Output;
 
 trait Colorable
 {
