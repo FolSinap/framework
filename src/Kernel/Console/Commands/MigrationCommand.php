@@ -52,8 +52,8 @@ class MigrationCommand implements Command
             return $migration->name;
         }, $executedMigrations);
 
-        $down = $input->get('d') || $input->get('down');
-        $back = $input->get('b') || $input->get('back');
+        $down = $input->getParam('down', 'd');
+        $back = $input->getParam('back', 'b');
 
         $migrations = $this->resolveMigrationObjects();
 
