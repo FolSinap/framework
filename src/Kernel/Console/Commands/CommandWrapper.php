@@ -3,6 +3,7 @@
 namespace Fwt\Framework\Kernel\Console\Commands;
 
 use Fwt\Framework\Kernel\Console\Input;
+use Fwt\Framework\Kernel\Console\MessageBuilder;
 use Fwt\Framework\Kernel\Console\Output;
 use Fwt\Framework\Kernel\Exceptions\Console\InvalidInputException;
 
@@ -25,19 +26,29 @@ class CommandWrapper implements Command
         return $this->command->getName();
     }
 
-    public function getRequiredParams(): array
+    public function getDescription(): string
     {
-        return $this->command->getRequiredParams();
+        return $this->command->getDescription();
     }
 
-    public function getOptionalParams(): array
+    public function getRequiredOptions(): array
     {
-        return $this->command->getOptionalParams();
+        return $this->command->getRequiredOptions();
+    }
+
+    public function getOptionalOptions(): array
+    {
+        return $this->command->getOptionalOptions();
+    }
+
+    public function getParameters(): array
+    {
+        return $this->command->getParameters();
     }
 
     public function execute(Input $input, Output $output): void
     {
-        $required = $this->getRequiredParams();
+        $required = $this->getRequiredOptions();
         $full = array_keys($input->getFullOptions());
         $short = array_keys($input->getShortOptions());
 
@@ -60,8 +71,49 @@ class CommandWrapper implements Command
 
     protected function showHelp(Input $input, Output $output): void
     {
-        //todo: write help
+        $script = $input->getScriptName();
+        $command = $input->getCommandName();
+        $params = implode(', ', $this->getParameters());
+        $required = $this->getRequiredOptions();
+        $optional = $this->getOptionalOptions();
 
-        $output->info('Render help for ' . $this->getName());
+        $messageBuilder = MessageBuilder::getBuilder();
+
+        $messageBuilder
+            ->skipLines()
+            ->tab()->writeln("php $script $command $params [OPTIONS]")
+            ->tab()->writeln(MessageBuilder::getBuilder()->green($this->getDescription()))
+            ->dropTab()
+            ->if(!empty($required),
+                MessageBuilder::getBuilder()
+                    ->skipLines()
+                    ->tab()->writeln("REQUIRED OPTIONS:")
+                    ->tab()->foreach($required, function ($name, $data) {
+                        $description = $data[0];
+                        $short = $data[1];
+
+                        return MessageBuilder::getBuilder()->write("--$name, -$short")
+                            ->space(6)
+                            ->blue($description);
+                    })
+                    ->skipLines(2)
+            )
+            ->if(!empty($optional),
+                MessageBuilder::getBuilder()
+                    ->skipLines()
+                    ->tab()->writeln("OPTIONAL OPTIONS:")
+                    ->tab()->foreach($optional, function ($name, $data) {
+                        $description = $data[0];
+                        $short = $data[1];
+
+                        return MessageBuilder::getBuilder()->write("--$name, -$short")
+                            ->space(6)
+                            ->blue($description)
+                            ->skipLines();
+                    })
+            )
+        ;
+
+        $output->print($messageBuilder);
     }
 }

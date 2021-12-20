@@ -9,9 +9,13 @@ interface Command
 {
     public function getName(): string;
 
-    public function getRequiredParams(): array;
+    public function getDescription(): string;
 
-    public function getOptionalParams(): array;
+    public function getRequiredOptions(): array;
+
+    public function getOptionalOptions(): array;
+
+    public function getParameters(): array;
 
     public function execute(Input $input, Output $output): void;
 }

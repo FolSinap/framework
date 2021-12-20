@@ -12,7 +12,7 @@ use Fwt\Framework\Kernel\Database\Migration as ExecutableMigration;
 use Fwt\Framework\Kernel\Database\QueryBuilder\StructureQueryBuilder;
 use Fwt\Framework\Kernel\ObjectResolver;
 
-class MigrationCommand implements Command
+class MigrationCommand extends AbstractCommand
 {
     protected const MIGRATION_NAMESPACE = '\\App\\Migrations\\';
 
@@ -30,12 +30,12 @@ class MigrationCommand implements Command
         return 'migrate';
     }
 
-    public function getRequiredParams(): array
+    public function getDescription(): string
     {
-        return [];
+        return 'Run up or down existing migrations.';
     }
 
-    public function getOptionalParams(): array
+    public function getOptionalOptions(): array
     {
         return [
             'down' => ['Run down all migrations', 'd'],
@@ -60,11 +60,11 @@ class MigrationCommand implements Command
         $numberOfExecutions = 0;
 
         if ($back) {
-            $last = array_pop($executedMigrations);
+            if ($last = array_pop($executedMigrations)) {
+                $this->runDown($migrations[$last]);
 
-            $this->runDown($migrations[$last]);
-
-            $numberOfExecutions++;
+                $numberOfExecutions++;
+            }
         } else {
             foreach ($migrations as $migration) {
                 if ($down && in_array($migration->getName(), $executedMigrations)) {

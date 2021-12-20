@@ -45,6 +45,11 @@ class Input extends Container
         return $this->data[self::COMMAND_NAME];
     }
 
+    public function getScriptName(): string
+    {
+        return $this->data[self::SCRIPT];
+    }
+
     protected function parseInput(array $argv): array
     {
         $data[self::SCRIPT] = array_shift($argv);
