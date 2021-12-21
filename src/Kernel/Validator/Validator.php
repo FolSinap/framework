@@ -3,21 +3,21 @@
 namespace Fwt\Framework\Kernel\Validator;
 
 use Fwt\Framework\Kernel\Session\Session;
-use Fwt\Framework\Kernel\Validator\Rules\RuleInterface;
+use Fwt\Framework\Kernel\Validator\Rules\Rule;
 
 class Validator
 {
     protected array $rules;
 
     /**
-     * @param RuleInterface[][] $rules
+     * @param Rule[][] $rules
      */
     public function __construct(array $rules = [])
     {
         $this->rules = $rules;
     }
 
-    public function validate(array $data): bool
+    public function validateData(array $data): bool
     {
         $errorMessages = [];
 

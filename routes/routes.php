@@ -1,6 +1,7 @@
 <?php
 
 use App\Controllers\FormController;
+use App\Controllers\LoginController;
 use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\View\View;
 use Fwt\Framework\Kernel\Response\Response;
@@ -13,3 +14,5 @@ $router->get('/', function () {
 
 $router->get('/form', [FormController::class, 'show'], 'form_show');
 $router->post('/form', [FormController::class, 'process']);
+$router->get('/register', [LoginController::class, 'registrationForm']);
+$router->post('/register', [LoginController::class, 'register']);

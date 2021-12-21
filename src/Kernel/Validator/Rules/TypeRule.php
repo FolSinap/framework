@@ -4,7 +4,7 @@ namespace Fwt\Framework\Kernel\Validator\Rules;
 
 use Fwt\Framework\Kernel\Exceptions\IllegalValueException;
 
-class TypeRule implements RuleInterface
+class TypeRule implements Rule
 {
     public const TYPE_STRING = 'string';
     public const TYPE_INT = 'int';

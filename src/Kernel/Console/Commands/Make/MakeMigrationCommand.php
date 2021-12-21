@@ -44,6 +44,8 @@ class MakeMigrationCommand extends AbstractMakeCommand
             $numbers[] = (int) $matches[1];
         }
 
+        $numbers = empty($numbers) ? [0] : $numbers;
+
         $nextNumber = str_pad((max($numbers) + 1), 4, '0', STR_PAD_LEFT);
 
         if (!empty($params = $input->getParameters())) {
