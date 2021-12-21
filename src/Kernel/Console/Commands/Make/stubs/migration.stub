@@ -1,0 +1,18 @@
+<?php
+
+namespace {{|namespace|}};
+
+use Fwt\Framework\Kernel\Database\Migration;
+
+class {{|class_name|}} extends Migration
+{
+    public function up(): void
+    {
+        // TODO: Implement up() method.
+    }
+
+    public function down(): void
+    {
+        // TODO: Implement down() method.
+    }
+}

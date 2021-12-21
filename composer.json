@@ -3,7 +3,8 @@
     "autoload": {
         "psr-4": {
             "Fwt\\Framework\\": "src/",
-            "App\\": "app/"
+            "App\\": "app/",
+            "App\\Migrations\\": "migrations/"
         },
         "files": [
             "src/helpers.php"
@@ -16,6 +17,8 @@
         }
     ],
     "require": {
-        "symfony/var-dumper": "^5.4"
+        "symfony/var-dumper": "^5.4",
+      "ext-pdo": "*",
+        "vlucas/phpdotenv": "^5.4"
     }
 }
