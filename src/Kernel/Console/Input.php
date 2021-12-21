@@ -20,7 +20,7 @@ class Input extends Container
         parent::__construct($data);
     }
 
-    public function getParam(string $long, ?string $short = null)
+    public function getOption(string $long, ?string $short = null)
     {
         return $this->data[self::LONG][$long] ?? $this->data[self::SHORT][$short] ?? null;
     }

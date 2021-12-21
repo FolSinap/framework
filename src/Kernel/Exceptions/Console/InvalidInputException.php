@@ -14,9 +14,16 @@ class InvalidInputException extends UnexpectedValueException
         return new self($message, $code, $previous);
     }
 
-    public static function requiredParameterNotProvided(string $param, int $code = 500, Throwable $previous = null): self
+    public static function requiredOptionNotProvided(string $option, int $code = 500, Throwable $previous = null): self
     {
-        $message = "Required parameter $param was not provided.";
+        $message = "Required option $option was not provided.";
+
+        return new self($message, $code, $previous);
+    }
+
+    public static function tooManyParameters(int $code = 500, Throwable $previous = null): self
+    {
+        $message = "Expected less parameters.";
 
         return new self($message, $code, $previous);
     }

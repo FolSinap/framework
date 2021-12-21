@@ -14,6 +14,7 @@ use Fwt\Framework\Kernel\ObjectResolver;
 
 class MigrationCommand extends AbstractCommand
 {
+    //todo: move it to config
     protected const MIGRATION_NAMESPACE = '\\App\\Migrations\\';
 
     protected Database $database;
@@ -52,8 +53,8 @@ class MigrationCommand extends AbstractCommand
             return $migration->name;
         }, $executedMigrations);
 
-        $down = $input->getParam('down', 'd');
-        $back = $input->getParam('back', 'b');
+        $down = $input->getOption('down', 'd');
+        $back = $input->getOption('back', 'b');
 
         $migrations = $this->resolveMigrationObjects();
 

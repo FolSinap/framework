@@ -38,7 +38,9 @@ class CommandWrapper implements Command
 
     public function getOptionalOptions(): array
     {
-        return $this->command->getOptionalOptions();
+        return array_merge($this->command->getOptionalOptions(), [
+            'help' => ['Show help for the command'],
+        ]);
     }
 
     public function getParameters(): array
@@ -51,6 +53,7 @@ class CommandWrapper implements Command
         $required = $this->getRequiredOptions();
         $full = array_keys($input->getFullOptions());
         $short = array_keys($input->getShortOptions());
+        $params = $input->getParameters();
 
         if (in_array('help', $full)) {
             $this->showHelp($input, $output);
@@ -58,12 +61,16 @@ class CommandWrapper implements Command
             return;
         }
 
-        foreach ($required as $param => $data) {
-            if (in_array($param, $full) || in_array($data[1], $short)) {
+        if (count($params) > count($this->getParameters())) {
+            throw InvalidInputException::tooManyParameters();
+        }
+
+        foreach ($required as $option => $data) {
+            if (in_array($option, $full) || in_array($data[1], $short)) {
                 continue;
             }
 
-            throw InvalidInputException::requiredParameterNotProvided($param);
+            throw InvalidInputException::requiredOptionNotProvided($option);
         }
 
         $this->command->execute($input, $output);
@@ -73,7 +80,9 @@ class CommandWrapper implements Command
     {
         $script = $input->getScriptName();
         $command = $input->getCommandName();
-        $params = implode(', ', $this->getParameters());
+        $params = $this->getParameters();
+        $paramNames = implode(', ', array_keys($params));
+        $paramNames = $paramNames === '' ? '' : "<?$paramNames>";
         $required = $this->getRequiredOptions();
         $optional = $this->getOptionalOptions();
 
@@ -81,7 +90,7 @@ class CommandWrapper implements Command
 
         $messageBuilder
             ->skipLines()
-            ->tab()->writeln("php $script $command $params [OPTIONS]")
+            ->tab()->writeln("php $script $command $paramNames [OPTIONS]")
             ->tab()->writeln(MessageBuilder::getBuilder()->green($this->getDescription()))
             ->dropTab()
             ->if(!empty($required),
@@ -90,10 +99,12 @@ class CommandWrapper implements Command
                     ->tab()->writeln("REQUIRED OPTIONS:")
                     ->tab()->foreach($required, function ($name, $data) {
                         $description = $data[0];
-                        $short = $data[1];
+                        $short = $data[1] ?? null;
+                        $definition = "--$name" . ($short ? ", -$short" : '');
+                        $spaces = 20 - strlen($definition);
 
-                        return MessageBuilder::getBuilder()->write("--$name, -$short")
-                            ->space(6)
+                        return MessageBuilder::getBuilder()->write($definition)
+                            ->space($spaces)
                             ->blue($description);
                     })
                     ->skipLines(2)
@@ -104,10 +115,26 @@ class CommandWrapper implements Command
                     ->tab()->writeln("OPTIONAL OPTIONS:")
                     ->tab()->foreach($optional, function ($name, $data) {
                         $description = $data[0];
-                        $short = $data[1];
+                        $short = $data[1] ?? null;
+                        $definition = "--$name" . ($short ? ", -$short" : '');
+                        $spaces = 20 - strlen($definition);
 
-                        return MessageBuilder::getBuilder()->write("--$name, -$short")
-                            ->space(6)
+                        return MessageBuilder::getBuilder()->write($definition)
+                            ->space($spaces)
+                            ->blue($description)
+                            ->skipLines();
+                    })
+            )
+            ->if(!empty($params),
+                MessageBuilder::getBuilder()
+                    ->skipLines()
+                    ->tab()->writeln("PARAMETERS:")
+                    ->tab()->foreach($params, function ($name, $data) {
+                        $description = $data[0];
+                        $spaces = 20 - strlen($name);
+
+                        return MessageBuilder::getBuilder()->write("$name")
+                            ->space($spaces)
                             ->blue($description)
                             ->skipLines();
                     })

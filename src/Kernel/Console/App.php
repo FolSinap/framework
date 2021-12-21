@@ -8,6 +8,7 @@ use Fwt\Framework\Kernel\Container;
 use Fwt\Framework\Kernel\Database\Connection;
 use Fwt\Framework\Kernel\Database\Database;
 use Fwt\Framework\Kernel\Exceptions\Console\CommandNotFoundException;
+use Fwt\Framework\Kernel\Exceptions\Console\InvalidInputException;
 use Fwt\Framework\Kernel\ObjectResolver;
 use Fwt\Framework\Kernel\Router;
 
@@ -29,13 +30,12 @@ class App extends BaseApp
         try {
             $command = isset($this->argv[1])
                 ? $this->getCommandRouter()->map($this->getInput()->getCommandName())
-                //todo: write help command
                 : $this->getCommandRouter()->map('help');
 
             $dependencies = $this->container[ObjectResolver::class]->resolveDependencies(get_class($command), 'execute');
 
             $command->execute(...$dependencies);
-        } catch (CommandNotFoundException $exception) {
+        } catch (CommandNotFoundException|InvalidInputException $exception) {
             (new Output())->error($exception->getMessage());
         }
     }
