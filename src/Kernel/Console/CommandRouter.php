@@ -30,7 +30,7 @@ class CommandRouter
 
     public function map(string $name): Command
     {
-        $map = $this->createMap();
+        $map = $this->getMap();
 
         if (!array_key_exists($name, $map)) {
             throw new CommandNotFoundException($name);
