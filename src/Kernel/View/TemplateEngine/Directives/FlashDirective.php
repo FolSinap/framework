@@ -14,7 +14,7 @@ class FlashDirective implements Directive
 
         if ($session->has($key)) {
             $return = $session->get($key);
-            $return = is_array($return) ? implode("\n", $return) : $return;
+            $return = is_array($return) ? implode("<br>", $return) : $return;
 
             $session->unset($key);
         }

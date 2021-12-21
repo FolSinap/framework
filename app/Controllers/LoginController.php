@@ -18,6 +18,10 @@ class LoginController extends AbstractController
 
     public function register(RegisterRequestValidator $validator): Response
     {
-        dd($validator->validate());
+        if (!$validator->validate()) {
+            return $this->redirectBack();
+        }
+
+        return $this->redirect('/', ['success' => 'Success!']);
     }
 }
