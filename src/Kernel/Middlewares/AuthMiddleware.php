@@ -11,10 +11,10 @@ class AuthMiddleware implements Middleware
         return 'authenticate';
     }
 
-    public function pass(Request $request): Request
+    public function __invoke(Request $request): Request
     {
         //write some code
-
+dd('asdasd');
         return $request;
     }
 }

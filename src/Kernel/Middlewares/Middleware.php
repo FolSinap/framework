@@ -8,5 +8,5 @@ interface Middleware
 {
     public function getName(): string;
 
-    public function pass(Request $request): Request;
+    public function __invoke(Request $request): Request;
 }

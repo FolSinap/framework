@@ -8,7 +8,7 @@ use Fwt\Framework\Kernel\Console\Commands\HelpCommand;
 use Fwt\Framework\Kernel\Console\Commands\Make\MakeMigrationCommand;
 use Fwt\Framework\Kernel\Console\Commands\MigrationCommand;
 use Fwt\Framework\Kernel\Exceptions\Console\CommandNotFoundException;
-use Fwt\Framework\Kernel\Exceptions\Console\InvalidCommand;
+use Fwt\Framework\Kernel\Exceptions\InterfaceNotFoundException;
 use Fwt\Framework\Kernel\ObjectResolver;
 
 class CommandRouter
@@ -61,7 +61,7 @@ class CommandRouter
 
         foreach ($this->commands as $command) {
             if (!in_array(Command::class, class_implements($command))) {
-                throw new InvalidCommand($command);
+                throw new InterfaceNotFoundException($command, Command::class);
             }
 
             $command = $this->resolver->resolve($command);

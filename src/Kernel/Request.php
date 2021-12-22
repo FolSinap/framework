@@ -15,12 +15,14 @@ class Request
 
     public function __construct()
     {
-        $this->initPath();
-        $this->initMethod();
-        $this->initGlobals();
-        $this->startSession();
+        if (!defined('STDIN')) {
+            $this->initPath();
+            $this->initMethod();
+            $this->initGlobals();
+            $this->startSession();
 
-        $this->resource = $_SERVER['HTTP_REFERER'] ?? '/';
+            $this->resource = $_SERVER['HTTP_REFERER'] ?? '/';
+        }
     }
 
     public function getPath(): string
