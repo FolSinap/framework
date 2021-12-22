@@ -3,11 +3,12 @@
 namespace App\Controllers;
 
 use App\Controllers\RequestValidators\RegisterRequestValidator;
+use App\Models\User;
 use Fwt\Framework\Kernel\Controllers\AbstractController;
+use Fwt\Framework\Kernel\Login\PasswordHasher;
 use Fwt\Framework\Kernel\Request;
+use Fwt\Framework\Kernel\Response\RedirectResponse;
 use Fwt\Framework\Kernel\Response\Response;
-use Fwt\Framework\Kernel\Validator\Rules\TypeRule;
-use Fwt\Framework\Kernel\Validator\Validator;
 
 class LoginController extends AbstractController
 {
@@ -16,12 +17,28 @@ class LoginController extends AbstractController
         return $this->render('login/register-form.php');
     }
 
-    public function register(RegisterRequestValidator $validator): Response
+    public function register(RegisterRequestValidator $validator): RedirectResponse
     {
         if (!$validator->validate()) {
             return $this->redirectBack();
         }
 
-        return $this->redirect('/', ['success' => 'Success!']);
+        User::create($validator->getBodyData());
+
+        return $this->redirect('/login');
     }
+
+//    public function loginForm(): Response
+//    {
+//        return $this->render('login/login-form.php');
+//    }
+//
+//    public function login(Request $request, PasswordHasher $hasher): RedirectResponse
+//    {
+////        $data = $request->getBodyParameters();
+////
+////        dd(User::login($data));
+//
+//        return $this->redirect('/login');
+//    }
 }

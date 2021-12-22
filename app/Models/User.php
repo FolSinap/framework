@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Fwt\Framework\Kernel\Database\Models\AbstractModel;
+use Fwt\Framework\Kernel\Login\UserModel;
 
-class User extends AbstractModel
+class User extends UserModel
 {}

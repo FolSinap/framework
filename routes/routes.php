@@ -14,5 +14,8 @@ $router->get('/', function () {
 
 $router->get('/form', [FormController::class, 'show'], 'form_show');
 $router->post('/form', [FormController::class, 'process']);
+
 $router->get('/register', [LoginController::class, 'registrationForm']);
 $router->post('/register', [LoginController::class, 'register']);
+//$router->get('/login', [LoginController::class, 'loginForm']);
+//$router->post('/login', [LoginController::class, 'login']);

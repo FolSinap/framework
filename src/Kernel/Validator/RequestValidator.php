@@ -22,6 +22,11 @@ abstract class RequestValidator extends Validator
         return parent::validateData($this->getBodyData());
     }
 
+    public function validateGetParameters(): bool
+    {
+        return parent::validateData($this->getQueryData());
+    }
+
     public function getBodyData(): array
     {
         return $this->request->getBodyParameters();
