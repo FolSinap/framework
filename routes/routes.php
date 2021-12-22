@@ -10,7 +10,7 @@ $router = App::$app->getRouter();
 
 $router->get('/', function () {
     return Response::create(View::create('index.php'));
-});
+})->middleware('authenticate');
 
 $router->get('/form', [FormController::class, 'show'], 'form_show');
 $router->post('/form', [FormController::class, 'process']);
