@@ -22,36 +22,32 @@ abstract class UserModel extends AbstractModel
 
     public static function login(array $data)
     {
-//        $passwordField = self::getPasswordField();
-//        $hasher = self::getPasswordHasher();
-//        $database = self::getDatabase();
-//
-//        if (!array_key_exists($passwordField, $data)) {
-//            throw LoginException::incorrectData();
-//        }
-//
-//        $password = $data[$passwordField];
-//        unset($data[$passwordField]);
-//
-//        $candidate = static::where($data);
-//
-//        if (count($candidate) !== 1) {
-//            throw LoginException::incorrectData();
-//        }
-//
-//        /** @var self $candidate */
-//        $candidate = $candidate[0];
-//
-//        if (!$hasher->verify($password, $candidate->$passwordField)) {
-//            throw LoginException::incorrectData();
-//        }
-//
-//        $token = new Token();
-//        $session = Session::start();
-//
-//        $candidate->update(['token' => (new Token())->getToken()]);
-//
-//        return $candidate;
+        $passwordField = self::getPasswordField();
+        $hasher = self::getPasswordHasher();
+
+        if (!array_key_exists($passwordField, $data)) {
+            throw LoginException::incorrectData();
+        }
+
+        $password = $data[$passwordField];
+        unset($data[$passwordField]);
+
+        $candidate = static::where($data);
+
+        if (count($candidate) !== 1) {
+            throw LoginException::incorrectData();
+        }
+
+        /** @var self $candidate */
+        $candidate = $candidate[0];
+
+        if (!$hasher->verify($password, $candidate->$passwordField)) {
+            throw LoginException::incorrectData();
+        }
+
+        (new Authentication())->authenticateAs($candidate);
+
+        return $candidate;
     }
 
     protected static function findAndHashPassword(array $data): array

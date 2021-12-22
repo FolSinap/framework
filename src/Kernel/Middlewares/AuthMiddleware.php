@@ -4,6 +4,7 @@ namespace Fwt\Framework\Kernel\Middlewares;
 
 use Fwt\Framework\Kernel\Login\Authentication;
 use Fwt\Framework\Kernel\Request;
+use Fwt\Framework\Kernel\Response\Response;
 
 class AuthMiddleware implements Middleware
 {
@@ -19,10 +20,10 @@ class AuthMiddleware implements Middleware
         return 'authenticate';
     }
 
-    public function __invoke(Request $request): Request
+    public function __invoke(Request $request)
     {
         if (!$this->auth->isAuthenticated()) {
-            throw new \Exception('un');
+            return Response::unauthorized();
         }
 
         return $request;

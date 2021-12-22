@@ -60,7 +60,7 @@ class Router
 
             return $pipeline->through($middlewares)->addPipe($route->getCallback());
         } else {
-            $response = Response::create(View::create('errors/_404.html'), 404);
+            $response = Response::notFound();
 
             $pipeline->addPipe(function () use ($response) {
                 return $response;

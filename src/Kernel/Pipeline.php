@@ -2,14 +2,16 @@
 
 namespace Fwt\Framework\Kernel;
 
+use Fwt\Framework\Kernel\Response\Response;
+
 class Pipeline
 {
-    protected $value;
+    protected Request $request;
     protected array $pipes;
 
-    public function send($value): self
+    public function send(Request $request): self
     {
-        $this->value = $value;
+        $this->request = $request;
 
         return $this;
     }
@@ -33,9 +35,15 @@ class Pipeline
     public function go()
     {
         foreach ($this->pipes as $pipe) {
-            $this->value = $pipe($this->value);
+            $response = $pipe($this->request);
+
+            if ($response instanceof Request) {
+                $this->request = $response;
+            } elseif ($response instanceof Response) {
+                return $response;
+            }
         }
 
-        return $this->value;
+        return $this->request;
     }
 }
