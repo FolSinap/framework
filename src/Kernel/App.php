@@ -15,12 +15,14 @@ class App
     public static self $app;
     protected string $projectDir;
     protected Container $container;
+    protected Config $config;
 
     public function __construct(string $projectDir)
     {
         $this->projectDir = $projectDir;
 
         $this->initEnv();
+        $this->initConfig();
         $this->bootContainer();
 
         self::$app = $this;
@@ -84,6 +86,12 @@ class App
     {
         $env = Dotenv::createUnsafeImmutable($this->projectDir);
         $env->load();
+    }
+
+    protected function initConfig(): void
+    {
+        dd(new Config('app'));
+        $this->config = new Config('app');
     }
 
     protected function initRoutes(): void
