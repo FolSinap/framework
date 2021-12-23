@@ -23,7 +23,7 @@ class FormController extends AbstractController
             'password' => [new TypeRule(TypeRule::TYPE_STRING)],
         ]);
 
-        if (!$validator->validate($request->getBodyParameters())) {
+        if (!$validator->validateData($request->getBodyParameters())) {
             return $this->redirectBack();
         }
 

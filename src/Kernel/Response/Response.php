@@ -2,6 +2,8 @@
 
 namespace Fwt\Framework\Kernel\Response;
 
+use Fwt\Framework\Kernel\View\View;
+
 class Response
 {
     protected int $code;
@@ -16,6 +18,18 @@ class Response
     public static function create(string $content = '', int $code = 200): self
     {
         return new self($content, $code);
+    }
+
+    public static function notFound(): self
+    {
+        //todo: put it in config
+        return new self(View::create('errors/_404.html'), 404);
+    }
+
+    public static function unauthorized(): self
+    {
+        //todo: put it in config
+        return new self(View::create('errors/_401.html'), 401);
     }
 
     public function setCode(int $code): self

@@ -15,6 +15,7 @@ class QueryBuilder
 
     protected array $select;
     protected array $insert;
+    protected array $update;
     protected string $table;
     protected string $where;
     protected array $andWhere;
@@ -53,6 +54,24 @@ class QueryBuilder
     public function delete(): self
     {
         $this->type = self::DELETE;
+
+        return $this;
+    }
+
+    public function update(string $table): self
+    {
+        $this->type = self::UPDATE;
+        $this->table = $table;
+
+        return $this;
+    }
+
+    public function set(array $data): self
+    {
+        foreach ($data as $field => $value) {
+            $this->params[$field] = $value;
+            $this->update[$field] = ":$field";
+        }
 
         return $this;
     }
@@ -181,6 +200,17 @@ class QueryBuilder
 
     protected function buildUpdate(): string
     {
-        //todo: write update method
+
+        $sql = "UPDATE $this->table SET";
+
+        foreach ($this->update as $field => $value) {
+            $sql .= " $field = $value,";
+        }
+
+        $sql = rtrim($sql, ',');
+
+        $sql .= $this->buildWhere();
+
+        return $sql;
     }
 }

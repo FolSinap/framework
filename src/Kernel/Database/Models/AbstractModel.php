@@ -7,6 +7,8 @@ use Fwt\Framework\Kernel\Database\Database;
 
 abstract class AbstractModel
 {
+    private bool $isInitialized = false;
+
     public static function find($id): ?self
     {
         $database = self::getDatabase();
@@ -16,6 +18,8 @@ abstract class AbstractModel
             ->where(static::getIdColumn(), $id);
 
         $object = $database->fetchAsObject(static::class);
+        self::initializeAll($object);
+
         return empty($object) ? null : $object[0];
     }
 
@@ -25,7 +29,24 @@ abstract class AbstractModel
 
         $database->getQueryBuilder()->select()->from(static::getTableName());
 
-        return $database->fetchAsObject(static::class);
+        $models = $database->fetchAsObject(static::class);
+
+        self::initializeAll($models);
+
+        return $models;
+    }
+
+    public static function createDry(array $data): self
+    {
+        $object = new static();
+
+        foreach ($data as $property => $value) {
+            $object->$property = $value;
+        }
+
+        $object->initialize(false);
+
+        return $object;
     }
 
     public static function create(array $data): self
@@ -39,6 +60,7 @@ abstract class AbstractModel
         $database = self::getDatabase();
 
         $database->insert($data, $object::getTableName());
+        $object->initialize();
 
         return $object;
     }
@@ -50,6 +72,25 @@ abstract class AbstractModel
 
         $database->getQueryBuilder()
             ->delete()->from(static::getTableName())
+            ->where($id, $this->$id);
+
+        $database->selfExecute();
+        $this->initialize(false);
+    }
+
+    public function update(array $data): void
+    {
+        if (!$this->isInitialized()) {
+            //todo: change exception
+            throw new \Exception('Cannot update not initialized model');
+        }
+
+        $database = self::getDatabase();
+        $id = static::getIdColumn();
+
+        $database->getQueryBuilder()
+            ->update(static::getTableName())
+            ->set($data)
             ->where($id, $this->$id);
 
         $database->selfExecute();
@@ -88,7 +129,10 @@ abstract class AbstractModel
             $queryBuilder->andWhere($field, $value, $expression ?? '=');
         }
 
-        return $database->fetchAsObject(static::class);
+        $models = $database->fetchAsObject(static::class);
+        self::initializeAll($models);
+
+        return $models;
     }
 
     public static function getTableName(): string
@@ -108,7 +152,29 @@ abstract class AbstractModel
         }
     }
 
-    private static function getDatabase(): Database
+    public function isInitialized(): bool
+    {
+        return $this->isInitialized;
+    }
+
+    protected static function initializeAll(array $models, bool $isInitialized = true): void
+    {
+        foreach ($models as $model) {
+            if (!$model instanceof self) {
+                //todo: create new exception for this
+                throw new \InvalidArgumentException('Value must be of type Model');
+            }
+
+            $model->initialize($isInitialized);
+        }
+    }
+
+    protected function initialize(bool $isInitialized = true): void
+    {
+        $this->isInitialized = $isInitialized;
+    }
+
+    protected static function getDatabase(): Database
     {
         return App::$app->getContainer()->get(Database::class);
     }

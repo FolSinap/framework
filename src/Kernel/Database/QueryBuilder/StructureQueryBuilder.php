@@ -15,6 +15,7 @@ class StructureQueryBuilder
     protected bool $ifExists = false;
     protected array $columns;
     protected array $primaryKey = [];
+    protected array $uniques = [];
 
     public static function getBuilder(): self
     {
@@ -117,6 +118,14 @@ class StructureQueryBuilder
         return $this;
     }
 
+    public function unique(bool $unique = true, string $indexName = null): self
+    {
+        $columnName = $this->columns[array_key_last($this->columns)]['name'];
+        $this->uniques[$columnName] = $indexName ?? ($columnName . '_unique_index');
+
+        return $this;
+    }
+
     public function primaryKeys(array $columns): self
     {
         $this->primaryKey = $columns;
@@ -135,6 +144,10 @@ class StructureQueryBuilder
             . $this->buildAutoIncrement($column['options'])
             . $this->buildDefault($column['options'])
             . ',';
+        }
+
+        foreach ($this->uniques as $column => $index) {
+            $sql .= " UNIQUE KEY $index ($column),";
         }
 
         if (!empty($this->primaryKey)) {

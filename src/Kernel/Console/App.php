@@ -10,7 +10,7 @@ use Fwt\Framework\Kernel\Database\Database;
 use Fwt\Framework\Kernel\Exceptions\Console\CommandNotFoundException;
 use Fwt\Framework\Kernel\Exceptions\Console\InvalidInputException;
 use Fwt\Framework\Kernel\ObjectResolver;
-use Fwt\Framework\Kernel\Router;
+use Fwt\Framework\Kernel\Routing\Router;
 
 class App extends BaseApp
 {
@@ -52,20 +52,9 @@ class App extends BaseApp
 
     protected function bootContainer(): void
     {
-        $this->container = Container::getInstance();
+        parent::bootContainer();
 
-        $resolver = $this->container[ObjectResolver::class] = new ObjectResolver();
-        $this->container[Router::class] = Router::getRouter($resolver);
         $this->container[Input::class] = Input::getInstance($this->argv);
         $this->container[CommandRouter::class] = new CommandRouter($this->container[ObjectResolver::class]);
-
-        $this->container[Connection::class] = new Connection(
-            getenv('DB'),
-            getenv('DB_HOST'),
-            getenv('DB_NAME'),
-            getenv('DB_USER'),
-            getenv('DB_PASSWORD')
-        );
-        $this->container[Database::class] = new Database($this->container[Connection::class]);
     }
 }
