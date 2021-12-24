@@ -20,6 +20,17 @@ abstract class UserModel extends AbstractModel
         return parent::createDry(self::findAndHashPassword($data));
     }
 
+    public static function getByToken(Token $token): ?self
+    {
+        $user = static::where(['token' => $token->getToken()]);
+
+        if (count($user) !== 1) {
+            return null;
+        }
+
+        return $user[0];
+    }
+
     public static function login(array $data)
     {
         $passwordField = self::getPasswordField();

@@ -6,9 +6,18 @@ class Token
 {
     protected string $token;
 
-    public function __construct()
+    public function __construct(string $token = null)
     {
-        $this->token = $this->generate();
+        if (!$token) {
+            $this->token = $this->generate();
+        } else {
+            $this->token = $token;
+        }
+    }
+
+    public static function fromString(string $string): self
+    {
+        return new static($string);
     }
 
     public function getToken(): string
