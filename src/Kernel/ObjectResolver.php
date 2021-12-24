@@ -3,13 +3,14 @@
 namespace Fwt\Framework\Kernel;
 
 use BadMethodCallException;
+use Fwt\Framework\Kernel\Config\FileConfig;
 use Fwt\Framework\Kernel\Exceptions\Resolver\UndefinedParameterException;
 use ReflectionClass;
 use ReflectionException;
 
 class ObjectResolver
 {
-    protected array $presetDependencies;
+    protected FileConfig $presetDependencies;
 
     public function __construct()
     {
@@ -38,22 +39,24 @@ class ObjectResolver
             throw new BadMethodCallException("$method doesn't exist in $class", 500);
         }
 
-        $preset = $method->isConstructor() ? $this->getPresetDependencies($class) : [];
+        if ($method) {
+            $preset = $method->isConstructor() ? $this->getPresetDependencies($class) : [];
 
-        foreach ($method->getParameters() as $parameter) {
-            if (array_key_exists($parameter->name, $preset)) {
-                $parameters[] = $preset[$parameter->name];
+            foreach ($method->getParameters() as $parameter) {
+                if (array_key_exists($parameter->name, $preset)) {
+                    $parameters[] = $preset[$parameter->name];
 
-                continue;
+                    continue;
+                }
+
+                $dependencyClass = $parameter->getClass();
+
+                if (is_null($dependencyClass)) {
+                    throw new UndefinedParameterException($parameter, $method, $reflection);
+                }
+
+                $parameters[] = $this->resolve($dependencyClass->getName());
             }
-
-            $dependencyClass = $parameter->getClass();
-
-            if (is_null($dependencyClass)) {
-                throw new UndefinedParameterException($parameter, $method, $reflection);
-            }
-
-            $parameters[] = $this->resolve($dependencyClass->getName());
         }
 
         return $parameters;

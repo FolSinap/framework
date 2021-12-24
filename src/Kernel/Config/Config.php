@@ -1,9 +1,14 @@
 <?php
 
-namespace Fwt\Framework\Kernel;
+namespace Fwt\Framework\Kernel\Config;
+
+use Fwt\Framework\Kernel\App;
+use Fwt\Framework\Kernel\Container;
 
 class Config extends Container
 {
+    use Configurable;
+
     public const CONFIG_DIR = '/config';
 
     protected function __construct()
@@ -13,22 +18,9 @@ class Config extends Container
         parent::__construct($config);
     }
 
-    public function get(string $key)
-    {
-        $keys = explode('.', $key);
-
-        $config = $this->data;
-
-        foreach ($keys as $key) {
-            $config = $config[$key];
-        }
-
-        return $config;
-    }
-
     protected function readConfigFiles(): array
     {
-        $dir = App::$app->getProjectDir() . self::CONFIG_DIR;
+        $dir = self::getFullPathToConfig();
         $files = scandir($dir);
         $config = [];
 
@@ -37,10 +29,15 @@ class Config extends Container
                 continue;
             }
 
-            $configKey = str_replace('.php', '', $file);
-            $config[$configKey] = require_once "$dir/$file";
+            $file = str_replace('.php', '', $file);
+            $config[$file] = new FileConfig($file);
         }
 
         return $config;
+    }
+
+    public static function getFullPathToConfig(): string
+    {
+        return App::$app->getProjectDir() . self::CONFIG_DIR;
     }
 }

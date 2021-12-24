@@ -9,6 +9,7 @@ use Fwt\Framework\Kernel\Exceptions\Router\InvalidResponseValue;
 use Fwt\Framework\Kernel\Middlewares\MiddlewareMapper;
 use Fwt\Framework\Kernel\Response\Response;
 use Fwt\Framework\Kernel\Routing\Router;
+use Fwt\Framework\Kernel\Config\Config;
 
 class App
 {
@@ -77,9 +78,9 @@ class App
         $this->container[Request::class] = new Request();
         $resolver = $this->container[ObjectResolver::class] = new ObjectResolver();
         $this->container[Router::class] = Router::getRouter($resolver);
-        $this->container[MiddlewareMapper::class] = new MiddlewareMapper($resolver);
-        $connection = $this->container[Connection::class] = $resolver->resolve(Connection::class);
-        $this->container[Database::class] = new Database($connection);
+        $this->container[MiddlewareMapper::class] = $resolver->resolve(MiddlewareMapper::class);
+        $this->container[Connection::class] = $resolver->resolve(Connection::class);
+        $this->container[Database::class] = $resolver->resolve(Database::class);
     }
 
     protected function initEnv(): void
