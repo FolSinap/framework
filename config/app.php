@@ -1,20 +1,27 @@
 <?php
 
+use Fwt\Framework\Kernel\App;
+
+$projectDir = App::$app->getProjectDir();
+
 return [
     'migrations' => [
-        'dir' => '/migrations',
+        'dir' => $projectDir . '/migrations',
         'namespace' => '\\App\\Migrations',
     ],
     'routes' => [
-        'dir' => '/routes',
+        'dir' => $projectDir . '/routes',
+        'files' => [
+            'routes.php',
+        ],
     ],
     'app' => [
-        'dir' => '/app',
+        'dir' => $projectDir . '/app',
     ],
     'public' => [
-        'dir' => '/public',
+        'dir' => $projectDir . '/public',
     ],
     'templates' => [
-        'dir' => '/templates',
+        'dir' => $projectDir . '/templates',
     ],
 ];

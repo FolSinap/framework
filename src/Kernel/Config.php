@@ -2,13 +2,45 @@
 
 namespace Fwt\Framework\Kernel;
 
-class Config
+class Config extends Container
 {
     public const CONFIG_DIR = '/config';
-    protected array $config;
 
-    public function __construct(string $config)
+    protected function __construct()
     {
-        $this->config = require_once self::CONFIG_DIR . "/$config.php";
+        $config = $this->readConfigFiles();
+
+        parent::__construct($config);
+    }
+
+    public function get(string $key)
+    {
+        $keys = explode('.', $key);
+
+        $config = $this->data;
+
+        foreach ($keys as $key) {
+            $config = $config[$key];
+        }
+
+        return $config;
+    }
+
+    protected function readConfigFiles(): array
+    {
+        $dir = App::$app->getProjectDir() . self::CONFIG_DIR;
+        $files = scandir($dir);
+        $config = [];
+
+        foreach ($files as $file) {
+            if (in_array($file, ['.', '..'])) {
+                continue;
+            }
+
+            $configKey = str_replace('.php', '', $file);
+            $config[$configKey] = require_once "$dir/$file";
+        }
+
+        return $config;
     }
 }

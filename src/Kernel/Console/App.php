@@ -4,13 +4,9 @@ namespace Fwt\Framework\Kernel\Console;
 
 use Fwt\Framework\Kernel\App as BaseApp;
 use Fwt\Framework\Kernel\Console\Output\Output;
-use Fwt\Framework\Kernel\Container;
-use Fwt\Framework\Kernel\Database\Connection;
-use Fwt\Framework\Kernel\Database\Database;
 use Fwt\Framework\Kernel\Exceptions\Console\CommandNotFoundException;
 use Fwt\Framework\Kernel\Exceptions\Console\InvalidInputException;
 use Fwt\Framework\Kernel\ObjectResolver;
-use Fwt\Framework\Kernel\Routing\Router;
 
 class App extends BaseApp
 {

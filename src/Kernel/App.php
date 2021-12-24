@@ -19,14 +19,12 @@ class App
 
     public function __construct(string $projectDir)
     {
+        self::$app = $this;
         $this->projectDir = $projectDir;
 
         $this->initEnv();
         $this->initConfig();
         $this->bootContainer();
-
-        self::$app = $this;
-
         $this->initRoutes();
     }
 
@@ -63,6 +61,11 @@ class App
         return $this->container;
     }
 
+    public function getConfig(): Config
+    {
+        return $this->config;
+    }
+
     protected function bootContainer(): void
     {
         $this->container = Container::getInstance();
@@ -90,12 +93,16 @@ class App
 
     protected function initConfig(): void
     {
-        dd(new Config('app'));
-        $this->config = new Config('app');
+        $this->config = Config::getInstance();
     }
 
     protected function initRoutes(): void
     {
-        require_once $this->projectDir . '/routes/routes.php';
+        $routesDir = $this->config->get('app.routes.dir');
+        $files = $this->config->get('app.routes.files');
+
+        foreach ($files as $file) {
+            require_once "$routesDir/$file";
+        }
     }
 }
