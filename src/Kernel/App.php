@@ -74,15 +74,8 @@ class App
         $resolver = $this->container[ObjectResolver::class] = new ObjectResolver();
         $this->container[Router::class] = Router::getRouter($resolver);
         $this->container[MiddlewareMapper::class] = new MiddlewareMapper($resolver);
-
-        $this->container[Connection::class] = new Connection(
-            getenv('DB'),
-            getenv('DB_HOST'),
-            getenv('DB_NAME'),
-            getenv('DB_USER'),
-            getenv('DB_PASSWORD')
-        );
-        $this->container[Database::class] = new Database($this->container[Connection::class]);
+        $connection = $this->container[Connection::class] = new Connection($this->getConfig()->get('db'));
+        $this->container[Database::class] = new Database($connection);
     }
 
     protected function initEnv(): void

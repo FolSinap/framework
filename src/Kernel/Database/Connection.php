@@ -12,11 +12,15 @@ class Connection
     protected ?string $password;
     protected PDO $pdo;
 
-    public function __construct(string $db, string $dbHost, string $dbName, string $user = null, string $password = null)
+    public function __construct(array $dbConfig)
     {
+        $db = $dbConfig['driver'];
+        $dbHost = $dbConfig['host'];
+        $dbName = $dbConfig['name'];
+
         $this->dsn = "$db:dbname=$dbName;host=$dbHost";
-        $this->user = $user;
-        $this->password = $password;
+        $this->user = $dbConfig['user'];
+        $this->password = $dbConfig['password'];
     }
 
     public function establish(): self

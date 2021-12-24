@@ -16,3 +16,12 @@ if (!function_exists('get_string_between')) {
         return substr($string, $init, $len);
     }
 }
+
+if (!function_exists('env')) {
+    function env(string $name, $default = null)
+    {
+        $var = getenv($name);
+
+        return $var === false ? $default : $var;
+    }
+}
