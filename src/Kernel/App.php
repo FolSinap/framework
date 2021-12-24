@@ -61,8 +61,12 @@ class App
         return $this->container;
     }
 
-    public function getConfig(): Config
+    public function getConfig(string $key = null)
     {
+        if ($key) {
+            return $this->config->get($key);
+        }
+
         return $this->config;
     }
 
@@ -74,7 +78,7 @@ class App
         $resolver = $this->container[ObjectResolver::class] = new ObjectResolver();
         $this->container[Router::class] = Router::getRouter($resolver);
         $this->container[MiddlewareMapper::class] = new MiddlewareMapper($resolver);
-        $connection = $this->container[Connection::class] = new Connection($this->getConfig()->get('db'));
+        $connection = $this->container[Connection::class] = $resolver->resolve(Connection::class);
         $this->container[Database::class] = new Database($connection);
     }
 

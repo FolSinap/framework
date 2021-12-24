@@ -104,7 +104,7 @@ class MigrationCommand extends AbstractCommand
 
     protected function resolveMigrationObjects(): array
     {
-        $migrations = scandir(App::$app->getConfig()->get('app.migrations.dir'));
+        $migrations = scandir(App::$app->getConfig('app.migrations.dir'));
 
         foreach ($migrations as $key => $migration) {
             if (in_array($migration, ['.', '..'])) {

@@ -9,6 +9,13 @@ use ReflectionException;
 
 class ObjectResolver
 {
+    protected array $presetDependencies;
+
+    public function __construct()
+    {
+        $this->presetDependencies = App::$app->getConfig('dependencies');
+    }
+
     public function resolve(string $class): object
     {
         if (App::$app->getContainer()->exists($class)) {
@@ -31,18 +38,29 @@ class ObjectResolver
             throw new BadMethodCallException("$method doesn't exist in $class", 500);
         }
 
-        if ($method) {
-            foreach ($method->getParameters() as $parameter) {
-                $dependencyClass = $parameter->getClass();
+        $preset = $method->isConstructor() ? $this->getPresetDependencies($class) : [];
 
-                if (is_null($dependencyClass)) {
-                    throw new UndefinedParameterException($parameter, $method, $reflection);
-                }
+        foreach ($method->getParameters() as $parameter) {
+            if (array_key_exists($parameter->name, $preset)) {
+                $parameters[] = $preset[$parameter->name];
 
-                $parameters[] = $this->resolve($dependencyClass->getName());
+                continue;
             }
+
+            $dependencyClass = $parameter->getClass();
+
+            if (is_null($dependencyClass)) {
+                throw new UndefinedParameterException($parameter, $method, $reflection);
+            }
+
+            $parameters[] = $this->resolve($dependencyClass->getName());
         }
 
         return $parameters;
+    }
+
+    protected function getPresetDependencies(string $class): array
+    {
+        return $this->presetDependencies[$class] ?? [];
     }
 }

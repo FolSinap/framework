@@ -55,7 +55,7 @@ class MakeMigrationCommand extends AbstractMakeCommand
 
         $stub = $this->replaceStubTemplates([
             'class_name' => $name,
-            'namespace' => ltrim(App::$app->getConfig()->get('app.migrations.namespace'), '\\'),
+            'namespace' => ltrim(App::$app->getConfig('app.migrations.namespace'), '\\'),
         ]);
 
         if ($this->createFile("$name.php", $stub)) {
@@ -67,7 +67,7 @@ class MakeMigrationCommand extends AbstractMakeCommand
 
     protected function getBaseDir(): string
     {
-        return App::$app->getConfig()->get('app.migrations.dir');
+        return App::$app->getConfig('app.migrations.dir');
     }
 
     protected function getStubFile(): string
