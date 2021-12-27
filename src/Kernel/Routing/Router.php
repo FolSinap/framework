@@ -19,7 +19,7 @@ class Router
     /** @var Route[][] $routes */
     protected array $routes;
     /** @var Route[] $routes */
-    protected array $namedRoutes;
+    protected array $namedRoutes = [];
     protected ObjectResolver $resolver;
 
     protected function __construct(ObjectResolver $resolver)
@@ -40,7 +40,7 @@ class Router
         return self::$router;
     }
 
-    public function get(string $url, callable $callback, string $name = null): Route
+    public function get(string $url, $callback, string $name = null): Route
     {
         return $this->addRoute($url, Route::GET, $callback, $name);
     }
@@ -93,7 +93,7 @@ class Router
         return array_key_exists($name, $this->namedRoutes);
     }
 
-    protected function addRoute(string $url, string $verb, callable $callback, string $name = null): Route
+    protected function addRoute(string $url, string $verb, $callback, string $name = null): Route
     {
         $route = new Route($url, $this->resolveCallback($callback));
         $route->addVerb($verb)->name($name);
@@ -107,7 +107,7 @@ class Router
         return $route;
     }
 
-    protected function resolveCallback(callable $callback): Closure
+    protected function resolveCallback($callback): Closure
     {
         if (is_array($callback)) {
             if (!method_exists($callback[0], $callback[1])) {

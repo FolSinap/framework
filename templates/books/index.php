@@ -2,6 +2,7 @@
 
 #block('content')
 <div>
+    <a href="/books/create" class="btn btn-success">New Book</a>
     <table class="table">
         <thead>
         <tr>

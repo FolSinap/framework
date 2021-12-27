@@ -13,6 +13,8 @@ $router->get('/', function () {
 })->middleware('authenticate');
 
 $router->get('/books', [BooksController::class, 'index']);
+$router->get('/books/create', [BooksController::class, 'create']);
+$router->post('/books/create', [BooksController::class, 'store']);
 
 $router->get('/register', [LoginController::class, 'registrationForm']);
 $router->post('/register', [LoginController::class, 'register']);
