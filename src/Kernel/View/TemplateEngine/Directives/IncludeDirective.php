@@ -5,13 +5,13 @@ namespace Fwt\Framework\Kernel\View\TemplateEngine\Directives;
 use Fwt\Framework\Kernel\View\TemplateEngine\TemplateRegexBuilder;
 use Fwt\Framework\Kernel\View\TemplateEngine\Templates\Template;
 
-class IncludeDirective implements Directive
+class IncludeDirective extends AbstractDirective
 {
     public function getRegex(): string
     {
         return TemplateRegexBuilder::getBuilder()
             ->setParentheses()
-            ->name($this->getName())
+            ->name($this->getOpeningTag())
             ->getRegex();
     }
 
@@ -24,6 +24,6 @@ class IncludeDirective implements Directive
 
     public function getName(): string
     {
-        return '#include';
+        return 'include';
     }
 }

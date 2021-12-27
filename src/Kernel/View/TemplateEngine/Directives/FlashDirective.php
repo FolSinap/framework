@@ -5,7 +5,7 @@ namespace Fwt\Framework\Kernel\View\TemplateEngine\Directives;
 use Fwt\Framework\Kernel\Session\Session;
 use Fwt\Framework\Kernel\View\TemplateEngine\TemplateRegexBuilder;
 
-class FlashDirective implements Directive
+class FlashDirective extends AbstractDirective
 {
     public function execute(array $matches): string
     {
@@ -25,7 +25,7 @@ class FlashDirective implements Directive
     public function getRegex(): string
     {
         return TemplateRegexBuilder::getBuilder()
-            ->name($this->getName())
+            ->name($this->getOpeningTag())
             ->useNumbers()
             ->includeForSearch('?\'.')
             ->setParentheses()
@@ -35,6 +35,6 @@ class FlashDirective implements Directive
 
     public function getName(): string
     {
-        return '#flash';
+        return 'flash';
     }
 }
