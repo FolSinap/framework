@@ -6,6 +6,7 @@ use Fwt\Framework\Kernel\ObjectResolver;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\AnonDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\FlashDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\AuthDirective;
+use Fwt\Framework\Kernel\View\TemplateEngine\Directives\ForeachDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\IfDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\IncludeDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\RenderParametersDirective;
@@ -20,6 +21,7 @@ class TemplateRenderer
         FlashDirective::class,
         AuthDirective::class,
         AnonDirective::class,
+        ForeachDirective::class,
         RenderParametersDirective::class,
         RenderParametersWithoutEscapeDirective::class,
     ];

@@ -4,7 +4,6 @@ namespace Fwt\Framework\Kernel\Login;
 
 use Fwt\Framework\Kernel\Database\Models\AbstractModel;
 use Fwt\Framework\Kernel\Exceptions\Login\LoginException;
-use Fwt\Framework\Kernel\Session\Session;
 
 abstract class UserModel extends AbstractModel
 {

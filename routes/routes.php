@@ -1,6 +1,6 @@
 <?php
 
-use App\Controllers\FormController;
+use App\Controllers\BooksController;
 use App\Controllers\LoginController;
 use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\View\View;
@@ -12,8 +12,7 @@ $router->get('/', function () {
     return Response::create(View::create('index.php'));
 })->middleware('authenticate');
 
-$router->get('/form', [FormController::class, 'show'], 'form_show');
-$router->post('/form', [FormController::class, 'process']);
+$router->get('/books', [BooksController::class, 'index']);
 
 $router->get('/register', [LoginController::class, 'registrationForm']);
 $router->post('/register', [LoginController::class, 'register']);

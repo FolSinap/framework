@@ -131,6 +131,10 @@ class ExpressionParser
         $keys = [];
 
         if (count($explode) > 1) {
+            if ($explode[0] === '') {
+                return $this->createArray($expression);
+            }
+
             array_shift($explode);
 
             foreach ($explode as $key) {
@@ -159,6 +163,25 @@ class ExpressionParser
         }
 
         return $variable;
+    }
+
+    public function createArray(string $expression): array
+    {
+        if (!$this->isArrayVar($expression)) {
+            throw new VariableParsingException($expression, 'array');
+        }
+
+        $values = rtrim(ltrim($expression, '['), ']');
+        $values = str_replace(' ', '', $values);
+        $values = explode(',', $values);
+
+        $array = [];
+
+        foreach ($values as $value) {
+            $array[] = $this->getVariable($value);
+        }
+
+        return $array;
     }
 
     public function getVariables(): VariableContainer
