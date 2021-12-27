@@ -22,27 +22,17 @@ class Authentication
         $this->session = Session::start();
     }
 
-    public function getUser(string $name = null): ?UserModel
+    public function getUser(string $name = 'main'): ?UserModel
     {
         $users = $this->config->get('user_classes');
 
         if (empty($users)) {
             throw new ValueIsNotConfiguredException('auth.user_classes');
+        } elseif (!array_key_exists($name, $users)) {
+            throw new ValueIsNotConfiguredException("auth.user_classes.$name");
         }
 
-        if ($name) {
-            return $this->getUserByClass($users[$name]);
-        }
-
-        foreach ($users as $userClass) {
-            $user = $this->getUserByClass($userClass);
-
-            if ($user) {
-                return $user;
-            }
-        }
-
-        return null;
+        return $this->getUserByClass($users[$name]);
     }
 
     public function getToken(): Token
@@ -52,11 +42,19 @@ class Authentication
 
     public function authenticateAs(UserModel $user): void
     {
+        $classes = $this->config->get('user_classes');
+        $class = get_class($user);
+
+        if (!in_array($class, $classes)) {
+            throw new ValueIsNotConfiguredException('auth.user_classes');
+        }
+
+        $name = array_flip($classes)[$class];
         $token = (new Token())->getToken();
 
         $user->update(['token' => $token]);
 
-        $this->session->set(self::SESSION_KEY, $token);
+        $this->session->set(self::SESSION_KEY, [$name => $token]);
     }
 
     public function unAuthenticate(): void
@@ -64,6 +62,28 @@ class Authentication
         if ($this->isAuthenticated()) {
             $this->session->unset(self::SESSION_KEY);
         }
+    }
+
+    public function unAuthenticateAs(string $name = 'main'): void
+    {
+        if ($this->isAuthenticated()) {
+            $authentications = $this->session->get(self::SESSION_KEY);
+
+            if (array_key_exists($name, $authentications)) {
+                unset($authentications[$name]);
+            }
+        }
+    }
+
+    public function isAuthenticatedAs(string $name): bool
+    {
+        if (!$this->isAuthenticated()) {
+            return false;
+        }
+
+        $authentications = $this->session->get(self::SESSION_KEY);
+
+        return array_key_exists($name, $authentications);
     }
 
     public function isAuthenticated(): bool

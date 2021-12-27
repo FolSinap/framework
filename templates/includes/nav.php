@@ -11,7 +11,9 @@
     <li class="nav-item">
         <a class="nav-link" href="/login">login</a>
     </li>
+    #ifauth()
     <li class="nav-item">
         <a class="nav-link" href="/logout">logout</a>
     </li>
+    #endauth
 </ul>
