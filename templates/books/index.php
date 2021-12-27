@@ -2,8 +2,21 @@
 
 #block('content')
 <div>
-    #foreach(k, v in [2,34,5])
-        <div>{{k}} -> {{v}}</div>
-    #endforeach
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Title</th>
+        </tr>
+        </thead>
+        <tbody>
+        #foreach(id, title in books)
+            <tr>
+                <th scope="row">{{id}}</th>
+                <td>{{title}}</td>
+            </tr>
+        #endforeach
+        </tbody>
+    </table>
 </div>
 #endblock
