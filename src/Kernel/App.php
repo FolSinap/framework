@@ -9,22 +9,23 @@ use Fwt\Framework\Kernel\Exceptions\Router\InvalidResponseValue;
 use Fwt\Framework\Kernel\Middlewares\MiddlewareMapper;
 use Fwt\Framework\Kernel\Response\Response;
 use Fwt\Framework\Kernel\Routing\Router;
+use Fwt\Framework\Kernel\Config\Config;
 
 class App
 {
     public static self $app;
     protected string $projectDir;
     protected Container $container;
+    protected Config $config;
 
     public function __construct(string $projectDir)
     {
+        self::$app = $this;
         $this->projectDir = $projectDir;
 
         $this->initEnv();
+        $this->initConfig();
         $this->bootContainer();
-
-        self::$app = $this;
-
         $this->initRoutes();
     }
 
@@ -61,6 +62,15 @@ class App
         return $this->container;
     }
 
+    public function getConfig(string $key = null)
+    {
+        if ($key) {
+            return $this->config->get($key);
+        }
+
+        return $this->config;
+    }
+
     protected function bootContainer(): void
     {
         $this->container = Container::getInstance();
@@ -68,16 +78,9 @@ class App
         $this->container[Request::class] = new Request();
         $resolver = $this->container[ObjectResolver::class] = new ObjectResolver();
         $this->container[Router::class] = Router::getRouter($resolver);
-        $this->container[MiddlewareMapper::class] = new MiddlewareMapper($resolver);
-
-        $this->container[Connection::class] = new Connection(
-            getenv('DB'),
-            getenv('DB_HOST'),
-            getenv('DB_NAME'),
-            getenv('DB_USER'),
-            getenv('DB_PASSWORD')
-        );
-        $this->container[Database::class] = new Database($this->container[Connection::class]);
+        $this->container[MiddlewareMapper::class] = $resolver->resolve(MiddlewareMapper::class);
+        $this->container[Connection::class] = $resolver->resolve(Connection::class);
+        $this->container[Database::class] = $resolver->resolve(Database::class);
     }
 
     protected function initEnv(): void
@@ -86,8 +89,18 @@ class App
         $env->load();
     }
 
+    protected function initConfig(): void
+    {
+        $this->config = Config::getInstance();
+    }
+
     protected function initRoutes(): void
     {
-        require_once $this->projectDir . '/routes/routes.php';
+        $routesDir = $this->config->get('app.routes.dir');
+        $files = $this->config->get('app.routes.files');
+
+        foreach ($files as $file) {
+            require_once "$routesDir/$file";
+        }
     }
 }

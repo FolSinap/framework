@@ -14,9 +14,6 @@ use Fwt\Framework\Kernel\ObjectResolver;
 
 class MigrationCommand extends AbstractCommand
 {
-    //todo: move it to config
-    protected const MIGRATION_NAMESPACE = '\\App\\Migrations\\';
-
     protected Database $database;
     protected ObjectResolver $resolver;
 
@@ -107,7 +104,7 @@ class MigrationCommand extends AbstractCommand
 
     protected function resolveMigrationObjects(): array
     {
-        $migrations = scandir(App::$app->getProjectDir() . '/migrations');
+        $migrations = scandir(App::$app->getConfig('app.migrations.dir'));
 
         foreach ($migrations as $key => $migration) {
             if (in_array($migration, ['.', '..'])) {
@@ -116,9 +113,9 @@ class MigrationCommand extends AbstractCommand
                 continue;
             }
 
-            $migrationName = rtrim($migration, '.php');
+            $migrationName = str_replace('.php', '', $migration);
 
-            $migrations[$migrationName] = $this->resolver->resolve(self::MIGRATION_NAMESPACE . $migrationName);
+            $migrations[$migrationName] = $this->resolver->resolve(App::$app->getConfig()->get('app.migrations.namespace') . "\\$migrationName");
 
             unset($migrations[$key]);
         }

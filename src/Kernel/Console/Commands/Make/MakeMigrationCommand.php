@@ -8,9 +8,6 @@ use Fwt\Framework\Kernel\Console\Output\Output;
 
 class MakeMigrationCommand extends AbstractMakeCommand
 {
-    //todo: move it to config
-    protected const MIGRATION_NAMESPACE = 'App\\Migrations';
-
     public function getName(): string
     {
         return 'make:migration';
@@ -58,7 +55,7 @@ class MakeMigrationCommand extends AbstractMakeCommand
 
         $stub = $this->replaceStubTemplates([
             'class_name' => $name,
-            'namespace' => self::MIGRATION_NAMESPACE,
+            'namespace' => ltrim(App::$app->getConfig('app.migrations.namespace'), '\\'),
         ]);
 
         if ($this->createFile("$name.php", $stub)) {
@@ -70,7 +67,7 @@ class MakeMigrationCommand extends AbstractMakeCommand
 
     protected function getBaseDir(): string
     {
-        return App::$app->getProjectDir() . '/migrations';
+        return App::$app->getConfig('app.migrations.dir');
     }
 
     protected function getStubFile(): string

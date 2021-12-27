@@ -3,12 +3,20 @@
 namespace Fwt\Framework\Kernel;
 
 use BadMethodCallException;
+use Fwt\Framework\Kernel\Config\FileConfig;
 use Fwt\Framework\Kernel\Exceptions\Resolver\UndefinedParameterException;
 use ReflectionClass;
 use ReflectionException;
 
 class ObjectResolver
 {
+    protected FileConfig $presetDependencies;
+
+    public function __construct()
+    {
+        $this->presetDependencies = App::$app->getConfig('dependencies');
+    }
+
     public function resolve(string $class): object
     {
         if (App::$app->getContainer()->exists($class)) {
@@ -32,7 +40,15 @@ class ObjectResolver
         }
 
         if ($method) {
+            $preset = $method->isConstructor() ? $this->getPresetDependencies($class) : [];
+
             foreach ($method->getParameters() as $parameter) {
+                if (array_key_exists($parameter->name, $preset)) {
+                    $parameters[] = $preset[$parameter->name];
+
+                    continue;
+                }
+
                 $dependencyClass = $parameter->getClass();
 
                 if (is_null($dependencyClass)) {
@@ -44,5 +60,10 @@ class ObjectResolver
         }
 
         return $parameters;
+    }
+
+    protected function getPresetDependencies(string $class): array
+    {
+        return $this->presetDependencies[$class] ?? [];
     }
 }

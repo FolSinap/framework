@@ -26,7 +26,7 @@ class Template
     {
         $this->factory = new TemplateFactory();
         $this->template = $template;
-        $this->setPath(App::$app->getProjectDir() . '/templates/' . $template);
+        $this->setPath(App::$app->getConfig('app.templates.dir') . '/' . $template);
 
         $this->loadContent();
         $this->initInherits();
