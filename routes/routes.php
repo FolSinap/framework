@@ -9,7 +9,6 @@ use Fwt\Framework\Kernel\Response\Response;
 $router = App::$app->getRouter();
 
 $router->get('/', function () {
-    dd((new \Fwt\Framework\Kernel\Login\Authentication())->getUser());
     return Response::create(View::create('index.php'));
 })->middleware('authenticate');
 
