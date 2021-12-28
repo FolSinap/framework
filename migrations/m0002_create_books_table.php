@@ -8,16 +8,17 @@ class m0002_create_books_table extends Migration
 {
     public function up(): void
     {
-        $this->getStructureBuilder()->create('books')
-            ->id()
-            ->string('title', 100);
+        $table = $this->create('books');
+
+        $table->id();
+        $table->string('title', 100);
 
         $this->execute();
     }
 
     public function down(): void
     {
-        $this->getStructureBuilder()->drop('books');
+        $this->drop('books');
 
         $this->execute();
     }

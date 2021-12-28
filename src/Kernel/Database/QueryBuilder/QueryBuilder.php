@@ -4,7 +4,7 @@ namespace Fwt\Framework\Kernel\Database\QueryBuilder;
 
 use Fwt\Framework\Kernel\Exceptions\IllegalValueException;
 
-class QueryBuilder
+class QueryBuilder implements Builder
 {
     protected const SELECT = 'SELECT';
     protected const UPDATE = 'UPDATE';

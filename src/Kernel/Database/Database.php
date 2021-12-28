@@ -3,7 +3,7 @@
 namespace Fwt\Framework\Kernel\Database;
 
 use Fwt\Framework\Kernel\Database\QueryBuilder\QueryBuilder;
-use Fwt\Framework\Kernel\Database\QueryBuilder\StructureQueryBuilder;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\SchemaBuilder;
 use PDO;
 
 class Database
@@ -58,9 +58,9 @@ class Database
         $this->queryBuilder = new QueryBuilder();
     }
 
-    public function getStructureQueryBuilder(): StructureQueryBuilder
+    public function getStructureQueryBuilder(): SchemaBuilder
     {
-        return StructureQueryBuilder::getBuilder();
+        return SchemaBuilder::getBuilder();
     }
 
     public function execute(string $sql, array $parameters = []): bool

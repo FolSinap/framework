@@ -9,7 +9,7 @@ use Fwt\Framework\Kernel\Console\Output\Output;
 use Fwt\Framework\Kernel\Database\Database;
 use Fwt\Framework\Kernel\Database\Models\Migration;
 use Fwt\Framework\Kernel\Database\Migration as ExecutableMigration;
-use Fwt\Framework\Kernel\Database\QueryBuilder\StructureQueryBuilder;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\SchemaBuilder;
 use Fwt\Framework\Kernel\ObjectResolver;
 
 class MigrationCommand extends AbstractCommand
@@ -115,7 +115,7 @@ class MigrationCommand extends AbstractCommand
 
             $migrationName = str_replace('.php', '', $migration);
 
-            $migrations[$migrationName] = $this->resolver->resolve(App::$app->getConfig()->get('app.migrations.namespace') . "\\$migrationName");
+            $migrations[$migrationName] = $this->resolver->resolve(App::$app->getConfig('app.migrations.namespace') . "\\$migrationName");
 
             unset($migrations[$key]);
         }
@@ -125,13 +125,11 @@ class MigrationCommand extends AbstractCommand
 
     protected function createMigrationsTable(): void
     {
-        $sql = StructureQueryBuilder::getBuilder()
-            ->create('migrations')
-            ->ifNotExists()
-            ->id()
-            ->string('name')
-            ->getQuery();
+        $table = SchemaBuilder::getBuilder()->create('migrations')->ifNotExists();
 
-        $this->database->execute($sql);
+        $table->id();
+        $table->string('name');
+
+        $this->database->execute($table->getQuery());
     }
 }

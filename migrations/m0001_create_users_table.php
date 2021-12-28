@@ -8,19 +8,19 @@ class m0001_create_users_table extends Migration
 {
     public function up(): void
     {
-        $this->getStructureBuilder()->create('users')
-            ->id()
-            ->string('email', 30)->unique()
-            ->string('password')
-            ->string('token')->nullable();
+        $table = $this->create('users');
+
+        $table->id();
+        $table->string('email', 30)->unique();
+        $table->string('password');
+        $table->string('token')->nullable();
 
         $this->execute();
     }
 
     public function down(): void
     {
-        $this->getStructureBuilder()
-            ->drop('users');
+        $this->drop('users');
 
         $this->execute();
     }
