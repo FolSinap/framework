@@ -1,10 +1,10 @@
 #inherit('layout/main.php')
 
 #block('content')
-<form action="/books/create" method="post">
+<form action="#route('books_store')" method="post">
     <div class="form-group">
         <label for="title">Title</label>
-        <div class="form-text text-danger">#flash(errors.title)</div>
+        <div class="form-text text-danger">#flash('errors.title')</div>
         <input class="form-control" name="title" id="title" placeholder="Title">
     </div>
     <br>

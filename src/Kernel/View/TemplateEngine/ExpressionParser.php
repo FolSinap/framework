@@ -2,6 +2,7 @@
 
 namespace Fwt\Framework\Kernel\View\TemplateEngine;
 
+use Fwt\Framework\Kernel\Exceptions\ExpressionParser\ParsingException;
 use Fwt\Framework\Kernel\Exceptions\ExpressionParser\UndefinedKeyException;
 use Fwt\Framework\Kernel\Exceptions\ExpressionParser\VariableParsingException;
 use Fwt\Framework\Kernel\Exceptions\View\UnknownArgumentException;
@@ -9,8 +10,9 @@ use Fwt\Framework\Kernel\View\VariableContainer;
 
 class ExpressionParser
 {
+    protected const ARRAY_SET_OPERATOR = '=>';
     protected const OPERATORS = [
-        '+', '-', '&&', '||', '??', '.', '*', '/', '%', '**', '==', '!=', '===', '!==', '<>','>', '>=', '<', '<=', '!',
+        '+', '-', '&&', '||', '??', '.', '*', '/', '%', '**', '==', '!=', '===', '!==', '<>','>', '>=', '<', '<=', '!'
     ];
     protected VariableContainer $container;
 
@@ -21,8 +23,12 @@ class ExpressionParser
 
     public function processExpression(string $expression)
     {
+        $expression = trim($expression, ' ');
+
         if ($this->isStringVar($expression)) {
             return $this->getStringVar($expression);
+        } elseif ($this->isCustomArrayVar($expression)) {
+            return $this->getArrayVar($expression);
         }
 
         $expressions = explode(' ', $expression);
@@ -68,6 +74,11 @@ class ExpressionParser
     public function isArrayVar(string $var): bool
     {
         return str_contains($var, '[') && str_contains($var, ']');
+    }
+
+    public function isCustomArrayVar(string $var): bool
+    {
+        return str_starts_with($var, '[') && str_ends_with($var, ']');
     }
 
     public function isNumericVar(string $var): bool
@@ -127,6 +138,7 @@ class ExpressionParser
 
     public function getArrayVar(string $expression)
     {
+        $expression = trim($expression, ' ');
         $explode = explode('[', $expression);
         $keys = [];
 
@@ -178,7 +190,21 @@ class ExpressionParser
         $array = [];
 
         foreach ($values as $value) {
-            $array[] = $this->getVariable($value);
+            if (str_contains($value, self::ARRAY_SET_OPERATOR)) {
+                $keyValue = explode(self::ARRAY_SET_OPERATOR, $value);
+
+                if (count($keyValue) !== 2) {
+                    throw ParsingException::invalidArrayDefinition(
+                        'Array definition must contain only one ' . self::ARRAY_SET_OPERATOR . ' element'
+                    );
+                }
+
+                [$key, $value] = $keyValue;
+
+                $array[$this->getVariable($key)] = $this->getVariable($value);
+            } else {
+                $array[] = $this->getVariable($value);
+            }
         }
 
         return $array;

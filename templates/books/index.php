@@ -2,7 +2,7 @@
 
 #block('content')
 <div>
-    <a href="/books/create" class="btn btn-success">New Book</a>
+    <a href="#route('books_create')" class="btn btn-success">New Book</a>
     <table class="table">
         <thead>
         <tr>
@@ -16,7 +16,7 @@
             <tr>
                 <th scope="row">{{id}}</th>
                 <td>{{title}}</td>
-                <td><a href="/books/edit/{{id}}">Edit</a></td>
+                <td><a href="#route('books_edit', ['book' => {{id}}])">Edit</a></td>
             </tr>
         #endforeach
         </tbody>

@@ -4,9 +4,10 @@ namespace Fwt\Framework\Kernel\View\TemplateEngine;
 
 use Fwt\Framework\Kernel\ObjectResolver;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\AnonDirective;
-use Fwt\Framework\Kernel\View\TemplateEngine\Directives\FlashDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\AuthDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\ForeachDirective;
+use Fwt\Framework\Kernel\View\TemplateEngine\Directives\Invokable\FlashDirective;
+use Fwt\Framework\Kernel\View\TemplateEngine\Directives\Invokable\RouteDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\IfDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\IncludeDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\RenderParametersDirective;
@@ -22,6 +23,7 @@ class TemplateRenderer
         AuthDirective::class,
         AnonDirective::class,
         ForeachDirective::class,
+        RouteDirective::class,
         RenderParametersDirective::class,
         RenderParametersWithoutEscapeDirective::class,
     ];

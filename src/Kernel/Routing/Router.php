@@ -97,6 +97,11 @@ class Router
         return array_key_exists($name, $this->namedRoutes);
     }
 
+    public function nameRoute(string $name, Route $route): void
+    {
+        $this->namedRoutes[$name] = $route;
+    }
+
     protected function findRoute(string $url, string $verb): ?Route
     {
         foreach ($this->routes as $route) {
@@ -116,7 +121,7 @@ class Router
         $this->routes[] = $route;
 
         if ($name) {
-            $this->namedRoutes[$name] = $route;
+            $this->nameRoute($name, $route);
         }
 
         return $route;

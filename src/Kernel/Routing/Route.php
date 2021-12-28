@@ -108,6 +108,7 @@ class Route
     public function name(string $name = null): self
     {
         if ($name) {
+            Router::getRouter()->nameRoute($name, $this);
             $this->name = $name;
         }
 
