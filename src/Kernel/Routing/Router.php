@@ -74,10 +74,10 @@ class Router
         }
     }
 
-    public function resolveUrlByName(string $name): string
+    public function resolveUrlByName(string $name, array $wildcards = []): string
     {
         if ($route = $this->findRouteByName($name)) {
-            return $route->getUrl();
+            return $route->generateUrl($wildcards);
         }
 
         throw new UnknownRouteNameException($name);

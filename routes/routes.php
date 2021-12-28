@@ -12,7 +12,7 @@ $router->get('/', function () {
     return Response::create(View::create('index.php'));
 })->middleware('authenticate');
 
-$router->get('/books', [BooksController::class, 'index']);
+$router->get('/books', [BooksController::class, 'index'], 'books_index');
 $router->get('/books/create', [BooksController::class, 'create']);
 $router->post('/books/create', [BooksController::class, 'store']);
 $router->get('/books/edit/{book}', [BooksController::class, 'edit']);

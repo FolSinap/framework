@@ -34,7 +34,7 @@ class BooksController extends AbstractController
 
         Book::create($validator->getBodyData());
 
-        return $this->redirect('/books');
+        return $this->redirect('books_index');
     }
 
     public function edit(Book $book): Response

@@ -7,6 +7,7 @@ use Closure;
 use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
 use Fwt\Framework\Kernel\Exceptions\IllegalValueException;
+use Fwt\Framework\Kernel\Exceptions\Router\CannotGenerateWildcardException;
 use Fwt\Framework\Kernel\ObjectResolver;
 
 class Route
@@ -32,6 +33,25 @@ class Route
         $this->url = $url;
         $this->callback = $callback;
         $this->resolver = App::$app->getContainer()->get(ObjectResolver::class);
+    }
+
+    public function generateUrl(array $wildcards = []): string
+    {
+        $parsed = $this->parseUrl($this->url);
+
+        foreach ($parsed as $position => $part) {
+            if ($this->isWildcard($part)) {
+                $part = rtrim(ltrim($part, '{'), '}');
+
+                if (!array_key_exists($part, $wildcards)) {
+                    throw new CannotGenerateWildcardException($part);
+                }
+
+                $parsed[$position] = $wildcards[$part];
+            }
+        }
+
+        return implode('/', $parsed);
     }
 
     public function match(string $url, string $verb): bool
@@ -118,8 +138,8 @@ class Route
             return true;
         }
 
-        $parsedSelf = explode('/', $this->url);
-        $parsedMatched = explode('/', $url);
+        $parsedSelf = $this->parseUrl($this->url);
+        $parsedMatched = $this->parseUrl($url);
 
         if (count($parsedSelf) !== count($parsedMatched)) {
             return false;
@@ -128,7 +148,7 @@ class Route
         foreach ($parsedSelf as $position => $part) {
             if (($part === '' && $position === 0) || ($part === $parsedMatched[$position])) {
                 continue;
-            } elseif (str_starts_with($part, '{') && str_ends_with($part, '}')) {
+            } elseif ($this->isWildcard($part)) {
                 $part = rtrim(ltrim($part, '{'), '}');
                 $this->wildcards[$part] = $parsedMatched[$position];
 
@@ -139,5 +159,15 @@ class Route
         }
 
         return true;
+    }
+
+    protected function isWildcard(string $urlPart): bool
+    {
+        return str_starts_with($urlPart, '{') && str_ends_with($urlPart, '}');
+    }
+
+    protected function parseUrl(string $url): array
+    {
+        return explode('/', $url);
     }
 }
