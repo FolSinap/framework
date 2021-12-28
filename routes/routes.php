@@ -15,6 +15,8 @@ $router->get('/', function () {
 $router->get('/books', [BooksController::class, 'index']);
 $router->get('/books/create', [BooksController::class, 'create']);
 $router->post('/books/create', [BooksController::class, 'store']);
+$router->get('/books/edit/{book}', [BooksController::class, 'edit']);
+$router->patch('/books/edit/{book}', [BooksController::class, 'update']);
 
 $router->get('/register', [LoginController::class, 'registrationForm']);
 $router->post('/register', [LoginController::class, 'register']);

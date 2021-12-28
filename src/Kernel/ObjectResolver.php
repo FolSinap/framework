@@ -4,6 +4,7 @@ namespace Fwt\Framework\Kernel;
 
 use BadMethodCallException;
 use Fwt\Framework\Kernel\Config\FileConfig;
+use Fwt\Framework\Kernel\Database\Models\AbstractModel;
 use Fwt\Framework\Kernel\Exceptions\Resolver\UndefinedParameterException;
 use ReflectionClass;
 use ReflectionException;
@@ -28,7 +29,7 @@ class ObjectResolver
         return new $class(...$parameters);
     }
 
-    public function resolveDependencies(string $class, string $method = null): array
+    public function resolveDependencies(string $class, string $method = null, array $preset = []): array
     {
         $reflection = new ReflectionClass($class);
         $parameters = [];
@@ -40,16 +41,21 @@ class ObjectResolver
         }
 
         if ($method) {
-            $preset = $method->isConstructor() ? $this->getPresetDependencies($class) : [];
+            $configPreset = $method->isConstructor() ? $this->getPresetDependencies($class) : [];
+            $preset = array_merge($configPreset, $preset);
 
             foreach ($method->getParameters() as $parameter) {
+                $dependencyClass = $parameter->getClass();
+
                 if (array_key_exists($parameter->name, $preset)) {
-                    $parameters[] = $preset[$parameter->name];
+                    if (!is_null($dependencyClass) && is_subclass_of($dependencyClass->name, AbstractModel::class)) {
+                        $parameters[] = $dependencyClass->name::find($preset[$parameter->name]);
+                    } else {
+                        $parameters[] = $preset[$parameter->name];
+                    }
 
                     continue;
                 }
-
-                $dependencyClass = $parameter->getClass();
 
                 if (is_null($dependencyClass)) {
                     throw new UndefinedParameterException($parameter, $method, $reflection);

@@ -36,4 +36,15 @@ class BooksController extends AbstractController
 
         return $this->redirect('/books');
     }
+
+    public function edit(Book $book): Response
+    {
+        dd($book);
+        return $this->render('/books/edit.php');
+    }
+
+    public function update(): Response
+    {
+
+    }
 }
