@@ -20,7 +20,7 @@
                 <td><a href="#route('books_edit', ['book' => {{id}}])">Edit</a></td>
                 <td>
                     <form action="#route('books_delete', ['book' => {{id}}])" method="post">
-                        <input type="hidden" name="_method" value="DELETE">
+                        #method('delete')
                         <button type="submit" class="btn btn-danger">Delete</button>
                     </form>
                 </td>

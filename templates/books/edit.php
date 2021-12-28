@@ -2,7 +2,7 @@
 
 #block('content')
 <form action="#route('books_update', ['book' => id])" method="post">
-    <input type="hidden" name="_method" value="PATCH">
+    #method('patch')
     <div class="form-group">
         <label for="title">Title</label>
         <div class="form-text text-danger">#flash('errors.title')</div>
