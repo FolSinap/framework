@@ -4,6 +4,7 @@ namespace Fwt\Framework\Kernel\Database\Models;
 
 use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Database\Database;
+use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
 
 abstract class AbstractModel
 {
@@ -161,8 +162,7 @@ abstract class AbstractModel
     {
         foreach ($models as $model) {
             if (!$model instanceof self) {
-                //todo: create new exception for this
-                throw new \InvalidArgumentException('Value must be of type Model');
+                throw new InvalidExtensionException($model, self::class);
             }
 
             $model->initialize($isInitialized);
