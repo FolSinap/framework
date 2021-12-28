@@ -39,12 +39,27 @@ class BooksController extends AbstractController
 
     public function edit(Book $book): Response
     {
-        dd($book);
-        return $this->render('/books/edit.php');
+        $title = $book->title;
+        $id = $book->id;
+
+        return $this->render('/books/edit.php', compact('title', 'id'));
     }
 
-    public function update(): Response
+    public function update(CreateRequestValidator $validator, Book $book): RedirectResponse
     {
+        if ($validator->validate()) {
+            $book->update($validator->getBodyData());
 
+            return $this->redirect('books_index');
+        }
+
+        return $this->redirectBack();
+    }
+
+    public function delete(Book $book): RedirectResponse
+    {
+        $book->delete();
+
+        return $this->redirect('books_index');
     }
 }

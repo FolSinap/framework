@@ -9,6 +9,7 @@
             <th scope="col">#</th>
             <th scope="col">Title</th>
             <th scope="col"></th>
+            <th scope="col"></th>
         </tr>
         </thead>
         <tbody>
@@ -17,6 +18,12 @@
                 <th scope="row">{{id}}</th>
                 <td>{{title}}</td>
                 <td><a href="#route('books_edit', ['book' => {{id}}])">Edit</a></td>
+                <td>
+                    <form action="#route('books_delete', ['book' => {{id}}])" method="post">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </td>
             </tr>
         #endforeach
         </tbody>

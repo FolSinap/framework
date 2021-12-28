@@ -74,6 +74,8 @@ class Request
                 default:
                     $method = Route::POST;
             }
+
+            unset($this->bodyParameters['_method']);
         }
 
         $this->method = $method;

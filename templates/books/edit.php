@@ -1,7 +1,7 @@
 #inherit('layout/main.php')
 
 #block('content')
-<form action="#route('books_update', ['id' => {{id}}])" method="post">
+<form action="#route('books_update', ['book' => id])" method="post">
     <input type="hidden" name="_method" value="PATCH">
     <div class="form-group">
         <label for="title">Title</label>
@@ -12,4 +12,3 @@
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 #endblock
-
