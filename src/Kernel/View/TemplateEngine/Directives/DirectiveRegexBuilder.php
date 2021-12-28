@@ -63,7 +63,7 @@ class DirectiveRegexBuilder extends TemplateRegexBuilder
         }
 
         if (isset($this->closingTag)) {
-            $definition .= '([\S\s]*)' . preg_quote($this->closingTag);
+            $definition .= '([\S\s]*?)' . preg_quote($this->closingTag);
         }
 
         $definition .= '/';

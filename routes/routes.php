@@ -13,11 +13,11 @@ $router->get('/', function () {
 }, 'main')->middleware('authenticate');
 
 $router->get('/books', [BooksController::class, 'index'])->name('books_index');
-$router->get('/books/create', [BooksController::class, 'create'])->name('books_create');
-$router->post('/books/create', [BooksController::class, 'store'])->name('books_store');
-$router->get('/books/edit/{book}', [BooksController::class, 'edit'])->name('books_edit');
-$router->patch('/books/edit/{book}', [BooksController::class, 'update'])->name('books_update');
-$router->delete('/books/delete/{book}', [BooksController::class, 'delete'])->name('books_delete');
+$router->get('/books/create', [BooksController::class, 'create'])->name('books_create')->middleware('authenticate');
+$router->post('/books/create', [BooksController::class, 'store'])->name('books_store')->middleware('authenticate');
+$router->get('/books/edit/{book}', [BooksController::class, 'edit'])->name('books_edit')->middleware('authenticate');
+$router->patch('/books/edit/{book}', [BooksController::class, 'update'])->name('books_update')->middleware('authenticate');
+$router->delete('/books/delete/{book}', [BooksController::class, 'delete'])->name('books_delete')->middleware('authenticate');
 
 $router->get('/register', [LoginController::class, 'registrationForm'])->name('register_form');
 $router->post('/register', [LoginController::class, 'register'])->name('register');

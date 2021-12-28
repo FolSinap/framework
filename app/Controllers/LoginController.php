@@ -38,7 +38,7 @@ class LoginController extends AbstractController
         User::login($request->getBodyParameters());
 
         if ($auth->isAuthenticated()) {
-            return $this->redirect('/');
+            return $this->redirect('main', ['success' => 'You\'re logged in!']);
         }
 
         return $this->redirect('/login');

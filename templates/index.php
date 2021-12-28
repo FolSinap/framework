@@ -1,7 +1,7 @@
 #inherit('layout/main.php')
 
 #block('content')
-<div class="text-success">#flash(success)</div>
+<div class="text-success">#flash('success')</div>
 hello
 #endblock
 
