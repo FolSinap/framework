@@ -38,6 +38,10 @@ class TableAlterer extends TableBuilder
     {
         $sql = "ALTER TABLE $this->table";
 
+        foreach ($this->columns as $column) {
+            $sql .= ' ' . $column->buildQuery() . ',';
+        }
+
         foreach ($this->drops as $column) {
             $sql .= " DROP COLUMN $column,";
         }

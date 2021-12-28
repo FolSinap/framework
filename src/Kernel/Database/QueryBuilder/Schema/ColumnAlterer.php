@@ -33,7 +33,7 @@ class ColumnAlterer extends ColumnBuilder
     public function buildQuery(): string
     {
         if ($this->isNew) {
-            return "ADD COLUMN" . parent::buildQuery();
+            return "ADD COLUMN " . parent::buildQuery();
         }
 
         if (isset($this->oldName)) {

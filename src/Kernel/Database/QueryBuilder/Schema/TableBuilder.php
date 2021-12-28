@@ -9,7 +9,7 @@ class TableBuilder implements Builder
     protected string $table;
     protected bool $ifNotExists = false;
     /** @var ColumnBuilder[] $columns */
-    protected array $columns;
+    protected array $columns = [];
     protected array $primaryKey = [];
     protected array $uniques = [];
 
