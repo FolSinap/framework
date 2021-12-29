@@ -19,7 +19,7 @@ abstract class AbstractModel
             ->where(static::getIdColumn(), $id);
 
         $object = $database->fetchAsObject(static::class);
-        self::initializeAll($object);
+        self::setInitializedAll($object);
 
         return empty($object) ? null : $object[0];
     }
@@ -32,7 +32,7 @@ abstract class AbstractModel
 
         $models = $database->fetchAsObject(static::class);
 
-        self::initializeAll($models);
+        self::setInitializedAll($models);
 
         return $models;
     }
@@ -45,7 +45,7 @@ abstract class AbstractModel
             $object->$property = $value;
         }
 
-        $object->initialize(false);
+        $object->setInitialized(false);
 
         return $object;
     }
@@ -58,10 +58,7 @@ abstract class AbstractModel
             $object->$property = $value;
         }
 
-        $database = self::getDatabase();
-
-        $database->insert($data, $object::getTableName());
-        $object->initialize();
+        $object->insert();
 
         return $object;
     }
@@ -76,7 +73,7 @@ abstract class AbstractModel
             ->where($id, $this->$id);
 
         $database->selfExecute();
-        $this->initialize(false);
+        $this->setInitialized(false);
     }
 
     public function update(array $data): void
@@ -131,7 +128,7 @@ abstract class AbstractModel
         }
 
         $models = $database->fetchAsObject(static::class);
-        self::initializeAll($models);
+        self::setInitializedAll($models);
 
         return $models;
     }
@@ -153,23 +150,37 @@ abstract class AbstractModel
         }
     }
 
+    public function insert(): void
+    {
+        if ($this->isInitialized) {
+            return;
+        }
+
+        $database = static::getDatabase();
+        $data = get_object_vars($this);
+        unset($data['isInitialized']);
+
+        $database->insert($data, static::getTableName());
+        $this->setInitialized();
+    }
+
     public function isInitialized(): bool
     {
         return $this->isInitialized;
     }
 
-    protected static function initializeAll(array $models, bool $isInitialized = true): void
+    protected static function setInitializedAll(array $models, bool $isInitialized = true): void
     {
         foreach ($models as $model) {
             if (!$model instanceof self) {
                 throw new InvalidExtensionException($model, self::class);
             }
 
-            $model->initialize($isInitialized);
+            $model->setInitialized($isInitialized);
         }
     }
 
-    protected function initialize(bool $isInitialized = true): void
+    protected function setInitialized(bool $isInitialized = true): void
     {
         $this->isInitialized = $isInitialized;
     }

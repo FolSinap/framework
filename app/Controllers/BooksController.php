@@ -32,7 +32,11 @@ class BooksController extends AbstractController
             return $this->redirectBack();
         }
 
-        Book::create($validator->getBodyData());
+        $user = $this->getUser();
+        $book = Book::createDry($validator->getBodyData());
+        $book->author_id = $user->id;
+
+        $book->insert();
 
         return $this->redirect('books_index');
     }

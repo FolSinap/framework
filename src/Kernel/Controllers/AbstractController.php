@@ -3,6 +3,9 @@
 namespace Fwt\Framework\Kernel\Controllers;
 
 use Fwt\Framework\Kernel\App;
+use Fwt\Framework\Kernel\Login\Authentication;
+use Fwt\Framework\Kernel\Login\UserModel;
+use Fwt\Framework\Kernel\ObjectResolver;
 use Fwt\Framework\Kernel\Response\Response;
 use Fwt\Framework\Kernel\Response\RedirectResponse;
 use Fwt\Framework\Kernel\Routing\Router;
@@ -39,5 +42,12 @@ abstract class AbstractController
         foreach ($flashMessages as $key => $message) {
             Session::start()->set($key, $message);
         }
+    }
+
+    protected function getUser(string $name = null): ?UserModel
+    {
+        $auth = App::$app->getContainer()->get(ObjectResolver::class)->resolve(Authentication::class);
+
+        return $auth->getUser($name);
     }
 }

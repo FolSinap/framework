@@ -6,7 +6,6 @@ use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Config\FileConfig;
 use Fwt\Framework\Kernel\Exceptions\Config\ValueIsNotConfiguredException;
 use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
-use Fwt\Framework\Kernel\ObjectResolver;
 use Fwt\Framework\Kernel\Session\Session;
 
 class Authentication
@@ -22,8 +21,9 @@ class Authentication
         $this->session = Session::start();
     }
 
-    public function getUser(string $name = 'main'): ?UserModel
+    public function getUser(string $name = null): ?UserModel
     {
+        $name = $name ?? 'main';
         $users = $this->config->get('user_classes');
 
         if (empty($users)) {
@@ -32,12 +32,12 @@ class Authentication
             throw new ValueIsNotConfiguredException("auth.user_classes.$name");
         }
 
-        return $this->getUserByClass($users[$name]);
+        return $this->getUserByClass($users[$name], $this->getToken($name));
     }
 
-    public function getToken(): Token
+    public function getToken(string $name): Token
     {
-        return Token::fromString($this->session->get(self::SESSION_KEY));
+        return Token::fromString($this->session->get(self::SESSION_KEY)[$name]);
     }
 
     public function authenticateAs(UserModel $user): void
@@ -95,12 +95,12 @@ class Authentication
         return false;
     }
 
-    protected function getUserByClass(string $userClass): ?UserModel
+    protected function getUserByClass(string $userClass, Token $token): ?UserModel
     {
         if (!is_subclass_of($userClass, UserModel::class)) {
             throw new InvalidExtensionException($userClass, UserModel::class);
         }
 
-        return $userClass::getByToken($this->getToken());
+        return $userClass::getByToken($token);
     }
 }
