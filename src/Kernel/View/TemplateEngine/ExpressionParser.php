@@ -12,6 +12,7 @@ use Fwt\Framework\Kernel\View\VariableContainer;
 class ExpressionParser
 {
     protected const ARRAY_SET_OPERATOR = '=>';
+    protected const METHOD_CALL_OPERATOR = '->';
     protected const OPERATORS = [
         '+', '-', '&&', '||', '??', '.', '*', '/', '%', '**', '==', '!=', '===', '!==', '<>','>', '>=', '<', '<=', '!'
     ];
@@ -90,7 +91,7 @@ class ExpressionParser
 
     public function isObjectExpression(string $expression): bool
     {
-        return str_contains($expression, '->');
+        return str_contains($expression, self::METHOD_CALL_OPERATOR);
     }
 
     public function isNumericVar(string $var): bool
@@ -171,7 +172,7 @@ class ExpressionParser
             throw new VariableParsingException($expression, 'object');
         }
 
-        $parts = explode('->', $expression);
+        $parts = explode(self::METHOD_CALL_OPERATOR, $expression);
         $object = $this->getVariable($parts[0]);
         unset($parts[0]);
 

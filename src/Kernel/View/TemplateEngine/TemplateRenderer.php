@@ -26,10 +26,10 @@ class TemplateRenderer
         AuthDirective::class,
         AnonDirective::class,
         ForeachDirective::class,
-        RouteDirective::class,
         MethodDirective::class,
         RenderParametersDirective::class,
         RenderParametersWithoutEscapeDirective::class,
+        RouteDirective::class,
     ];
 
     protected ObjectResolver $resolver;
