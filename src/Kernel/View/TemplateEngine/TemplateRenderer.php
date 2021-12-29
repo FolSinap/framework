@@ -29,6 +29,7 @@ class TemplateRenderer
         MethodDirective::class,
         RenderParametersDirective::class,
         RenderParametersWithoutEscapeDirective::class,
+        //todo: should this directive be at the end? (conflicts with ForeachDirective::class)
         RouteDirective::class,
     ];
 
