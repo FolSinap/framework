@@ -3,9 +3,9 @@
 namespace Fwt\Framework\Kernel\Database;
 
 use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\SchemaBuilder;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\TableAlterer;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\TableBuilder;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\TableDropper;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableAlterer;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableBuilder;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableDropper;
 
 abstract class Migration
 {

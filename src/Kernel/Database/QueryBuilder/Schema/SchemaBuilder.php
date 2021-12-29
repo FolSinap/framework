@@ -3,6 +3,9 @@
 namespace Fwt\Framework\Kernel\Database\QueryBuilder\Schema;
 
 use Fwt\Framework\Kernel\Database\QueryBuilder\Builder;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableAlterer;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableBuilder;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableDropper;
 
 class SchemaBuilder
 {
