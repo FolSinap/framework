@@ -2,6 +2,7 @@
 
 namespace Fwt\Framework\Kernel\View\TemplateEngine;
 
+use BadFunctionCallException;
 use Fwt\Framework\Kernel\Exceptions\ExpressionParser\ParsingException;
 use Fwt\Framework\Kernel\Exceptions\ExpressionParser\UndefinedKeyException;
 use Fwt\Framework\Kernel\Exceptions\ExpressionParser\VariableParsingException;
@@ -29,6 +30,8 @@ class ExpressionParser
             return $this->getStringVar($expression);
         } elseif ($this->isCustomArrayVar($expression)) {
             return $this->getArrayVar($expression);
+        } elseif ($this->isFunctionCall($expression)) {
+            return $this->callFunction($expression);
         }
 
         $expressions = explode(' ', $expression);
@@ -49,10 +52,14 @@ class ExpressionParser
     public function getVariable(string $variable)
     {
         switch (true) {
-            case $this->isArrayVar($variable):
-                return $this->getArrayVar($variable);
             case $this->isStringVar($variable):
                 return $this->getStringVar($variable);
+            case $this->isFunctionCall($variable):
+                return $this->callFunction($variable);
+            case $this->isObjectExpression($variable):
+                return $this->parseObjectExpression($variable);
+            case $this->isArrayVar($variable):
+                return $this->getArrayVar($variable);
             case $this->isBoolVar($variable):
                 return $this->getBoolVar($variable);
             case $this->isNumericVar($variable):
@@ -81,6 +88,11 @@ class ExpressionParser
         return str_starts_with($var, '[') && str_ends_with($var, ']');
     }
 
+    public function isObjectExpression(string $expression): bool
+    {
+        return str_contains($expression, '->');
+    }
+
     public function isNumericVar(string $var): bool
     {
         return is_numeric($var);
@@ -99,6 +111,23 @@ class ExpressionParser
         }
 
         return false;
+    }
+
+    public function isFunctionCall(string $expression): bool
+    {
+        return preg_match('/^[a-zA-z]{1,50}\((.|\n){0,50}\)/', $expression);
+    }
+
+    public function callFunction(string $functionCall)
+    {
+        $functionName = $this->getFunctionName($functionCall);
+        $args = $this->getFunctionArgs($functionCall);
+
+        if (function_exists($functionName)) {
+            return $functionName(...$args);
+        }
+
+        throw new BadFunctionCallException("Function $functionName does not exist.");
     }
 
     public function getBoolVar(string $var): bool
@@ -134,6 +163,65 @@ class ExpressionParser
         }
 
         return (int) $var;
+    }
+
+    public function parseObjectExpression(string $expression)
+    {
+        if (!$this->isObjectExpression($expression)) {
+            throw new VariableParsingException($expression, 'object');
+        }
+
+        $parts = explode('->', $expression);
+        $object = $this->getVariable($parts[0]);
+        unset($parts[0]);
+
+        foreach ($parts as $method) {
+            if ($this->isFunctionCall($method)) {
+                $methodName = $this->getFunctionName($method);
+                $args = $this->getFunctionArgs($method);
+
+                $object = $object->$methodName(...$args);
+            } else {
+                $object = $object->$method;
+            }
+        }
+
+        return $object;
+    }
+
+    public function getFunctionName(string $functionCall)
+    {
+        if (!$this->isFunctionCall($functionCall)) {
+            throw new VariableParsingException($functionCall, 'callable');
+        }
+
+        return explode('(', $functionCall)[0];
+    }
+
+    public function getFunctionArgs(string $functionCall): array
+    {
+        if (!$this->isFunctionCall($functionCall)) {
+            throw new VariableParsingException($functionCall, 'callable');
+        }
+
+        $args = get_string_between($functionCall, '(', ')');
+
+        return $this->getFunctionArgsFromExpression($args);
+    }
+
+    public function getFunctionArgsFromExpression(string $argsExpression): array
+    {
+        if ($argsExpression === '') {
+            return [];
+        }
+
+        $args = explode(',', $argsExpression);
+
+        foreach ($args as $position => $arg) {
+            $args[$position] = $this->processExpression($arg);
+        }
+
+        return $args;
     }
 
     public function getArrayVar(string $expression)

@@ -45,7 +45,8 @@ class ForeachDirective extends AbstractDirective
             throw ForeachExpressionException::tooManyVarsInDefinition();
         }
 
-        $array = $this->parser->getVariable($components[1]);
+        $arrayComponent = $components[1];
+        $array = $this->parser->getVariable($arrayComponent);
 
         if (!is_iterable($array)) {
             throw ForeachExpressionException::notIterable();
@@ -54,7 +55,9 @@ class ForeachDirective extends AbstractDirective
         $return = '';
 
         foreach ($array as $key => $value) {
-            $block = preg_replace("/\{\{$valueTemplate\}\}/", $value, $matches[2]);
+            $block = preg_replace_callback("/\{\{.*($valueTemplate).*\}\}/", function ($matches) use($arrayComponent, $key) {
+                return str_replace($matches[1], $arrayComponent . "[$key]", $matches[0]);
+            }, $matches[2]);
 
             if (isset($keyTemplate)) {
                 $block = preg_replace("/\{\{$keyTemplate\}\}/", $key, $block);

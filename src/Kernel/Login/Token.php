@@ -8,11 +8,7 @@ class Token
 
     public function __construct(string $token = null)
     {
-        if (!$token) {
-            $this->token = $this->generate();
-        } else {
-            $this->token = $token;
-        }
+        $this->token = $token ?? $this->generate();
     }
 
     public static function fromString(string $string): self

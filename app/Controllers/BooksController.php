@@ -12,11 +12,7 @@ class BooksController extends AbstractController
 {
     public function index(): Response
     {
-        $books = [];
-
-        foreach (Book::all() as $book) {
-            $books[$book->id] = $book->title;
-        }
+        $books = Book::all();
 
         return $this->render('books/index.php', compact('books'));
     }

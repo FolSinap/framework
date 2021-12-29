@@ -30,7 +30,7 @@ class DirectiveRegexBuilder extends TemplateRegexBuilder
             ->useQuotes(false)
             ->setBrackets('{{')
             ->useNumbers()
-            ->includeForSearch('[]')
+            ->includeForSearch('[]!&|?,.+-*/-><= ')
             ->getRegex();
     }
 
@@ -41,7 +41,7 @@ class DirectiveRegexBuilder extends TemplateRegexBuilder
             ->useQuotes(false)
             ->setBrackets('{')
             ->useNumbers()
-            ->includeForSearch('[]')
+            ->includeForSearch('[]!&|?,.+-*/-><= ')
             ->getRegex();
     }
 

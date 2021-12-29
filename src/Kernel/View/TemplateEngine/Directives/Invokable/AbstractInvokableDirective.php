@@ -3,7 +3,6 @@
 
 namespace Fwt\Framework\Kernel\View\TemplateEngine\Directives\Invokable;
 
-use Closure;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\AbstractDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\DirectiveRegexBuilder;
 use Fwt\Framework\Kernel\View\TemplateEngine\ExpressionParser;
@@ -32,11 +31,7 @@ abstract class AbstractInvokableDirective extends AbstractDirective
 
     public function execute(array $matches): string
     {
-        $args = explode(',', $matches[1]);
-
-        foreach ($args as $position => $arg) {
-            $args[$position] = $this->parser->processExpression($arg);
-        }
+        $args = $this->parser->getFunctionArgsFromExpression($matches[1]);
 
         return $this->__invoke(...$args);
     }

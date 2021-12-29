@@ -15,14 +15,14 @@
         </tr>
         </thead>
         <tbody>
-        #foreach(id, title in books)
+        #foreach(book in books)
             <tr>
-                <th scope="row">{{id}}</th>
-                <td>{{title}}</td>
+                <th scope="row">{{book->id}}</th>
+                <td>{{book->title}}</td>
                 #auth()
-                <td><a href="#route('books_edit', ['book' => {{id}}])">Edit</a></td>
+                <td><a href="#route('books_edit', ['book' => {{book->id}}])">Edit</a></td>
                 <td>
-                    <form action="#route('books_delete', ['book' => {{id}}])" method="post">
+                    <form action="#route('books_delete', ['book' => {{book->id}}])" method="post">
                         #method('delete')
                         <button type="submit" class="btn btn-danger">Delete</button>
                     </form>
