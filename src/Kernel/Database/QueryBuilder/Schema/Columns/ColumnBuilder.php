@@ -35,6 +35,14 @@ class ColumnBuilder
         . $this->buildDefault();
     }
 
+    public function references(string $table, string $column, string $index = null): ForeignKeyColumn
+    {
+        $foreign = new ForeignKeyColumn($this->table, $this->name, $this->type, $table, $column, $index, $this->options);
+        $this->table->addForeign($foreign);
+
+        return $foreign;
+    }
+
     public function autoIncrement(bool $autoIncrement = true): self
     {
         $this->options['auto_increment'] = $autoIncrement;
@@ -44,6 +52,8 @@ class ColumnBuilder
 
     public function default($default): self
     {
+        $default = is_null($default) ? 'NULL' : $default;
+
         $this->options['default'] = $default;
 
         return $this;
@@ -86,6 +96,6 @@ class ColumnBuilder
 
     protected function buildDefault(): string
     {
-        return array_key_exists('default', $this->options) ? ' DEFAULT' . $this->options['default'] : '';
+        return array_key_exists('default', $this->options) ? ' DEFAULT ' . $this->options['default'] : '';
     }
 }

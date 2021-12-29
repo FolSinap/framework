@@ -21,9 +21,7 @@ class MethodDirective extends AbstractInvokableDirective
     {
         $method = strtoupper($method);
 
-        if (!in_array($method, Route::VERBS)) {
-            throw new IllegalValueException($method, Route::VERBS);
-        }
+        IllegalValueException::checkValue($method, Route::VERBS);
 
         return '<input type="hidden" name="_method" value="' . $method . '">';
     }

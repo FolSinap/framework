@@ -4,6 +4,7 @@ namespace Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables;
 
 use Fwt\Framework\Kernel\Database\QueryBuilder\Builder;
 use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Columns\ColumnBuilder;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Columns\ForeignKeyColumn;
 
 class TableBuilder implements Builder
 {
@@ -13,6 +14,8 @@ class TableBuilder implements Builder
     protected array $columns = [];
     protected array $primaryKey = [];
     protected array $uniques = [];
+    /** @var ForeignKeyColumn[] $foreignKeys */
+    protected array $foreignKeys = [];
 
     public function __construct(string $table)
     {
@@ -42,12 +45,12 @@ class TableBuilder implements Builder
         return $column;
     }
 
-    public function id(): self
+    public function id(string $name = 'id'): ColumnBuilder
     {
-        $id = $this->bigInt('id')->autoIncrement();
+        $id = $this->bigInt($name)->autoIncrement();
         $this->primaryKeys([$id->getName()]);
 
-        return $this;
+        return $id;
     }
 
     public function string(string $name, int $length = 255): ColumnBuilder
@@ -84,6 +87,10 @@ class TableBuilder implements Builder
             $sql .= " UNIQUE KEY $index ($column),";
         }
 
+        foreach ($this->foreignKeys as $column) {
+            $sql .= ' ' . $column->buildForeign();
+        }
+
         if (!empty($this->primaryKey)) {
             $sql .= ' PRIMARY KEY (' . implode(' ,', $this->primaryKey) . '))';
         } else {
@@ -97,6 +104,13 @@ class TableBuilder implements Builder
     {
         $columnName = $column->getName();
         $this->uniques[$columnName] = $indexName ?? ($columnName . '_unique_index');
+
+        return $this;
+    }
+
+    public function addForeign(ForeignKeyColumn $column): self
+    {
+        $this->foreignKeys[] = $column;
 
         return $this;
     }

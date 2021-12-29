@@ -86,9 +86,7 @@ class Route
 
     public function addVerb(string $verb): self
     {
-        if (!in_array($verb, self::VERBS)) {
-            throw new IllegalValueException($verb, self::VERBS);
-        }
+        IllegalValueException::checkValue($verb, self::VERBS);
 
         $this->verbs[] = $verb;
 

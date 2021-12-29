@@ -50,9 +50,7 @@ class AuthDirective extends AbstractDirective
 
         $classes = App::$app->getConfig('auth.user_classes');
 
-        if (!array_key_exists($name, $classes)) {
-            throw new IllegalValueException("$name", array_keys($classes));
-        }
+        IllegalValueException::checkValue($name, array_keys($classes));
 
         if (!$this->auth->isAuthenticatedAs($name)) {
             return false;

@@ -146,9 +146,7 @@ class QueryBuilder implements Builder
 
     protected function addWhere(string $field, string $value, string $expression): string
     {
-        if (!in_array($expression, self::WHERE_EXPRESSIONS)) {
-            throw new IllegalValueException($expression, self::WHERE_EXPRESSIONS);
-        }
+        IllegalValueException::checkValue($expression, self::WHERE_EXPRESSIONS);
 
         $this->params[$field] = $value;
 

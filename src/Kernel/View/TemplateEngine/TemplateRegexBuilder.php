@@ -53,9 +53,7 @@ class TemplateRegexBuilder
         $closingBrackets = [];
 
         foreach ($arrayBrackets as $bracket) {
-            if (!in_array($bracket, array_keys(self::BRACKETS))) {
-                throw new IllegalValueException($bracket, array_keys(self::BRACKETS));
-            }
+            IllegalValueException::checkValue($bracket, array_keys(self::BRACKETS));
 
             $closingBrackets[] = self::BRACKETS[$bracket];
         }

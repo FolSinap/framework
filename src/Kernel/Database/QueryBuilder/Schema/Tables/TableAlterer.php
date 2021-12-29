@@ -9,6 +9,7 @@ class TableAlterer extends TableBuilder
     protected array $drops = [];
     protected array $renames = [];
     protected array $dropUniques = [];
+    protected array $dropForeigns = [];
 
     public function drop(string $column): self
     {
@@ -36,6 +37,20 @@ class TableAlterer extends TableBuilder
         return $this;
     }
 
+    public function dropForeign(string $table, string $column): self
+    {
+        $this->dropForeigns[] = $table . '_' . $column . '_fk';
+
+        return $this;
+    }
+
+    public function dropForeignIndex(string $index): self
+    {
+        $this->dropForeigns[] = $index;
+
+        return $this;
+    }
+
     public function getQuery(): string
     {
         $sql = "ALTER TABLE $this->table";
@@ -44,12 +59,20 @@ class TableAlterer extends TableBuilder
             $sql .= ' ' . $column->buildQuery() . ',';
         }
 
-        foreach ($this->drops as $column) {
-            $sql .= " DROP COLUMN $column,";
+        foreach ($this->dropForeigns as $index) {
+            $sql .= " DROP FOREIGN KEY $index,";
         }
 
         if (!empty($this->uniques)) {
             $sql .= 'ADD UNIQUE ([' . implode(', ', $this->uniques) . ']),';
+        }
+
+        foreach ($this->drops as $column) {
+            $sql .= " DROP COLUMN $column,";
+        }
+
+        foreach ($this->foreignKeys as $column) {
+            $sql .= ' ADD ' .  $column->buildForeign() . ',';
         }
 
         foreach ($this->dropUniques as $dropUnique) {
