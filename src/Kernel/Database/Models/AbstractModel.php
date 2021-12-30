@@ -35,8 +35,7 @@ abstract class AbstractModel
 
         $database = self::getDatabase();
 
-        $database->getQueryBuilder()->select()
-            ->from(static::getTableName())
+        $database->getQueryBuilder()->select(static::getTableName())
             ->where(static::getIdColumn(), $id);
 
         if (!is_null($database->populateModel($this))) {
@@ -86,8 +85,7 @@ abstract class AbstractModel
     {
         $database = self::getDatabase();
 
-        $database->getQueryBuilder()->select()
-            ->from(static::getTableName())
+        $database->getQueryBuilder()->select(static::getTableName())
             ->where(static::getIdColumn(), $id);
 
         $object = $database->fetchAsObject(static::class);
@@ -100,7 +98,7 @@ abstract class AbstractModel
     {
         $database = self::getDatabase();
 
-        $database->getQueryBuilder()->select()->from(static::getTableName());
+        $database->getQueryBuilder()->select(static::getTableName());
 
         $models = $database->fetchAsObject(static::class);
 
@@ -177,8 +175,7 @@ abstract class AbstractModel
     {
         $database = self::getDatabase();
 
-        $queryBuilder = $database->getQueryBuilder()->select()
-            ->from(static::getTableName());
+        $queryBuilder = $database->getQueryBuilder()->select(static::getTableName());
 
         $firstField = array_key_first($where);
         $firstValue = array_shift($where);
