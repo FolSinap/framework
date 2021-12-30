@@ -4,7 +4,7 @@ namespace Fwt\Framework\Kernel\Database\QueryBuilder;
 
 use Fwt\Framework\Kernel\Exceptions\IllegalValueException;
 
-class QueryBuilder
+class QueryBuilder implements Builder
 {
     protected const SELECT = 'SELECT';
     protected const UPDATE = 'UPDATE';
@@ -146,9 +146,7 @@ class QueryBuilder
 
     protected function addWhere(string $field, string $value, string $expression): string
     {
-        if (!in_array($expression, self::WHERE_EXPRESSIONS)) {
-            throw new IllegalValueException($expression, self::WHERE_EXPRESSIONS);
-        }
+        IllegalValueException::checkValue($expression, self::WHERE_EXPRESSIONS);
 
         $this->params[$field] = $value;
 

@@ -6,7 +6,7 @@ use Fwt\Framework\Kernel\Exceptions\ExpressionParser\UndefinedKeyException;
 use Fwt\Framework\Kernel\Exceptions\View\UnknownArgumentException;
 use Fwt\Framework\Kernel\View\TemplateEngine\ExpressionParser;
 
-class IfDirective implements Directive
+class IfDirective extends AbstractDirective
 {
     protected const ELIF = '#elif';
     protected const ELSE = '#else';
@@ -21,10 +21,10 @@ class IfDirective implements Directive
     public function getRegex(): string
     {
         return DirectiveRegexBuilder::getBuilder()
-            ->name($this->getName())
+            ->name($this->getOpeningTag())
             ->useQuotes(false)
             ->setParentheses()
-            ->includeForSearch('\'&?+*|-/%!><. ')
+            ->includeForSearch('\'&?+*|-/%!><.= ')
             ->setClosingTag($this->getClosingTag())
             ->getRegex();
     }
@@ -54,12 +54,7 @@ class IfDirective implements Directive
 
     public function getName(): string
     {
-        return '#if';
-    }
-
-    public function getClosingTag(): string
-    {
-        return '#endif';
+        return 'if';
     }
 
     protected function processExpression(string $expression): bool

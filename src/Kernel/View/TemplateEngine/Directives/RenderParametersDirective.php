@@ -20,7 +20,8 @@ class RenderParametersDirective implements Directive
 
     public function execute(array $matches): string
     {
-        return htmlspecialchars($this->expressionParser->processExpression($matches[1]));
+        //todo: fix "?? 'null'" part
+        return htmlspecialchars($this->expressionParser->processExpression($matches[1]) ?? 'null');
     }
 
     public function getName(): string

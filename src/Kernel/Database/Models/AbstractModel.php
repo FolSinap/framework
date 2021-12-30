@@ -4,10 +4,83 @@ namespace Fwt\Framework\Kernel\Database\Models;
 
 use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Database\Database;
+use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
 
 abstract class AbstractModel
 {
+    protected const RELATIONS = [];
+
+    protected array $fields = [];
+    private array $relations = [];
     private bool $isInitialized = false;
+
+    public function __construct()
+    {
+        $this->initRelations();
+    }
+
+    public static function __set_state($fields): self
+    {
+        return static::createDry($fields);
+    }
+
+    public function initialize(): self
+    {
+        $id = $this->{static::getIdColumn()};
+
+        if (!$id) {
+            //todo: change exception
+            throw new \Exception('Cannot initialize model when id is not set.');
+        }
+
+        $database = self::getDatabase();
+
+        $database->getQueryBuilder()->select()
+            ->from(static::getTableName())
+            ->where(static::getIdColumn(), $id);
+
+        if (!is_null($database->populateModel($this))) {
+            //todo: otherwise throw exception??
+            $this->setInitialized();
+        }
+
+        return $this;
+    }
+
+    private function initRelations(): void
+    {
+        foreach (static::RELATIONS as $field => $relation) {
+            $relation = new Relation($this, ...$relation);
+
+            $this->$field = $relation->getDry();
+            $this->relations[$field] = $relation;
+        }
+    }
+
+    public function __get(string $name)
+    {
+        if (array_key_exists($name, $this->relations)) {
+            $relation = $this->relations[$name]->get();
+            $this->$name = $relation;
+        }
+
+        return $this->fields[$name] ?? null;
+    }
+
+    public function __set(string $name, $value): void
+    {
+        $this->fields[$name] = $value;
+    }
+
+    public function __isset(string $name): bool
+    {
+        return isset($this->fields[$name]);
+    }
+
+    public function __unset(string $name): void
+    {
+        unset($this->fields[$name]);
+    }
 
     public static function find($id): ?self
     {
@@ -18,7 +91,7 @@ abstract class AbstractModel
             ->where(static::getIdColumn(), $id);
 
         $object = $database->fetchAsObject(static::class);
-        self::initializeAll($object);
+        self::setInitializedAll($object);
 
         return empty($object) ? null : $object[0];
     }
@@ -31,7 +104,7 @@ abstract class AbstractModel
 
         $models = $database->fetchAsObject(static::class);
 
-        self::initializeAll($models);
+        self::setInitializedAll($models);
 
         return $models;
     }
@@ -44,7 +117,7 @@ abstract class AbstractModel
             $object->$property = $value;
         }
 
-        $object->initialize(false);
+        $object->setInitialized(false);
 
         return $object;
     }
@@ -57,10 +130,7 @@ abstract class AbstractModel
             $object->$property = $value;
         }
 
-        $database = self::getDatabase();
-
-        $database->insert($data, $object::getTableName());
-        $object->initialize();
+        $object->insert();
 
         return $object;
     }
@@ -75,7 +145,7 @@ abstract class AbstractModel
             ->where($id, $this->$id);
 
         $database->selfExecute();
-        $this->initialize(false);
+        $this->setInitialized(false);
     }
 
     public function update(array $data): void
@@ -130,7 +200,7 @@ abstract class AbstractModel
         }
 
         $models = $database->fetchAsObject(static::class);
-        self::initializeAll($models);
+        self::setInitializedAll($models);
 
         return $models;
     }
@@ -152,24 +222,38 @@ abstract class AbstractModel
         }
     }
 
+    public function insert(): void
+    {
+        if ($this->isInitialized) {
+            return;
+        }
+
+        $database = static::getDatabase();
+        $data = array_diff_key($this->fields, $this->relations);
+
+        unset($data['isInitialized']);
+
+        $database->insert($data, static::getTableName());
+        $this->setInitialized();
+    }
+
     public function isInitialized(): bool
     {
         return $this->isInitialized;
     }
 
-    protected static function initializeAll(array $models, bool $isInitialized = true): void
+    protected static function setInitializedAll(array $models, bool $isInitialized = true): void
     {
         foreach ($models as $model) {
             if (!$model instanceof self) {
-                //todo: create new exception for this
-                throw new \InvalidArgumentException('Value must be of type Model');
+                throw new InvalidExtensionException($model, self::class);
             }
 
-            $model->initialize($isInitialized);
+            $model->setInitialized($isInitialized);
         }
     }
 
-    protected function initialize(bool $isInitialized = true): void
+    protected function setInitialized(bool $isInitialized = true): void
     {
         $this->isInitialized = $isInitialized;
     }

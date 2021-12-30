@@ -2,8 +2,9 @@
 
 namespace Fwt\Framework\Kernel\Database;
 
+use Fwt\Framework\Kernel\Database\Models\AbstractModel;
 use Fwt\Framework\Kernel\Database\QueryBuilder\QueryBuilder;
-use Fwt\Framework\Kernel\Database\QueryBuilder\StructureQueryBuilder;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\SchemaBuilder;
 use PDO;
 
 class Database
@@ -28,6 +29,18 @@ class Database
         $this->refresh();
 
         return $return;
+    }
+
+    public function populateModel(AbstractModel $model): ?AbstractModel
+    {
+        $statement = $this->connection->createStatement($this->queryBuilder->getQuery());
+        $statement->execute($this->queryBuilder->getParams());
+        $this->refresh();
+
+        $statement->setFetchMode(PDO::FETCH_INTO, $model);
+        $fetched = $statement->fetch(PDO::FETCH_INTO);
+
+        return $fetched === false ? null : $fetched;
     }
 
     public function fetchAsObject(string $class, array $constructorArgs = []): array
@@ -58,9 +71,9 @@ class Database
         $this->queryBuilder = new QueryBuilder();
     }
 
-    public function getStructureQueryBuilder(): StructureQueryBuilder
+    public function getStructureQueryBuilder(): SchemaBuilder
     {
-        return StructureQueryBuilder::getBuilder();
+        return SchemaBuilder::getBuilder();
     }
 
     public function execute(string $sql, array $parameters = []): bool

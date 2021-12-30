@@ -24,6 +24,13 @@ class IllegalValueException extends DomainException
         parent::__construct($message, $code, $previous);
     }
 
+    public static function checkValue($value, array $range): void
+    {
+        if (!in_array($value, $range)) {
+            throw new self($value, $range);
+        }
+    }
+
     protected function normalizeValue($value)
     {
         $value = $this->normalizeArrayValue($value);

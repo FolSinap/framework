@@ -2,8 +2,15 @@
 
 namespace Fwt\Framework\Kernel\View\TemplateEngine;
 
+use Fwt\Framework\Kernel\Exceptions\InterfaceNotFoundException;
 use Fwt\Framework\Kernel\ObjectResolver;
-use Fwt\Framework\Kernel\View\TemplateEngine\Directives\FlashDirective;
+use Fwt\Framework\Kernel\View\TemplateEngine\Directives\AnonDirective;
+use Fwt\Framework\Kernel\View\TemplateEngine\Directives\AuthDirective;
+use Fwt\Framework\Kernel\View\TemplateEngine\Directives\Directive;
+use Fwt\Framework\Kernel\View\TemplateEngine\Directives\ForeachDirective;
+use Fwt\Framework\Kernel\View\TemplateEngine\Directives\Invokable\FlashDirective;
+use Fwt\Framework\Kernel\View\TemplateEngine\Directives\Invokable\MethodDirective;
+use Fwt\Framework\Kernel\View\TemplateEngine\Directives\Invokable\RouteDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\IfDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\IncludeDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\RenderParametersDirective;
@@ -14,10 +21,16 @@ class TemplateRenderer
 {
     public const EXECUTABLE_DIRECTIVES = [
         IncludeDirective::class,
-        IfDirective::class,
         FlashDirective::class,
+        IfDirective::class,
+        AuthDirective::class,
+        AnonDirective::class,
+        ForeachDirective::class,
+        MethodDirective::class,
         RenderParametersDirective::class,
         RenderParametersWithoutEscapeDirective::class,
+        //todo: should this directive be at the end? (conflicts with ForeachDirective::class)
+        RouteDirective::class,
     ];
 
     protected ObjectResolver $resolver;
@@ -45,6 +58,10 @@ class TemplateRenderer
     {
         foreach (self::EXECUTABLE_DIRECTIVES as $class) {
             $directive = $this->resolver->resolve($class);
+
+            if (!$directive instanceof Directive) {
+                throw new InterfaceNotFoundException(get_class($directive), Directive::class);
+            }
 
             $template->setContent(preg_replace_callback($directive->getRegex(),
                 function ($matches) use ($directive) {

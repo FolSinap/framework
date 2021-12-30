@@ -2,6 +2,7 @@
 
 namespace Fwt\Framework\Kernel;
 
+use Fwt\Framework\Kernel\Routing\Route;
 use Fwt\Framework\Kernel\Session\Session;
 
 class Request
@@ -17,8 +18,8 @@ class Request
     {
         if (!defined('STDIN')) {
             $this->initPath();
-            $this->initMethod();
             $this->initGlobals();
+            $this->initMethod();
             $this->startSession();
 
             $this->resource = $_SERVER['HTTP_REFERER'] ?? '/';
@@ -57,7 +58,27 @@ class Request
 
     protected function initMethod(): void
     {
-        $this->method = $_SERVER['REQUEST_METHOD'];
+        $method = $_SERVER['REQUEST_METHOD'];
+
+        if ($method === Route::POST && array_key_exists('_method', $this->getBodyParameters())) {
+            switch ($this->getBodyParameters()['_method']) {
+                case Route::PUT:
+                    $method = Route::PUT;
+                    break;
+                case Route::PATCH:
+                    $method = Route::PATCH;
+                    break;
+                case Route::DELETE:
+                    $method = Route::DELETE;
+                    break;
+                default:
+                    $method = Route::POST;
+            }
+
+            unset($this->bodyParameters['_method']);
+        }
+
+        $this->method = $method;
     }
 
     protected function startSession(): void
