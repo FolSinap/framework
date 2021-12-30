@@ -2,15 +2,10 @@
 
 namespace Fwt\Framework\Kernel\Routing;
 
-use BadMethodCallException;
-use Closure;
 use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Exceptions\Router\UnknownRouteNameException;
 use Fwt\Framework\Kernel\Middlewares\MiddlewareMapper;
-use Fwt\Framework\Kernel\ObjectResolver;
 use Fwt\Framework\Kernel\Pipeline;
-use InvalidArgumentException;
-use Fwt\Framework\Kernel\View\View;
 use Fwt\Framework\Kernel\Response\Response;
 
 class Router

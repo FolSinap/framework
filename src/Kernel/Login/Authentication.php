@@ -32,11 +32,19 @@ class Authentication
             throw new ValueIsNotConfiguredException("auth.user_classes.$name");
         }
 
-        return $this->getUserByClass($users[$name], $this->getToken($name));
+        if (!($token = $this->getToken($name))) {
+            return null;
+        }
+
+        return $this->getUserByClass($users[$name], $token);
     }
 
-    public function getToken(string $name): Token
+    public function getToken(string $name): ?Token
     {
+        if (!$this->session->has(self::SESSION_KEY) || !isset($this->session->get(self::SESSION_KEY)[$name])) {
+            return null;
+        }
+
         return Token::fromString($this->session->get(self::SESSION_KEY)[$name]);
     }
 
