@@ -24,7 +24,7 @@ class IfDirective extends AbstractDirective
             ->name($this->getOpeningTag())
             ->useQuotes(false)
             ->setParentheses()
-            ->includeForSearch('\'&?+*|-/%!><. ')
+            ->includeForSearch('\'&?+*|-/%!><.= ')
             ->setClosingTag($this->getClosingTag())
             ->getRegex();
     }

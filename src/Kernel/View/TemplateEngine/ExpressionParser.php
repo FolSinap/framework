@@ -13,8 +13,9 @@ class ExpressionParser
 {
     protected const ARRAY_SET_OPERATOR = '=>';
     protected const METHOD_CALL_OPERATOR = '->';
+    protected const IF_OPERATORS = ['??', '?'];
     protected const OPERATORS = [
-        '+', '-', '&&', '||', '??', '.', '*', '/', '%', '**', '==', '!=', '===', '!==', '<>','>', '>=', '<', '<=', '!'
+        '+', '-', '&&', '||', '??', '?', ':', '.', '*', '/', '%', '**', '==', '!=', '===', '!==', '<>','>', '>=', '<', '<=', '!'
     ];
     protected VariableContainer $container;
 
@@ -40,9 +41,34 @@ class ExpressionParser
         if (count($expressions) === 1) {
             return $this->getVariable($expressions[0]);
         } else {
-            foreach ($expressions as $key => $expression) {
+            for ($i = 0; $i < count($expressions); $i++) {
+                $key = array_keys($expressions)[$i];
+                $expression = $expressions[$key];
+
                 if (!$this->isOperator($expression)) {
                     $expressions[$key] = var_export($this->getVariable($expression), true);
+                } elseif (in_array($expression, self::IF_OPERATORS)) {
+                    switch ($expression) {
+                        case '??':
+                            $expressions[$key] = var_export(eval('return ' . $expressions[$key - 1] . ';'), true)
+                                ?? $this->getVariable($expressions[$key + 1]);
+
+                            unset($expressions[$key - 1], $expressions[$key + 1]);
+
+                            break;
+                        case '?':
+                            $expressions[$key] = eval('return ' . $expressions[$key - 1] . ';')
+                                ? var_export($this->getVariable($expressions[$key + 1]), true)
+                                : var_export($this->getVariable($expressions[$key + 3]), true);
+
+                            unset($expressions[$key - 1],
+                                $expressions[$key + 1],
+                                $expressions[$key + 2],
+                                $expressions[$key + 3]
+                            );
+
+                            break;
+                    }
                 }
             }
 

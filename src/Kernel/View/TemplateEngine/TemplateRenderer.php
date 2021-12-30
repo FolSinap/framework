@@ -21,7 +21,6 @@ class TemplateRenderer
 {
     public const EXECUTABLE_DIRECTIVES = [
         IncludeDirective::class,
-        IfDirective::class,
         FlashDirective::class,
         AuthDirective::class,
         AnonDirective::class,
@@ -31,6 +30,7 @@ class TemplateRenderer
         RenderParametersWithoutEscapeDirective::class,
         //todo: should this directive be at the end? (conflicts with ForeachDirective::class)
         RouteDirective::class,
+        IfDirective::class,
     ];
 
     protected ObjectResolver $resolver;

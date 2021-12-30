@@ -13,8 +13,9 @@ class BooksController extends AbstractController
     public function index(): Response
     {
         $books = Book::all();
+        $user = $this->getUser();
 
-        return $this->render('books/index.php', compact('books'));
+        return $this->render('books/index.php', compact('books', 'user'));
     }
 
     public function create(): Response

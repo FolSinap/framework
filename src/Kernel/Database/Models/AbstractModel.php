@@ -8,7 +8,79 @@ use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
 
 abstract class AbstractModel
 {
+    protected const RELATIONS = [];
+
+    protected array $fields = [];
+    private array $relations = [];
     private bool $isInitialized = false;
+
+    public function __construct()
+    {
+        $this->initRelations();
+    }
+
+    public static function __set_state($fields): self
+    {
+        return static::createDry($fields);
+    }
+
+    public function initialize(): self
+    {
+        $id = $this->{static::getIdColumn()};
+
+        if (!$id) {
+            //todo: change exception
+            throw new \Exception('Cannot initialize model when id is not set.');
+        }
+
+        $database = self::getDatabase();
+
+        $database->getQueryBuilder()->select()
+            ->from(static::getTableName())
+            ->where(static::getIdColumn(), $id);
+
+        if (!is_null($database->populateModel($this))) {
+            //todo: otherwise throw exception??
+            $this->setInitialized();
+        }
+
+        return $this;
+    }
+
+    private function initRelations(): void
+    {
+        foreach (static::RELATIONS as $field => $relation) {
+            $relation = new Relation($this, ...$relation);
+
+            $this->$field = $relation->getDry();
+            $this->relations[$field] = $relation;
+        }
+    }
+
+    public function __get(string $name)
+    {
+        if (array_key_exists($name, $this->relations)) {
+            $relation = $this->relations[$name]->get();
+            $this->$name = $relation;
+        }
+
+        return $this->fields[$name] ?? null;
+    }
+
+    public function __set(string $name, $value): void
+    {
+        $this->fields[$name] = $value;
+    }
+
+    public function __isset(string $name): bool
+    {
+        return isset($this->fields[$name]);
+    }
+
+    public function __unset(string $name): void
+    {
+        unset($this->fields[$name]);
+    }
 
     public static function find($id): ?self
     {
@@ -157,7 +229,8 @@ abstract class AbstractModel
         }
 
         $database = static::getDatabase();
-        $data = get_object_vars($this);
+        $data = array_diff_key($this->fields, $this->relations);
+
         unset($data['isInitialized']);
 
         $database->insert($data, static::getTableName());
