@@ -2,41 +2,26 @@
 
 namespace Fwt\Framework\Kernel\Database\QueryBuilder;
 
-class UpdateBuilder extends AbstractBuilder
+class InsertBuilder extends AbstractBuilder
 {
-    use UsingWhereStatements;
-
     protected string $table;
     protected array $data;
 
     public function __construct(string $table, array $data)
     {
         $this->table = $table;
-        $this->set($data);
-    }
 
-    public function set(array $data): self
-    {
         foreach ($data as $field => $value) {
             $this->params[$field] = $value;
             $this->data[$field] = ":$field";
         }
-
-        return $this;
     }
 
     public function getQuery(): string
     {
-        $sql = "UPDATE $this->table SET";
+        $columns = '(' . implode(' ,', array_keys($this->data)) . ')';
+        $values = '(' . implode(' ,', array_values($this->data)) . ')';
 
-        foreach ($this->data as $field => $value) {
-            $sql .= " $field = $value,";
-        }
-
-        $sql = rtrim($sql, ',');
-
-        $sql .= $this->buildWhere();
-
-        return $sql;
+        return "INSERT INTO $this->table $columns VALUES $values";
     }
 }

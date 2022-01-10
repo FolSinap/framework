@@ -4,6 +4,8 @@ namespace Fwt\Framework\Kernel\Database\QueryBuilder;
 
 class DeleteBuilder extends AbstractBuilder
 {
+    use UsingWhereStatements;
+
     protected string $table;
 
     public function __construct(string $table)

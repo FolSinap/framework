@@ -35,7 +35,7 @@ abstract class AbstractModel
 
         $database = self::getDatabase();
 
-        $database->getQueryBuilder()->select(static::getTableName())
+        $database->select(static::getTableName())
             ->where(static::getIdColumn(), $id);
 
         if (!is_null($database->populateModel($this))) {
@@ -85,7 +85,7 @@ abstract class AbstractModel
     {
         $database = self::getDatabase();
 
-        $database->getQueryBuilder()->select(static::getTableName())
+        $database->select(static::getTableName())
             ->where(static::getIdColumn(), $id);
 
         $object = $database->fetchAsObject(static::class);
@@ -98,7 +98,7 @@ abstract class AbstractModel
     {
         $database = self::getDatabase();
 
-        $database->getQueryBuilder()->select(static::getTableName());
+        $database->select(static::getTableName());
 
         $models = $database->fetchAsObject(static::class);
 
@@ -138,11 +138,10 @@ abstract class AbstractModel
         $database = self::getDatabase();
         $id = static::getIdColumn();
 
-        $database->getQueryBuilder()
-            ->delete()->from(static::getTableName())
+        $database->delete(static::getTableName())
             ->where($id, $this->$id);
 
-        $database->selfExecute();
+        $database->execute();
         $this->setInitialized(false);
     }
 
@@ -156,12 +155,9 @@ abstract class AbstractModel
         $database = self::getDatabase();
         $id = static::getIdColumn();
 
-        $database->getQueryBuilder()
-            ->update(static::getTableName())
-            ->set($data)
-            ->where($id, $this->$id);
+        $database->update(static::getTableName(), $data)->where($id, $this->$id);
 
-        $database->selfExecute();
+        $database->execute();
     }
 
     public static function getIdColumn(): string

@@ -4,6 +4,8 @@ namespace Fwt\Framework\Kernel\Database\QueryBuilder;
 
 class SelectBuilder extends AbstractBuilder
 {
+    use UsingWhereStatements;
+
     protected array $columns;
     protected string $from;
     protected array $groupBy;

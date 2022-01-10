@@ -2,26 +2,9 @@
 
 namespace Fwt\Framework\Kernel\Database\QueryBuilder;
 
-use Fwt\Framework\Kernel\Exceptions\IllegalValueException;
-
 class QueryBuilder implements Builder
 {
-    protected const SELECT = 'SELECT';
-    protected const UPDATE = 'UPDATE';
-    protected const DELETE = 'DELETE';
-    protected const INSERT = 'INSERT';
-
-
     protected Builder $builder;
-
-    protected array $select;
-    protected array $insert;
-    protected array $update;
-    protected string $table;
-
-
-    protected string $type;
-
 
     public static function getBuilder(): self
     {
@@ -49,17 +32,11 @@ class QueryBuilder implements Builder
         return $this->builder;
     }
 
-    public function insert(array $data, string $into): self
+    public function insert(string $table, array $data): InsertBuilder
     {
-        foreach ($data as $field => $value) {
-            $this->params[$field] = $value;
-            $this->insert[$field] = ":$field";
-        }
+        $this->builder = new InsertBuilder($table, $data);
 
-        $this->table = $into;
-        $this->type = self::INSERT;
-
-        return $this;
+        return $this->builder;
     }
 
     public function setParams(array $params): self
@@ -77,13 +54,5 @@ class QueryBuilder implements Builder
     public function getQuery(): string
     {
         return $this->builder->getQuery();
-    }
-
-    protected function buildInsert(): string
-    {
-        $columns = '(' . implode(' ,', array_keys($this->insert)) . ')';
-        $values = '(' . implode(' ,', array_values($this->insert)) . ')';
-
-        return "INSERT INTO $this->table $columns VALUES $values";
     }
 }

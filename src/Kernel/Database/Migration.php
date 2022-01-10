@@ -47,7 +47,7 @@ abstract class Migration
 
     protected function execute(): void
     {
-        $this->database->execute($this->queryBuilder->getQuery());
+        $this->database->executeQuery($this->queryBuilder->getQuery());
     }
 
     abstract public function up(): void;

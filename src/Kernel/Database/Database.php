@@ -3,9 +3,13 @@
 namespace Fwt\Framework\Kernel\Database;
 
 use Fwt\Framework\Kernel\Database\Models\AbstractModel;
+use Fwt\Framework\Kernel\Database\QueryBuilder\DeleteBuilder;
 use Fwt\Framework\Kernel\Database\QueryBuilder\QueryBuilder;
 use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\SchemaBuilder;
+use Fwt\Framework\Kernel\Database\QueryBuilder\SelectBuilder;
+use Fwt\Framework\Kernel\Database\QueryBuilder\UpdateBuilder;
 use PDO;
+use PDOStatement;
 
 class Database
 {
@@ -18,24 +22,30 @@ class Database
         $this->queryBuilder = new QueryBuilder();
     }
 
-    public function select(array $columns = []): QueryBuilder
+    public function update(string $table, array $data): UpdateBuilder
     {
-        return $this->queryBuilder->select($columns);
+        return $this->queryBuilder->update($table, $data);
     }
 
-    public function insert(array $data, string $table): bool
+    public function select(string $from, array $columns = []): SelectBuilder
     {
-        $return = $this->execute($this->queryBuilder->insert($data, $table)->getQuery(), $this->queryBuilder->getParams());
-        $this->refresh();
+        return $this->queryBuilder->select($from, $columns);
+    }
 
-        return $return;
+    public function delete(string $from): DeleteBuilder
+    {
+        return $this->queryBuilder->delete($from);
+    }
+
+    public function insert(array $data, string $table): void
+    {
+        $this->queryBuilder->insert($table, $data);
+        $this->execute();
     }
 
     public function populateModel(AbstractModel $model): ?AbstractModel
     {
-        $statement = $this->connection->createStatement($this->queryBuilder->getQuery());
-        $statement->execute($this->queryBuilder->getParams());
-        $this->refresh();
+        $statement = $this->execute();
 
         $statement->setFetchMode(PDO::FETCH_INTO, $model);
         $fetched = $statement->fetch(PDO::FETCH_INTO);
@@ -45,18 +55,14 @@ class Database
 
     public function fetchAsObject(string $class, array $constructorArgs = []): array
     {
-        $statement = $this->connection->createStatement($this->queryBuilder->getQuery());
-        $statement->execute($this->queryBuilder->getParams());
-        $this->refresh();
+        $statement = $this->execute();
 
         return $statement->fetchAll(PDO::FETCH_CLASS, $class, $constructorArgs);
     }
 
     public function fetchAssoc(): array
     {
-        $statement = $this->connection->createStatement($this->queryBuilder->getQuery());
-        $statement->execute($this->queryBuilder->getParams());
-        $this->refresh();
+        $statement = $this->execute();
 
         return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -76,18 +82,18 @@ class Database
         return SchemaBuilder::getBuilder();
     }
 
-    public function execute(string $sql, array $parameters = []): bool
+    public function executeQuery(string $sql, array $parameters = []): bool
     {
         return $this->connection->createStatement($sql)->execute($parameters);
     }
 
-    public function selfExecute(): bool
+    public function execute(): PDOStatement
     {
-        $return = $this->connection->createStatement($this->queryBuilder->getQuery())
-            ->execute($this->queryBuilder->getParams());
+        $statement = $this->connection->createStatement($this->queryBuilder->getQuery());
+        $statement->execute($this->queryBuilder->getParams());
 
         $this->refresh();
 
-        return $return;
+        return $statement;
     }
 }

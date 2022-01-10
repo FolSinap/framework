@@ -130,6 +130,6 @@ class MigrationCommand extends AbstractCommand
         $table->id();
         $table->string('name');
 
-        $this->database->execute($table->getQuery());
+        $this->database->executeQuery($table->getQuery());
     }
 }
