@@ -58,6 +58,13 @@ trait UsingWhereStatements
         return $this->whereBuilder;
     }
 
+    public function whereFromBuilder(WhereBuilder $where): self
+    {
+        $this->whereBuilder = $where;
+
+        return $this;
+    }
+
     protected function buildWhere(): string
     {
         return isset($this->whereBuilder) ? $this->whereBuilder->build() : '';

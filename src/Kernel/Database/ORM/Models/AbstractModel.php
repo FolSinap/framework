@@ -5,7 +5,10 @@ namespace Fwt\Framework\Kernel\Database\ORM\Models;
 use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Database\Database;
 use Fwt\Framework\Kernel\Database\ORM\Relation;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Where\WhereBuilder;
+use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
 use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
+use Fwt\Framework\Kernel\Exceptions\ORM\ModelInitializationException;
 use Fwt\Framework\Kernel\Exceptions\ORM\RelationDefinitionException;
 
 abstract class AbstractModel
@@ -14,6 +17,7 @@ abstract class AbstractModel
 
     protected static array $tableNames;
     protected array $fields = [];
+    /** @var Relation[] $relations */
     private array $relations = [];
     private bool $isInitialized = false;
 
@@ -32,8 +36,7 @@ abstract class AbstractModel
         $id = $this->{static::getIdColumn()};
 
         if (!$id) {
-            //todo: change exception
-            throw new \Exception('Cannot initialize model when id is not set.');
+            throw ModelInitializationException::idIsNotSet($this);
         }
 
         $database = self::getDatabase();
@@ -63,6 +66,19 @@ abstract class AbstractModel
 
     public function __set(string $name, $value): void
     {
+        if (array_key_exists($name, $this->relations) && !is_null($value)) {
+            $relation = $this->relations[$name];
+            $relatedClass = $relation->getRelated();
+
+            if (!$value instanceof $relatedClass) {
+                throw new IllegalTypeException($value, [$relatedClass]);
+            }
+
+            if ($relation->getType() === Relation::TO_ONE) {
+                $this->{$relation->getConnectField()} = $value->{$value::getIdColumn()};
+            }
+        }
+
         $this->fields[$name] = $value;
     }
 
@@ -142,8 +158,7 @@ abstract class AbstractModel
     public function update(array $data): void
     {
         if (!$this->isInitialized()) {
-            //todo: change exception
-            throw new \Exception('Cannot update not initialized model');
+            throw ModelInitializationException::updatingNotInitializedModel($this);
         }
 
         $database = self::getDatabase();
@@ -161,29 +176,35 @@ abstract class AbstractModel
         return 'id';
     }
 
-    public static function where(array $where): array
+    public static function where($where): array
     {
         $database = self::getDatabase();
 
         $queryBuilder = $database->getQueryBuilder()->select(static::getTableName());
 
-        $firstField = array_key_first($where);
-        $firstValue = array_shift($where);
+        if ($where instanceof WhereBuilder) {
+            $queryBuilder->whereFromBuilder($where);
+        } elseif (is_array($where)) {
+            $firstField = array_key_first($where);
+            $firstValue = array_shift($where);
 
-        if (is_array($firstValue)) {
-            $firstValue = $firstValue[0];
-            $expression = $firstValue[1];
-        }
-
-        $queryBuilder->where($firstField, $firstValue, $expression ?? '=');
-
-        foreach ($where as $field => $value) {
-            if (is_array($value)) {
-                $value = $value[0];
-                $expression = $value[1];
+            if (is_array($firstValue)) {
+                $firstValue = $firstValue[0];
+                $expression = $firstValue[1];
             }
 
-            $queryBuilder->andWhere($field, $value, $expression ?? '=');
+            $queryBuilder->where($firstField, $firstValue, $expression ?? '=');
+
+            foreach ($where as $field => $value) {
+                if (is_array($value)) {
+                    $value = $value[0];
+                    $expression = $value[1];
+                }
+
+                $queryBuilder->andWhere($field, $value, $expression ?? '=');
+            }
+        } else {
+            throw new IllegalTypeException($where, ['array', WhereBuilder::class]);
         }
 
         $models = $database->fetchAsObject(static::class);

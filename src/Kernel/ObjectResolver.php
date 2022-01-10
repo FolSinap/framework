@@ -4,7 +4,7 @@ namespace Fwt\Framework\Kernel;
 
 use BadMethodCallException;
 use Fwt\Framework\Kernel\Config\FileConfig;
-use Fwt\Framework\Kernel\Database\Models\AbstractModel;
+use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
 use Fwt\Framework\Kernel\Exceptions\Resolver\UndefinedParameterException;
 use ReflectionClass;
 use ReflectionException;

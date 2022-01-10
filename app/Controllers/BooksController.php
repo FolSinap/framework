@@ -31,7 +31,7 @@ class BooksController extends AbstractController
 
         $user = $this->getUser();
         $book = Book::createDry($validator->getBodyData());
-        $book->author_id = $user->id;
+        $book->author = $user;
 
         $book->insert();
 

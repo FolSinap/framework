@@ -37,20 +37,6 @@ class Relation
         $this->type = $type;
     }
 
-    public function setPivotTable(string $table): self
-    {
-        $this->pivot = $table;
-
-        return $this;
-    }
-
-    public function setDefinedBy(string $column): self
-    {
-        $this->definedBy = $column;
-
-        return $this;
-    }
-
     public function get()
     {
         $dry = $this->getDry();
@@ -99,5 +85,34 @@ class Relation
         }
 
         return $this->dry;
+    }
+
+    public function getRelated(): string
+    {
+        return $this->related;
+    }
+
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    public function getConnectField(): string
+    {
+        return $this->through;
+    }
+
+    public function setPivotTable(string $table): self
+    {
+        $this->pivot = $table;
+
+        return $this;
+    }
+
+    public function setDefinedBy(string $column): self
+    {
+        $this->definedBy = $column;
+
+        return $this;
     }
 }
