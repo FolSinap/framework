@@ -1,15 +1,18 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\Models;
+namespace Fwt\Framework\Kernel\Database\ORM\Models;
 
 use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Database\Database;
+use Fwt\Framework\Kernel\Database\ORM\Relation;
 use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
+use Fwt\Framework\Kernel\Exceptions\ORM\RelationDefinitionException;
 
 abstract class AbstractModel
 {
     protected const RELATIONS = [];
 
+    protected static array $tableNames;
     protected array $fields = [];
     private array $relations = [];
     private bool $isInitialized = false;
@@ -43,17 +46,9 @@ abstract class AbstractModel
             $this->setInitialized();
         }
 
+        $this->initRelations();
+
         return $this;
-    }
-
-    private function initRelations(): void
-    {
-        foreach (static::RELATIONS as $field => $relation) {
-            $relation = new Relation($this, ...$relation);
-
-            $this->$field = $relation->getDry();
-            $this->relations[$field] = $relation;
-        }
     }
 
     public function __get(string $name)
@@ -85,8 +80,7 @@ abstract class AbstractModel
     {
         $database = self::getDatabase();
 
-        $database->select(static::getTableName())
-            ->where(static::getIdColumn(), $id);
+        $database->select(static::getTableName())->where(static::getIdColumn(), $id);
 
         $object = $database->fetchAsObject(static::class);
         self::setInitializedAll($object);
@@ -200,19 +194,23 @@ abstract class AbstractModel
 
     public static function getTableName(): string
     {
-        $explode = explode('\\', static::class);
-        $single = strtolower(array_pop($explode));
+        if (!isset(static::$tableNames) || !array_key_exists(static::class, static::$tableNames)) {
+            $explode = explode('\\', static::class);
+            $single = strtolower(array_pop($explode));
 
-        $lastLetter = substr($single, -1);
-        $lastTwoLetter = substr($single, -2);
+            $lastLetter = substr($single, -1);
+            $lastTwoLetter = substr($single, -2);
 
-        if (in_array($lastLetter, ['x', 's']) || in_array($lastTwoLetter, ['sh', 'ch'])) {
-            return $single . 'es';
-        } elseif ($lastLetter === 'y') {
-            return rtrim($single, 'y') . 'ies';
-        } else {
-            return $single . 's';
+            if (in_array($lastLetter, ['x', 's']) || in_array($lastTwoLetter, ['sh', 'ch'])) {
+                static::$tableNames[static::class] = $single . 'es';
+            } elseif ($lastLetter === 'y') {
+                static::$tableNames[static::class] = rtrim($single, 'y') . 'ies';
+            } else {
+                static::$tableNames[static::class] = $single . 's';
+            }
         }
+
+        return static::$tableNames[static::class];
     }
 
     public function insert(): void
@@ -254,5 +252,25 @@ abstract class AbstractModel
     protected static function getDatabase(): Database
     {
         return App::$app->getContainer()->get(Database::class);
+    }
+
+    private function initRelations(): void
+    {
+        foreach (static::RELATIONS as $field => $definition) {
+            RelationDefinitionException::checkRequiredKeys(['class', 'field'], $definition);
+
+            $relation = new Relation($this, $definition['class'], $definition['field'], $definition['type'] ?? null);
+
+            if (array_key_exists('pivot', $definition)) {
+                $relation->setPivotTable($definition['pivot']);
+            }
+
+            if (array_key_exists('defined_by', $definition)) {
+                $relation->setDefinedBy($definition['defined_by']);
+            }
+
+            $this->$field = $relation->getDry();
+            $this->relations[$field] = $relation;
+        }
     }
 }

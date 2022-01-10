@@ -5,7 +5,7 @@ namespace Fwt\Framework\Kernel\Database\QueryBuilder;
 class InsertBuilder extends AbstractBuilder
 {
     protected string $table;
-    protected array $data;
+    protected array $data = [];
 
     public function __construct(string $table, array $data)
     {

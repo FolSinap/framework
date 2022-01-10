@@ -88,16 +88,16 @@ class TableBuilder implements Builder
         }
 
         foreach ($this->foreignKeys as $column) {
-            $sql .= ' ' . $column->buildForeign();
+            $sql .= ' ' . $column->buildForeign() . ',';
         }
 
         if (!empty($this->primaryKey)) {
-            $sql .= ' PRIMARY KEY (' . implode(' ,', $this->primaryKey) . '))';
+            $sql .= ' PRIMARY KEY (' . implode(' ,', $this->primaryKey) . ')';
         } else {
             $sql = rtrim($sql, ',');
         }
 
-        return $sql;
+        return "$sql)";
     }
 
     public function addUnique(ColumnBuilder $column, string $indexName = null): self

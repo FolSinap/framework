@@ -2,7 +2,7 @@
 
 namespace Fwt\Framework\Kernel\Database;
 
-use Fwt\Framework\Kernel\Database\Models\AbstractModel;
+use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
 use Fwt\Framework\Kernel\Database\QueryBuilder\DeleteBuilder;
 use Fwt\Framework\Kernel\Database\QueryBuilder\QueryBuilder;
 use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\SchemaBuilder;
