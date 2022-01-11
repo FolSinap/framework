@@ -37,10 +37,12 @@ class Database
         return $this->queryBuilder->delete($from);
     }
 
-    public function insert(array $data, string $table): void
+    public function insert(array $data, string $table): string
     {
         $this->queryBuilder->insert($table, $data);
         $this->execute();
+
+        return $this->connection->getPdo()->lastInsertId();
     }
 
     public function populateModel(AbstractModel $model): ?AbstractModel

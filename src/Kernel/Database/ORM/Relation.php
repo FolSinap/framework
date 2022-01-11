@@ -50,10 +50,6 @@ class Relation
 
     public function getDry()
     {
-        if (!$this->from->isInitialized()) {
-            return null;
-        }
-
         if (!isset($this->dry)) {
             if ($this->type === self::TO_MANY) {
                 if (!isset($this->pivot)) {
@@ -65,7 +61,16 @@ class Relation
                 }
 
                 AnonymousModel::$tableNames[AnonymousModel::class] = $this->pivot;
-                $pivots = AnonymousModel::where([$this->definedBy => $this->from->{$this->from::getIdColumn()}]);
+
+                $id = $this->from->{$this->from::getIdColumn()};
+
+                if (is_null($id)) {
+                    $this->dry = [];
+
+                    return $this->dry;
+                }
+
+                $pivots = AnonymousModel::where([$this->definedBy => $id]);
 
                 foreach ($pivots as $key => $pivot) {
                     $pivots[$key] = $this->related::createDry([$this->related::getIdColumn() => $pivot->{$this->through}]);

@@ -26,11 +26,6 @@ abstract class AbstractModel
         $this->initRelations();
     }
 
-    public static function __set_state($fields): self
-    {
-        return static::createDry($fields);
-    }
-
     public function initialize(): self
     {
         $id = $this->{static::getIdColumn()};
@@ -52,44 +47,6 @@ abstract class AbstractModel
         $this->initRelations();
 
         return $this;
-    }
-
-    public function __get(string $name)
-    {
-        if (array_key_exists($name, $this->relations)) {
-            $relation = $this->relations[$name]->get();
-            $this->$name = $relation;
-        }
-
-        return $this->fields[$name] ?? null;
-    }
-
-    public function __set(string $name, $value): void
-    {
-        if (array_key_exists($name, $this->relations) && !is_null($value)) {
-            $relation = $this->relations[$name];
-            $relatedClass = $relation->getRelated();
-
-            if (!$value instanceof $relatedClass) {
-                throw new IllegalTypeException($value, [$relatedClass]);
-            }
-
-            if ($relation->getType() === Relation::TO_ONE) {
-                $this->{$relation->getConnectField()} = $value->{$value::getIdColumn()};
-            }
-        }
-
-        $this->fields[$name] = $value;
-    }
-
-    public function __isset(string $name): bool
-    {
-        return isset($this->fields[$name]);
-    }
-
-    public function __unset(string $name): void
-    {
-        unset($this->fields[$name]);
     }
 
     public static function find($id): ?self
@@ -132,11 +89,7 @@ abstract class AbstractModel
 
     public static function create(array $data): self
     {
-        $object = new static();
-
-        foreach ($data as $property => $value) {
-            $object->$property = $value;
-        }
+        $object = static::createDry($data);
 
         $object->insert();
 
@@ -245,13 +198,69 @@ abstract class AbstractModel
 
         unset($data['isInitialized']);
 
-        $database->insert($data, static::getTableName());
-        $this->setInitialized();
+        //todo: what if multiple cols are primary keys?
+        $this->{static::getIdColumn()} = $database->insert($data, static::getTableName());
+
+        $this->setInitialized()->initRelations();
     }
 
     public function isInitialized(): bool
     {
         return $this->isInitialized;
+    }
+
+    public static function __set_state($fields): self
+    {
+        return static::createDry($fields);
+    }
+
+    public function __get(string $name)
+    {
+        if (array_key_exists($name, $this->relations)) {
+            $relation = $this->relations[$name]->get();
+            $this->$name = $relation;
+        }
+
+        return $this->fields[$name] ?? null;
+    }
+
+    public function __set(string $name, $value): void
+    {
+        if (array_key_exists($name, $this->relations)) {
+            $relation = $this->relations[$name];
+            $relatedClass = $relation->getRelated();
+
+            if ($relation->getType() === Relation::TO_ONE) {
+                if (is_null($value)) {
+                    $this->{$relation->getConnectField()} = $value;
+                } else {
+                    if (!$value instanceof $relatedClass) {
+                        throw new IllegalTypeException($value, [$relatedClass]);
+                    }
+
+                    $this->{$relation->getConnectField()} = $value->{$value::getIdColumn()};
+                }
+            }
+        }
+
+        $this->fields[$name] = $value;
+    }
+
+    public function __isset(string $name): bool
+    {
+        return isset($this->fields[$name]);
+    }
+
+    public function __unset(string $name): void
+    {
+        unset($this->fields[$name]);
+    }
+
+    protected function setInitialized(bool $isInitialized = true): self
+    {
+        $this->isInitialized = $isInitialized;
+
+        return $this;
     }
 
     protected static function setInitializedAll(array $models, bool $isInitialized = true): void
@@ -265,19 +274,18 @@ abstract class AbstractModel
         }
     }
 
-    protected function setInitialized(bool $isInitialized = true): void
-    {
-        $this->isInitialized = $isInitialized;
-    }
-
     protected static function getDatabase(): Database
     {
         return App::$app->getContainer()->get(Database::class);
     }
 
-    private function initRelations(): void
+    private function initRelations(): self
     {
         foreach (static::RELATIONS as $field => $definition) {
+            if (isset($this->$field)) {
+                continue;
+            }
+
             RelationDefinitionException::checkRequiredKeys(['class', 'field'], $definition);
 
             $relation = new Relation($this, $definition['class'], $definition['field'], $definition['type'] ?? null);
@@ -293,5 +301,7 @@ abstract class AbstractModel
             $this->$field = $relation->getDry();
             $this->relations[$field] = $relation;
         }
+
+        return $this;
     }
 }
