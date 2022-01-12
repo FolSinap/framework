@@ -76,7 +76,7 @@ class Relation
                     $pivots[$key] = $this->related::createDry([$this->related::getIdColumn() => $pivot->{$this->through}]);
                 }
 
-                $this->dry = new ModelCollection($pivots);
+                $this->dry = $pivots;
             } else {
                 $foreignKey = $this->from->{$this->through};
 

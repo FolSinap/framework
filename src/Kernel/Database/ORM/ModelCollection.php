@@ -3,13 +3,14 @@
 namespace Fwt\Framework\Kernel\Database\ORM;
 
 use ArrayAccess;
+use Countable;
 use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
 use Fwt\Framework\Kernel\Database\QueryBuilder\Where\WhereBuilder;
 use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
 use IteratorAggregate;
 use ArrayIterator;
 
-class ModelCollection implements ArrayAccess, IteratorAggregate
+class ModelCollection implements ArrayAccess, IteratorAggregate, Countable
 {
     protected array $data;
 
@@ -70,5 +71,10 @@ class ModelCollection implements ArrayAccess, IteratorAggregate
     public function getIterator(): ArrayIterator
     {
         return new ArrayIterator($this->data);
+    }
+
+    public function count(): int
+    {
+        return count($this->data);
     }
 }
