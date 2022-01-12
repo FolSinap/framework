@@ -8,6 +8,7 @@ trait UsingWhereStatements
 {
     protected WhereBuilder $whereBuilder;
 
+    //todo: add andWhereIn(), orWhereIn(), whereIn() methods
     public function where(string $field, string $value, string $expression = '='): self
     {
         $this->whereBuilder = WhereBuilder::where($field, ":$field", $expression);
