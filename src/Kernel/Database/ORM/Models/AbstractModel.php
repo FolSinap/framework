@@ -4,6 +4,7 @@ namespace Fwt\Framework\Kernel\Database\ORM\Models;
 
 use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Database\Database;
+use Fwt\Framework\Kernel\Database\ORM\ModelCollection;
 use Fwt\Framework\Kernel\Database\ORM\Relation;
 use Fwt\Framework\Kernel\Database\QueryBuilder\Where\WhereBuilder;
 use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
@@ -55,19 +56,19 @@ abstract class AbstractModel
 
         $database->select(static::getTableName())->where(static::getIdColumn(), $id);
 
-        $object = $database->fetchAsObject(static::class);
+        $object = new ModelCollection($database->fetchAsObject(static::class));
         self::setInitializedAll($object);
 
-        return empty($object) ? null : $object[0];
+        return $object->isEmpty() ? null : $object[0];
     }
 
-    public static function all(): array
+    public static function all(): ModelCollection
     {
         $database = self::getDatabase();
 
         $database->select(static::getTableName());
 
-        $models = $database->fetchAsObject(static::class);
+        $models = new ModelCollection($database->fetchAsObject(static::class));
 
         self::setInitializedAll($models);
 
@@ -129,7 +130,7 @@ abstract class AbstractModel
         return 'id';
     }
 
-    public static function where($where): array
+    public static function where($where): ModelCollection
     {
         $database = self::getDatabase();
 
@@ -160,7 +161,7 @@ abstract class AbstractModel
             throw new IllegalTypeException($where, ['array', WhereBuilder::class]);
         }
 
-        $models = $database->fetchAsObject(static::class);
+        $models = new ModelCollection($database->fetchAsObject(static::class));
         self::setInitializedAll($models);
 
         return $models;
@@ -263,7 +264,7 @@ abstract class AbstractModel
         return $this;
     }
 
-    protected static function setInitializedAll(array $models, bool $isInitialized = true): void
+    protected static function setInitializedAll(ModelCollection $models, bool $isInitialized = true): void
     {
         foreach ($models as $model) {
             if (!$model instanceof self) {

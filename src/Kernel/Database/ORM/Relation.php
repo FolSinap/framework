@@ -19,7 +19,7 @@ class Relation
     protected string $type;
     protected string $pivot;
     protected string $definedBy;
-    /** @var AbstractModel|AbstractModel[]|null $dry */
+    /** @var AbstractModel|ModelCollection|null $dry */
     protected $dry;
 
     public function __construct(AbstractModel $from, string $related, string $field, string $type = null)
@@ -41,8 +41,8 @@ class Relation
     {
         $dry = $this->getDry();
 
-        if (is_array($dry)) {
-            return $dry;
+        if ($dry instanceof ModelCollection) {
+            return $dry->initializeAll();
         }
 
         return $dry ? $dry->initialize() : null;
@@ -76,8 +76,7 @@ class Relation
                     $pivots[$key] = $this->related::createDry([$this->related::getIdColumn() => $pivot->{$this->through}]);
                 }
 
-
-                $this->dry = $pivots;
+                $this->dry = new ModelCollection($pivots);
             } else {
                 $foreignKey = $this->from->{$this->through};
 
