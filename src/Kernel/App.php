@@ -77,7 +77,7 @@ class App
 
         $this->container[Request::class] = new Request();
         $resolver = $this->container[ObjectResolver::class] = new ObjectResolver();
-        $this->container[Router::class] = Router::getRouter($resolver);
+        $this->container[Router::class] = Router::getRouter();
         $this->container[MiddlewareMapper::class] = $resolver->resolve(MiddlewareMapper::class);
         $this->container[Connection::class] = $resolver->resolve(Connection::class);
         $this->container[Database::class] = $resolver->resolve(Database::class);

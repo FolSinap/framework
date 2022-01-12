@@ -8,6 +8,7 @@ class DirectiveRegexBuilder extends TemplateRegexBuilder
 {
     protected string $closingTag;
     protected bool $emptyContent = false;
+    protected bool $isGreedy = false;
 
     public function setClosingTag(string $tag): self
     {
@@ -19,6 +20,13 @@ class DirectiveRegexBuilder extends TemplateRegexBuilder
     public function letEmptyContent(bool $emptyContent = true): self
     {
         $this->emptyContent = $emptyContent;
+
+        return $this;
+    }
+
+    public function setIsGreedy(bool $isGreedy = true): self
+    {
+        $this->isGreedy = $isGreedy;
 
         return $this;
     }
@@ -63,7 +71,7 @@ class DirectiveRegexBuilder extends TemplateRegexBuilder
         }
 
         if (isset($this->closingTag)) {
-            $definition .= '([\S\s]*?)' . preg_quote($this->closingTag);
+            $definition .= '([\S\s]*' . ($this->isGreedy ? '' : '?') . ')' . preg_quote($this->closingTag);
         }
 
         $definition .= '/';

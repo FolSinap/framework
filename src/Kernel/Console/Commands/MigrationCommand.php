@@ -7,7 +7,7 @@ use Fwt\Framework\Kernel\Console\App;
 use Fwt\Framework\Kernel\Console\Input;
 use Fwt\Framework\Kernel\Console\Output\Output;
 use Fwt\Framework\Kernel\Database\Database;
-use Fwt\Framework\Kernel\Database\Models\Migration;
+use Fwt\Framework\Kernel\Database\ORM\Models\Migration;
 use Fwt\Framework\Kernel\Database\Migration as ExecutableMigration;
 use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\SchemaBuilder;
 use Fwt\Framework\Kernel\ObjectResolver;
@@ -130,6 +130,6 @@ class MigrationCommand extends AbstractCommand
         $table->id();
         $table->string('name');
 
-        $this->database->execute($table->getQuery());
+        $this->database->executeQuery($table->getQuery());
     }
 }

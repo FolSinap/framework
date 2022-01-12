@@ -4,14 +4,20 @@ namespace Fwt\Framework\Kernel\View\TemplateEngine\Directives;
 
 use Fwt\Framework\Kernel\Exceptions\ExpressionParser\ForeachExpressionException;
 use Fwt\Framework\Kernel\View\TemplateEngine\ExpressionParser;
+use Fwt\Framework\Kernel\View\TemplateEngine\TemplateRenderer;
+use Fwt\Framework\Kernel\View\VariableContainer;
 
 class ForeachDirective extends AbstractDirective
 {
     protected ExpressionParser $parser;
+    protected VariableContainer $container;
+    protected TemplateRenderer $renderer;
 
-    public function __construct(ExpressionParser $parser)
+    public function __construct(ExpressionParser $parser, VariableContainer $container, TemplateRenderer $renderer)
     {
         $this->parser = $parser;
+        $this->container = $container;
+        $this->renderer = $renderer;
     }
 
     public function getRegex(): string
@@ -20,6 +26,7 @@ class ForeachDirective extends AbstractDirective
             ->name($this->getOpeningTag())
             ->useQuotes(false)
             ->setParentheses()
+            ->setIsGreedy()
             ->includeForSearch('.[] ')
             ->setClosingTag($this->getClosingTag())
             ->getRegex();
@@ -55,13 +62,13 @@ class ForeachDirective extends AbstractDirective
         $return = '';
 
         foreach ($array as $key => $value) {
-            $block = preg_replace_callback("/\{\{.*($valueTemplate).*\}\}/", function ($matches) use($arrayComponent, $key) {
-                return str_replace($matches[1], $arrayComponent . "[$key]", $matches[0]);
-            }, $matches[2]);
+            $this->container->set($valueTemplate, $value);
 
             if (isset($keyTemplate)) {
-                $block = preg_replace("/\{\{$keyTemplate\}\}/", $key, $block);
+                $this->container->set($keyTemplate, $key);
             }
+
+            $block = $this->renderer->executeDirectives($matches[2]);
 
             $return .= $block;
         }

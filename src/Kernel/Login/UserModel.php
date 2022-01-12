@@ -2,7 +2,7 @@
 
 namespace Fwt\Framework\Kernel\Login;
 
-use Fwt\Framework\Kernel\Database\Models\AbstractModel;
+use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
 use Fwt\Framework\Kernel\Exceptions\Login\LoginException;
 
 abstract class UserModel extends AbstractModel
