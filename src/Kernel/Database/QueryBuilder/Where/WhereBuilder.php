@@ -23,6 +23,11 @@ class WhereBuilder implements ExpressionBuilder
         return new static(new Where($field, $value, $expression));
     }
 
+    public static function whereIn(string $field, array $value): self
+    {
+        return new static(new WhereIn($field, $value));
+    }
+
     public static function native(string $expression): self
     {
         return new static(new Expression($expression));
@@ -53,28 +58,42 @@ class WhereBuilder implements ExpressionBuilder
 
     public function orWhere(string $field, $value, string $expression = '='): self
     {
-        $this->wheres[] = new OrWhere($field, $value, $expression);
+        $this->wheres[] = OrExpression::where($field, $value, $expression);
 
         return $this;
     }
 
     public function andWhere(string $field, $value, string $expression = '='): self
     {
-        $this->wheres[] = new AndWhere($field, $value, $expression);
+        $this->wheres[] = AndExpression::where($field, $value, $expression);
+
+        return $this;
+    }
+
+    public function orWhereIn(string $field, array $value): self
+    {
+        $this->wheres[] = OrExpression::whereIn($field, $value);
+
+        return $this;
+    }
+
+    public function andWhereIn(string $field, array $value): self
+    {
+        $this->wheres[] = AndExpression::whereIn($field, $value);
 
         return $this;
     }
 
     public function orNative(string $expression): self
     {
-        $this->wheres[] = new OrExpression($expression);
+        $this->wheres[] = OrExpression::native($expression);
 
         return $this;
     }
 
     public function andNative(string $expression): self
     {
-        $this->wheres[] = new AndExpression($expression);
+        $this->wheres[] = AndExpression::native($expression);
 
         return $this;
     }

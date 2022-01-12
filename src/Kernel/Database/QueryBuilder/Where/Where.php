@@ -13,7 +13,7 @@ class Where extends Expression
 
     public function __construct(string $field, string $value, string $expression = '=')
     {
-        IllegalValueException::checkValue($expression, self::WHERE_EXPRESSIONS);
+        IllegalValueException::checkValue($expression, static::WHERE_EXPRESSIONS);
 
         $this->field = $field;
         $this->value = $value;

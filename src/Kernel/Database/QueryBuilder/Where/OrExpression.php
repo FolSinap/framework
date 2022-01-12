@@ -2,10 +2,10 @@
 
 namespace Fwt\Framework\Kernel\Database\QueryBuilder\Where;
 
-class OrExpression extends Expression
+class OrExpression extends AndExpression
 {
     public function build(): string
     {
-        return self::OR . ' ' . parent::build();
+        return self::OR . ' ' . $this->expression->build();
     }
 }
