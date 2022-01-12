@@ -29,6 +29,11 @@ class Container implements ArrayAccess
         $this->data[$key] = $value;
     }
 
+    public function unset(string $key): void
+    {
+        unset($this->data[$key]);
+    }
+
     public function get(string $key)
     {
         return $this->data[$key];

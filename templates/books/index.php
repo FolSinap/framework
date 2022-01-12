@@ -11,6 +11,7 @@
             <th scope="col">#</th>
             <th scope="col">Title</th>
             <th scope="col">Author</th>
+            <th scope="col">Genres</th>
             <th scope="col"></th>
             <th scope="col"></th>
         </tr>
@@ -21,6 +22,7 @@
                 <th scope="row">{{book->id}}</th>
                 <td>{{book->title}}</td>
                 <td>{{book->author ? book->author->email : ''}}</td>
+                <td>#foreach(genre in book->genres) {{genre->name}} #endforeach</td>
                 #auth()
                 <td><a href="#route('books_edit', ['book' => {{book->id}}])">Edit</a></td>
                 <td>

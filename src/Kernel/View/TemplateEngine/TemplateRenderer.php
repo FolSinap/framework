@@ -26,11 +26,10 @@ class TemplateRenderer
         AuthDirective::class,
         AnonDirective::class,
         ForeachDirective::class,
+        RouteDirective::class,
         MethodDirective::class,
         RenderParametersDirective::class,
         RenderParametersWithoutEscapeDirective::class,
-        //todo: should this directive be at the end? (conflicts with ForeachDirective::class)
-        RouteDirective::class,
     ];
 
     protected ObjectResolver $resolver;
@@ -49,12 +48,12 @@ class TemplateRenderer
             $template = $parent;
         }
 
-        $this->executeDirectives($template);
+        $template->setContent($this->executeDirectives($template->getContent()));
 
         return $template->getContent();
     }
 
-    protected function executeDirectives(Template $template)
+    public function executeDirectives(string $content): string
     {
         foreach (self::EXECUTABLE_DIRECTIVES as $class) {
             $directive = $this->resolver->resolve($class);
@@ -63,10 +62,12 @@ class TemplateRenderer
                 throw new InterfaceNotFoundException(get_class($directive), Directive::class);
             }
 
-            $template->setContent(preg_replace_callback($directive->getRegex(),
+            $content = preg_replace_callback($directive->getRegex(),
                 function ($matches) use ($directive) {
                     return $directive->execute($matches);
-                }, $template->getContent()));
+                }, $content);
         }
+
+        return $content;
     }
 }
