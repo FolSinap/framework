@@ -6,6 +6,7 @@ use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Database\Database;
 use Fwt\Framework\Kernel\Database\ORM\ModelCollection;
 use Fwt\Framework\Kernel\Database\ORM\Relation;
+use Fwt\Framework\Kernel\Database\ORM\Relation\RelationFactory;
 use Fwt\Framework\Kernel\Database\QueryBuilder\Where\WhereBuilder;
 use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
 use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
@@ -19,35 +20,14 @@ abstract class AbstractModel
     protected static array $tableNames;
     protected array $fields = [];
     /** @var Relation[] $relations */
-    private array $relations = [];
+    protected array $relations = [];
     private bool $isInitialized = false;
+    private RelationFactory $relationFactory;
 
     public function __construct()
     {
+        $this->relationFactory = new RelationFactory();
         $this->initRelations();
-    }
-
-    public function initialize(): self
-    {
-        $id = $this->{static::getIdColumn()};
-
-        if (!$id) {
-            throw ModelInitializationException::idIsNotSet($this);
-        }
-
-        $database = self::getDatabase();
-
-        $database->select(static::getTableName())
-            ->where(static::getIdColumn(), $id);
-
-        if (!is_null($database->populateModel($this))) {
-            //todo: otherwise throw exception??
-            $this->setInitialized();
-        }
-
-        $this->initRelations();
-
-        return $this;
     }
 
     public static function find($id): ?self
@@ -97,7 +77,30 @@ abstract class AbstractModel
         return $object;
     }
 
-    public function delete()
+    public function initialize(): self
+    {
+        $id = $this->{static::getIdColumn()};
+
+        if (!$id) {
+            throw ModelInitializationException::idIsNotSet($this);
+        }
+
+        $database = self::getDatabase();
+
+        $database->select(static::getTableName())
+            ->where(static::getIdColumn(), $id);
+
+        if (!is_null($database->populateModel($this))) {
+            //todo: otherwise throw exception??
+            $this->setInitialized();
+        }
+
+        $this->initRelations();
+
+        return $this;
+    }
+
+    public function delete(): void
     {
         $database = self::getDatabase();
         $id = static::getIdColumn();
@@ -143,8 +146,8 @@ abstract class AbstractModel
             $firstValue = array_shift($where);
 
             if (is_array($firstValue)) {
-                $firstValue = $firstValue[0];
                 $expression = $firstValue[1];
+                $firstValue = $firstValue[0];
             }
 
             $queryBuilder->where($firstField, $firstValue, $expression ?? '=');
@@ -231,7 +234,7 @@ abstract class AbstractModel
             $relation = $this->relations[$name];
             $relatedClass = $relation->getRelated();
 
-            if ($relation->getType() === Relation::TO_ONE) {
+            if ($relation instanceof Relation\ToOneRelation) {
                 if (is_null($value)) {
                     $this->{$relation->getConnectField()} = $value;
                 } else {
@@ -287,17 +290,20 @@ abstract class AbstractModel
                 continue;
             }
 
-            RelationDefinitionException::checkRequiredKeys(['class', 'field'], $definition);
+            $relation = $this->relationFactory->create($this, $definition);
+//            dd($this->relationFactory->create($this, $definition));
 
-            $relation = new Relation($this, $definition['class'], $definition['field'], $definition['type'] ?? null);
+//            RelationDefinitionException::checkRequiredKeys(['class', 'field'], $definition);
 
-            if (array_key_exists('pivot', $definition)) {
-                $relation->setPivotTable($definition['pivot']);
-            }
-
-            if (array_key_exists('defined_by', $definition)) {
-                $relation->setDefinedBy($definition['defined_by']);
-            }
+//            $relation = new Relation($this, $definition['class'], $definition['field'], $definition['type'] ?? null);
+//
+//            if (array_key_exists('pivot', $definition)) {
+//                $relation->setPivotTable($definition['pivot']);
+//            }
+//
+//            if (array_key_exists('defined_by', $definition)) {
+//                $relation->setDefinedBy($definition['defined_by']);
+//            }
 
             $this->$field = $relation->getDry();
             $this->relations[$field] = $relation;

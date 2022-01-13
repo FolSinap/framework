@@ -6,17 +6,65 @@ use ArrayAccess;
 use Countable;
 use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
 use Fwt\Framework\Kernel\Database\QueryBuilder\Where\WhereBuilder;
-use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
+use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
+use Fwt\Framework\Kernel\Exceptions\ORM\ModelInitializationException;
 use IteratorAggregate;
 use ArrayIterator;
 
 class ModelCollection implements ArrayAccess, IteratorAggregate, Countable
 {
-    protected array $data;
+    protected array $data = [];
+    protected array $new = [];
+    protected array $deleted = [];
 
     public function __construct(array $data = [])
     {
-        $this->data = $data;
+        $this->setData($data);
+    }
+
+    public function synchronize()
+    {
+        //todo: implement
+    }
+
+    public function setData(array $data)
+    {
+        $this->checkType($data);
+
+        foreach ($data as $model) {
+            $this->data[] = ModelWrapper::wrap($model);
+        }
+    }
+
+    public function add(array $models): self
+    {
+        $this->checkType($models);
+
+        foreach ($models as $key => $model) {
+            $models[$key] = ModelWrapper::wrap($model, ModelWrapper::STATE_INSERT);
+        }
+
+        $this->new = array_merge($this->new, $models);
+        $this->data = array_merge($this->data, $models);
+
+        return $this;
+    }
+
+    public function clear(): self
+    {
+        foreach ($this->data as $model) {
+            $model->setState(ModelWrapper::STATE_DELETE);
+        }
+
+        $this->deleted = $this->data;
+        $this->data = [];
+
+        return $this;
+    }
+
+    public function toArray(): array
+    {
+        return $this->data;
     }
 
     public function initializeAll(): self
@@ -24,11 +72,13 @@ class ModelCollection implements ArrayAccess, IteratorAggregate, Countable
         $ids = [];
 
         foreach ($this->data as $model) {
-            if (!$model instanceof AbstractModel) {
-                throw new InvalidExtensionException(get_class($model), AbstractModel::class);
+            $id = $model->{$model::getIdColumn()};
+
+            if (!$id) {
+                throw ModelInitializationException::idIsNotSet($model);
             }
 
-            $ids[get_class($model)][] = $model->{$model::getIdColumn()};
+            $ids[get_class($model)][] = $id;
         }
 
         $models = [];
@@ -76,5 +126,25 @@ class ModelCollection implements ArrayAccess, IteratorAggregate, Countable
     public function count(): int
     {
         return count($this->data);
+    }
+
+    protected function checkType(array $data): void
+    {
+        foreach ($data as $model) {
+            if (!$model instanceof AbstractModel) {
+                throw new IllegalTypeException($model, [AbstractModel::class]);
+            }
+        }
+    }
+
+    protected function sortById(array $array): array
+    {
+        $data = [];
+
+        foreach ($array as $model) {
+            $data[$model->{$model::getIdColumn()}] = $model;
+        }
+
+        return $data;
     }
 }

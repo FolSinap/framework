@@ -12,7 +12,7 @@ class Book extends AbstractModel
         'genres' => [
             'class' => Genre::class,
             'field' => 'genre_id',
-            'type' => Relation::TO_MANY,
+            'type' => 'many-to-many',
             'pivot' => 'books_genres',
             'defined_by' => 'book_id',
         ],

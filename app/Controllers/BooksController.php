@@ -12,6 +12,7 @@ class BooksController extends AbstractController
 {
     public function index(): Response
     {
+//        dd(\App\Models\User::all());
         $books = Book::all();
         $user = $this->getUser();
 
