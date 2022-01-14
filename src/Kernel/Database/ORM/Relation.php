@@ -7,6 +7,7 @@ use Fwt\Framework\Kernel\Database\ORM\Models\AnonymousModel;
 use Fwt\Framework\Kernel\Exceptions\IllegalValueException;
 use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
 
+//todo: don't forget to delete
 class Relation
 {
     public const TO_MANY = 'MANY';

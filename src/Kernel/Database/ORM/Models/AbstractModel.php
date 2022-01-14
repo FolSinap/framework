@@ -11,7 +11,6 @@ use Fwt\Framework\Kernel\Database\QueryBuilder\Where\WhereBuilder;
 use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
 use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
 use Fwt\Framework\Kernel\Exceptions\ORM\ModelInitializationException;
-use Fwt\Framework\Kernel\Exceptions\ORM\RelationDefinitionException;
 
 abstract class AbstractModel
 {
@@ -20,13 +19,13 @@ abstract class AbstractModel
     protected static array $tableNames;
     protected array $fields = [];
     /** @var Relation[] $relations */
-    protected array $relations = [];
+    private array $relations = [];
     private bool $isInitialized = false;
-    private RelationFactory $relationFactory;
+    private ?RelationFactory $relationFactory;
 
     public function __construct()
     {
-        $this->relationFactory = new RelationFactory();
+        $this->relationFactory = $this->getFactory();
         $this->initRelations();
     }
 
@@ -191,6 +190,12 @@ abstract class AbstractModel
         return static::$tableNames[static::class];
     }
 
+    public function prepareForExport()
+    {
+        $this->relations = [];
+        $this->relationFactory = null;
+    }
+
     public function insert(): void
     {
         if ($this->isInitialized) {
@@ -290,25 +295,21 @@ abstract class AbstractModel
                 continue;
             }
 
-            $relation = $this->relationFactory->create($this, $definition);
-//            dd($this->relationFactory->create($this, $definition));
-
-//            RelationDefinitionException::checkRequiredKeys(['class', 'field'], $definition);
-
-//            $relation = new Relation($this, $definition['class'], $definition['field'], $definition['type'] ?? null);
-//
-//            if (array_key_exists('pivot', $definition)) {
-//                $relation->setPivotTable($definition['pivot']);
-//            }
-//
-//            if (array_key_exists('defined_by', $definition)) {
-//                $relation->setDefinedBy($definition['defined_by']);
-//            }
+            $relation = $this->getFactory()->create($this, $definition);
 
             $this->$field = $relation->getDry();
             $this->relations[$field] = $relation;
         }
 
         return $this;
+    }
+
+    private function getFactory(): RelationFactory
+    {
+        if (!isset($this->relationFactory)) {
+            $this->relationFactory = new RelationFactory();
+        }
+
+        return $this->relationFactory;
     }
 }

@@ -31,35 +31,33 @@ class ModelCollection implements ArrayAccess, IteratorAggregate, Countable
     {
         $this->checkType($data);
 
-        foreach ($data as $model) {
-            $this->data[] = ModelWrapper::wrap($model);
-        }
+        $this->data = $data;
     }
 
     public function add(array $models): self
     {
-        $this->checkType($models);
-
-        foreach ($models as $key => $model) {
-            $models[$key] = ModelWrapper::wrap($model, ModelWrapper::STATE_INSERT);
-        }
-
-        $this->new = array_merge($this->new, $models);
-        $this->data = array_merge($this->data, $models);
-
-        return $this;
+//        $this->checkType($models);
+//
+//        foreach ($models as $key => $model) {
+//            $models[$key] = ModelWrapper::wrap($model, ModelWrapper::STATE_INSERT);
+//        }
+//
+//        $this->new = array_merge($this->new, $models);
+//        $this->data = array_merge($this->data, $models);
+//
+//        return $this;
     }
 
     public function clear(): self
     {
-        foreach ($this->data as $model) {
-            $model->setState(ModelWrapper::STATE_DELETE);
-        }
-
-        $this->deleted = $this->data;
-        $this->data = [];
-
-        return $this;
+//        foreach ($this->data as $model) {
+//            $model->setState(ModelWrapper::STATE_DELETE);
+//        }
+//
+//        $this->deleted = $this->data;
+//        $this->data = [];
+//
+//        return $this;
     }
 
     public function toArray(): array

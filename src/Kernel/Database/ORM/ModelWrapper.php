@@ -5,6 +5,7 @@ namespace Fwt\Framework\Kernel\Database\ORM;
 use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
 use Fwt\Framework\Kernel\Exceptions\IllegalValueException;
 
+//todo: class is not used
 class ModelWrapper extends AbstractModel
 {
     public const STATE_INSERT = 'insert';
