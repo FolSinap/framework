@@ -45,7 +45,7 @@ class WhereBuilder implements ExpressionBuilder
                 $end = ')';
                 break;
             default:
-                $expression = '';
+                $expression = ' WHERE';
                 $end = '';
         }
 

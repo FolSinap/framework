@@ -31,7 +31,7 @@ class ManyToManyRelation extends OneToManyRelation
                 return $this->dry;
             }
 
-            $pivots = AnonymousModel::where([$this->definedBy => $id]);
+            $pivots = AnonymousModel::where($this->definedBy, $id)->fetch();
 
             foreach ($pivots as $key => $pivot) {
                 $pivots[$key] = $this->related::createDry([$this->related::getIdColumn() => $pivot->{$this->through}]);

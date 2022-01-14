@@ -10,7 +10,11 @@ class ToOneRelation extends AbstractRelation
     {
         $dry = $this->getDry();
 
-        return $dry ? $dry->initialize() : null;
+        if ($dry && $dry->initialize()) {
+            return $dry;
+        }
+
+        return null;
     }
 
     public function getDry(): ?AbstractModel

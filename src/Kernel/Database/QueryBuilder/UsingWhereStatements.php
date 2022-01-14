@@ -8,11 +8,49 @@ trait UsingWhereStatements
 {
     protected WhereBuilder $whereBuilder;
 
-    //todo: add andWhereIn(), orWhereIn(), whereIn() methods
     public function where(string $field, string $value, string $expression = '='): self
     {
         $this->whereBuilder = WhereBuilder::where($field, ":$field", $expression);
         $this->params[$field] = $value;
+
+        return $this;
+    }
+
+    public function whereIn(string $field, array $values): self
+    {
+        foreach ($values as $key => $value) {
+            $paramName = "param$key";
+            $this->params[$paramName] = $value;
+            $values[$key] = ":$paramName";
+        }
+
+        $this->whereBuilder->whereIn($field, $values);
+
+        return $this;
+    }
+
+    public function orWhereIn(string $field, array $values): self
+    {
+        foreach ($values as $key => $value) {
+            $paramName = "param$key";
+            $this->params[$paramName] = $value;
+            $values[$key] = ":$paramName";
+        }
+
+        $this->whereBuilder->orWhereIn($field, $values);
+
+        return $this;
+    }
+
+    public function andWhereIn(string $field, array $values): self
+    {
+        foreach ($values as $key => $value) {
+            $paramName = "param$key";
+            $this->params[$paramName] = $value;
+            $values[$key] = ":$paramName";
+        }
+
+        $this->whereBuilder->andWhereIn($field, $values);
 
         return $this;
     }
@@ -50,18 +88,6 @@ trait UsingWhereStatements
     public function orNative(string $expression): self
     {
         $this->whereBuilder->orNative($expression);
-
-        return $this;
-    }
-
-    public function getWhereBuilder(): WhereBuilder
-    {
-        return $this->whereBuilder;
-    }
-
-    public function whereFromBuilder(WhereBuilder $where): self
-    {
-        $this->whereBuilder = $where;
 
         return $this;
     }

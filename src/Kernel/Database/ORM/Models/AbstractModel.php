@@ -5,12 +5,13 @@ namespace Fwt\Framework\Kernel\Database\ORM\Models;
 use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Database\Database;
 use Fwt\Framework\Kernel\Database\ORM\ModelCollection;
+use Fwt\Framework\Kernel\Database\ORM\ModelRepository;
 use Fwt\Framework\Kernel\Database\ORM\Relation;
 use Fwt\Framework\Kernel\Database\ORM\Relation\RelationFactory;
+use Fwt\Framework\Kernel\Database\ORM\WhereBuilderFacade;
 use Fwt\Framework\Kernel\Database\QueryBuilder\Where\WhereBuilder;
 use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
 use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
-use Fwt\Framework\Kernel\Exceptions\ORM\ModelInitializationException;
 
 abstract class AbstractModel
 {
@@ -22,6 +23,7 @@ abstract class AbstractModel
     private array $relations = [];
     private bool $isInitialized = false;
     private ?RelationFactory $relationFactory;
+    private static ModelRepository $repository;
 
     public function __construct()
     {
@@ -31,23 +33,18 @@ abstract class AbstractModel
 
     public static function find($id): ?self
     {
-        $database = self::getDatabase();
+        $model = self::getRepository()->initializedById(static::class, $id);
 
-        $database->select(static::getTableName())->where(static::getIdColumn(), $id);
+        if ($model) {
+            $model->setInitialized();
+        }
 
-        $object = new ModelCollection($database->fetchAsObject(static::class));
-        self::setInitializedAll($object);
-
-        return $object->isEmpty() ? null : $object[0];
+        return $model;
     }
 
     public static function all(): ModelCollection
     {
-        $database = self::getDatabase();
-
-        $database->select(static::getTableName());
-
-        $models = new ModelCollection($database->fetchAsObject(static::class));
+        $models = self::getRepository()->allByClass(static::class);
 
         self::setInitializedAll($models);
 
@@ -56,15 +53,7 @@ abstract class AbstractModel
 
     public static function createDry(array $data): self
     {
-        $object = new static();
-
-        foreach ($data as $property => $value) {
-            $object->$property = $value;
-        }
-
-        $object->setInitialized(false);
-
-        return $object;
+        return self::getRepository()->dry(static::class, $data);
     }
 
     public static function create(array $data): self
@@ -76,53 +65,27 @@ abstract class AbstractModel
         return $object;
     }
 
-    public function initialize(): self
+    public function initialize(): bool
     {
-        $id = $this->{static::getIdColumn()};
-
-        if (!$id) {
-            throw ModelInitializationException::idIsNotSet($this);
-        }
-
-        $database = self::getDatabase();
-
-        $database->select(static::getTableName())
-            ->where(static::getIdColumn(), $id);
-
-        if (!is_null($database->populateModel($this))) {
-            //todo: otherwise throw exception??
+        if (!is_null(self::getRepository()->initialize($this))) {
             $this->setInitialized();
         }
 
         $this->initRelations();
 
-        return $this;
+        return $this->isInitialized();
     }
 
     public function delete(): void
     {
-        $database = self::getDatabase();
-        $id = static::getIdColumn();
+        self::getRepository()->delete($this);
 
-        $database->delete(static::getTableName())
-            ->where($id, $this->$id);
-
-        $database->execute();
         $this->setInitialized(false);
     }
 
     public function update(array $data): void
     {
-        if (!$this->isInitialized()) {
-            throw ModelInitializationException::updatingNotInitializedModel($this);
-        }
-
-        $database = self::getDatabase();
-        $id = static::getIdColumn();
-
-        $database->update(static::getTableName(), $data)->where($id, $this->$id);
-
-        $database->execute();
+        self::getRepository()->update($this, $data);
     }
 
     public static function getIdColumn(): string
@@ -132,41 +95,9 @@ abstract class AbstractModel
         return 'id';
     }
 
-    public static function where($where): ModelCollection
+    public static function where(string $field, $value, string $expression = '='): WhereBuilderFacade
     {
-        $database = self::getDatabase();
-
-        $queryBuilder = $database->getQueryBuilder()->select(static::getTableName());
-
-        if ($where instanceof WhereBuilder) {
-            $queryBuilder->whereFromBuilder($where);
-        } elseif (is_array($where)) {
-            $firstField = array_key_first($where);
-            $firstValue = array_shift($where);
-
-            if (is_array($firstValue)) {
-                $expression = $firstValue[1];
-                $firstValue = $firstValue[0];
-            }
-
-            $queryBuilder->where($firstField, $firstValue, $expression ?? '=');
-
-            foreach ($where as $field => $value) {
-                if (is_array($value)) {
-                    $value = $value[0];
-                    $expression = $value[1];
-                }
-
-                $queryBuilder->andWhere($field, $value, $expression ?? '=');
-            }
-        } else {
-            throw new IllegalTypeException($where, ['array', WhereBuilder::class]);
-        }
-
-        $models = new ModelCollection($database->fetchAsObject(static::class));
-        self::setInitializedAll($models);
-
-        return $models;
+        return self::getRepository()->where(static::class, $field, $value, $expression);
     }
 
     public static function getTableName(): string
@@ -198,17 +129,7 @@ abstract class AbstractModel
 
     public function insert(): void
     {
-        if ($this->isInitialized) {
-            return;
-        }
-
-        $database = static::getDatabase();
-        $data = array_diff_key($this->fields, $this->relations);
-
-        unset($data['isInitialized']);
-
-        //todo: what if multiple cols are primary keys?
-        $this->{static::getIdColumn()} = $database->insert($data, static::getTableName());
+        self::getRepository()->insert($this);
 
         $this->setInitialized()->initRelations();
     }
@@ -265,6 +186,11 @@ abstract class AbstractModel
         unset($this->fields[$name]);
     }
 
+    public function getForInsertion(): array
+    {
+        return array_diff_key($this->fields, $this->relations);
+    }
+
     protected function setInitialized(bool $isInitialized = true): self
     {
         $this->isInitialized = $isInitialized;
@@ -311,5 +237,14 @@ abstract class AbstractModel
         }
 
         return $this->relationFactory;
+    }
+
+    private static function getRepository(): ModelRepository
+    {
+        if (!isset(self::$repository)) {
+            self::$repository = ModelRepository::getInstance();
+        }
+
+        return self::$repository;
     }
 }
