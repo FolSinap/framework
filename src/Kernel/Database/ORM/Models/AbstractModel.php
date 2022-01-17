@@ -100,6 +100,11 @@ abstract class AbstractModel
         return self::getRepository()->where(static::class, $field, $value, $expression);
     }
 
+    public static function whereIn(string $field, array $values): WhereBuilderFacade
+    {
+        return self::getRepository()->whereIn(static::class, $field, $values);
+    }
+
     public static function getTableName(): string
     {
         if (!isset(static::$tableNames) || !array_key_exists(static::class, static::$tableNames)) {

@@ -17,9 +17,20 @@ class ModelRepository extends Container
     {
         $this->checkClass($class);
 
-        //todo: check in container first
+        /** @var AbstractModel $class */
         $database = $this->getDatabase();
         $select = $database->select($class::getTableName())->where($field, $value, $expression);
+
+        return new WhereBuilderFacade($database, $select, $class);
+    }
+
+    public function whereIn(string $class, string $field, array $values): WhereBuilderFacade
+    {
+        $this->checkClass($class);
+
+        /** @var AbstractModel $class */
+        $database = $this->getDatabase();
+        $select = $database->select($class::getTableName())->whereIn($field, $values);
 
         return new WhereBuilderFacade($database, $select, $class);
     }

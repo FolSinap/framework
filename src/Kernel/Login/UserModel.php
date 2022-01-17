@@ -21,7 +21,7 @@ abstract class UserModel extends AbstractModel
 
     public static function getByToken(Token $token): ?self
     {
-        $user = static::where(['token' => $token->getToken()]);
+        $user = static::where('token', $token->getToken())->fetch();
 
         if (count($user) !== 1) {
             return null;
@@ -42,7 +42,8 @@ abstract class UserModel extends AbstractModel
         $password = $data[$passwordField];
         unset($data[$passwordField]);
 
-        $candidate = static::where($data);
+        $keyFirst = array_key_first($data);
+        $candidate = static::where($keyFirst, $data[$keyFirst])->fetch();
 
         if (count($candidate) !== 1) {
             throw LoginException::incorrectData();

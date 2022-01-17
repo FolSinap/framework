@@ -27,7 +27,7 @@ class OneToManyRelation extends AbstractRelation
                 return $this->dry;
             }
 
-            $this->dry = $this->related::where([$this->through => $id]);
+            $this->dry = $this->related::where($this->through, $id)->fetch();
         }
 
         return $this->dry;

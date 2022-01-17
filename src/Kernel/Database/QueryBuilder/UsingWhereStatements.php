@@ -24,7 +24,7 @@ trait UsingWhereStatements
             $values[$key] = ":$paramName";
         }
 
-        $this->whereBuilder->whereIn($field, $values);
+        $this->whereBuilder = WhereBuilder::whereIn($field, $values);
 
         return $this;
     }

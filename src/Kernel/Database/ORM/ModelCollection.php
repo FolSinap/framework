@@ -83,7 +83,7 @@ class ModelCollection implements ArrayAccess, IteratorAggregate, Countable
 
         /** @var AbstractModel $class */
         foreach ($ids as $class => $id) {
-            array_push($models, ...$class::where(WhereBuilder::whereIn($class::getIdColumn(), $id)));
+            array_push($models, ...$class::whereIn($class::getIdColumn(), $id)->fetch());
         }
 
         $this->data = $models;
