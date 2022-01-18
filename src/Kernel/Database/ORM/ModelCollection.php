@@ -5,7 +5,6 @@ namespace Fwt\Framework\Kernel\Database\ORM;
 use ArrayAccess;
 use Countable;
 use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Where\WhereBuilder;
 use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
 use Fwt\Framework\Kernel\Exceptions\ORM\ModelInitializationException;
 use IteratorAggregate;
@@ -14,17 +13,10 @@ use ArrayIterator;
 class ModelCollection implements ArrayAccess, IteratorAggregate, Countable
 {
     protected array $data = [];
-    protected array $new = [];
-    protected array $deleted = [];
 
     public function __construct(array $data = [])
     {
         $this->setData($data);
-    }
-
-    public function synchronize()
-    {
-        //todo: implement
     }
 
     public function setData(array $data)
@@ -32,32 +24,6 @@ class ModelCollection implements ArrayAccess, IteratorAggregate, Countable
         $this->checkType($data);
 
         $this->data = $data;
-    }
-
-    public function add(array $models): self
-    {
-//        $this->checkType($models);
-//
-//        foreach ($models as $key => $model) {
-//            $models[$key] = ModelWrapper::wrap($model, ModelWrapper::STATE_INSERT);
-//        }
-//
-//        $this->new = array_merge($this->new, $models);
-//        $this->data = array_merge($this->data, $models);
-//
-//        return $this;
-    }
-
-    public function clear(): self
-    {
-//        foreach ($this->data as $model) {
-//            $model->setState(ModelWrapper::STATE_DELETE);
-//        }
-//
-//        $this->deleted = $this->data;
-//        $this->data = [];
-//
-//        return $this;
     }
 
     public function toArray(): array
@@ -133,16 +99,5 @@ class ModelCollection implements ArrayAccess, IteratorAggregate, Countable
                 throw new IllegalTypeException($model, [AbstractModel::class]);
             }
         }
-    }
-
-    protected function sortById(array $array): array
-    {
-        $data = [];
-
-        foreach ($array as $model) {
-            $data[$model->{$model::getIdColumn()}] = $model;
-        }
-
-        return $data;
     }
 }
