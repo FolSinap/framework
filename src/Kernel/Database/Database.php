@@ -44,6 +44,14 @@ class Database
         return $this->connection->getPdo()->lastInsertId();
     }
 
+    public function insertMany(array $data, string $table): string
+    {
+        $this->queryBuilder->insertMany($table, $data);
+        $this->execute();
+
+        return $this->connection->getPdo()->lastInsertId();
+    }
+
     public function populateObject(object $object): ?object
     {
         $statement = $this->execute();

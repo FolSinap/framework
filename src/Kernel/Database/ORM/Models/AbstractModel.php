@@ -6,12 +6,13 @@ use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Database\Database;
 use Fwt\Framework\Kernel\Database\ORM\ModelCollection;
 use Fwt\Framework\Kernel\Database\ORM\ModelRepository;
-use Fwt\Framework\Kernel\Database\ORM\Relation;
+use Fwt\Framework\Kernel\Database\ORM\Relation\AbstractRelation;
 use Fwt\Framework\Kernel\Database\ORM\Relation\RelationFactory;
+use Fwt\Framework\Kernel\Database\ORM\Relation\ToOneRelation;
 use Fwt\Framework\Kernel\Database\ORM\WhereBuilderFacade;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Where\WhereBuilder;
 use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
 use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
+use Fwt\Framework\Kernel\Exceptions\ORM\RelationDefinitionException;
 
 abstract class AbstractModel
 {
@@ -19,7 +20,7 @@ abstract class AbstractModel
 
     protected static array $tableNames;
     protected array $fields = [];
-    /** @var Relation[] $relations */
+    /** @var AbstractRelation[] $relations */
     private array $relations = [];
     private bool $isInitialized = false;
     private ?RelationFactory $relationFactory;
@@ -83,9 +84,18 @@ abstract class AbstractModel
         $this->setInitialized(false);
     }
 
-    public function update(array $data): void
+    public function update(array $data = []): void
     {
         self::getRepository()->update($this, $data);
+    }
+
+    public function toDb(): void
+    {
+        if ($this->isInitialized()) {
+            $this->update();
+        } else {
+            $this->insert();
+        }
     }
 
     public static function getIdColumn(): string
@@ -144,6 +154,25 @@ abstract class AbstractModel
         return $this->isInitialized;
     }
 
+    public function getRelations(): array
+    {
+        return $this->relations;
+    }
+
+    public function getRelation(string $name): AbstractRelation
+    {
+        if (!$this->relationExists($name)) {
+            throw RelationDefinitionException::undefinedRelation($this, $name);
+        }
+
+        return $this->relations[$name];
+    }
+
+    public function relationExists(string $name): bool
+    {
+        return array_key_exists($name, $this->relations);
+    }
+
     public static function __set_state($fields): self
     {
         return static::createDry($fields);
@@ -165,7 +194,7 @@ abstract class AbstractModel
             $relation = $this->relations[$name];
             $relatedClass = $relation->getRelated();
 
-            if ($relation instanceof Relation\ToOneRelation) {
+            if ($relation instanceof ToOneRelation) {
                 if (is_null($value)) {
                     $this->{$relation->getConnectField()} = $value;
                 } else {

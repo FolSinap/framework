@@ -28,6 +28,15 @@ abstract class AbstractRelation
         $this->through = $field;
     }
 
+    public function isRelated(AbstractModel $model): bool
+    {
+        if (!$model instanceof $this->related) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function getRelated(): string
     {
         return $this->related;

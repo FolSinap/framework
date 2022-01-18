@@ -4,6 +4,8 @@ namespace Fwt\Framework\Kernel\Database\ORM;
 
 use ArrayAccess;
 use Countable;
+use Fwt\Framework\Kernel\App;
+use Fwt\Framework\Kernel\Database\Database;
 use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
 use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
 use Fwt\Framework\Kernel\Exceptions\ORM\ModelInitializationException;
@@ -29,6 +31,11 @@ class ModelCollection implements ArrayAccess, IteratorAggregate, Countable
     public function toArray(): array
     {
         return $this->data;
+    }
+
+    public static function __set_state($array)
+    {
+        return new self($array['data']);
     }
 
     public function initializeAll(): self

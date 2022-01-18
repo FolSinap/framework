@@ -13,6 +13,36 @@ class ModelRepository extends Container
 {
     protected Database $database;
 
+    public function insertMany(ModelCollection $models): void
+    {
+        $database = $this->getDatabase();
+        $data = [];
+
+        foreach ($models as $model) {
+            $data[get_class($model)][] = $model->getForInsertion();
+        }
+
+        foreach (array_keys($data) as $class) {
+            $database->insertMany($data[$class], $class::getTableName());
+        }
+    }
+
+    public function updateMany(ModelCollection $models, array $values)
+    {
+        $database = $this->getDatabase();
+        $data = [];
+
+        foreach ($models as $model) {
+            $data[get_class($model)][] = $model->{$model::getIdColumn()};
+        }
+
+        foreach (array_keys($data) as $class) {
+            $database->update($class::getTableName(), $values)->whereIn($class::getIdColumn(), $data[$class]);
+        }
+
+        $database->execute();
+    }
+
     public function where(string $class, string $field, string $value, string $expression = '='): WhereBuilderFacade
     {
         $this->checkClass($class);
@@ -45,7 +75,7 @@ class ModelRepository extends Container
         $database->execute();
     }
 
-    public function update(AbstractModel $model, array $data): void
+    public function update(AbstractModel $model, array $data = []): void
     {
         if (!$model->isInitialized()) {
             throw ModelInitializationException::updatingNotInitializedModel($model);
@@ -53,6 +83,10 @@ class ModelRepository extends Container
 
         $database = $this->getDatabase();
         $id = $model::getIdColumn();
+
+        if (empty($data)) {
+            $data = $model->getForInsertion();
+        }
 
         $database->update($model::getTableName(), $data)->where($id, $model->$id);
 

@@ -2,10 +2,11 @@
 
 namespace Fwt\Framework\Kernel\Database\ORM\Relation;
 
+use Fwt\Framework\Kernel\Database\ORM\ModelCollection;
 use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
 use Fwt\Framework\Kernel\Database\ORM\Models\AnonymousModel;
 
-class ManyToManyRelation extends OneToManyRelation
+class ManyToManyRelation extends AbstractRelation
 {
     protected string $pivot;
     protected string $definedBy;
@@ -18,7 +19,12 @@ class ManyToManyRelation extends OneToManyRelation
         $this->definedBy = $definedBy;
     }
 
-    public function getDry()
+    public function get(): ModelCollection
+    {
+        return $this->getDry()->initializeAll();
+    }
+
+    public function getDry(): ModelCollection
     {
         if (!isset($this->dry)) {
             AnonymousModel::$tableNames[AnonymousModel::class] = $this->pivot;
@@ -26,7 +32,7 @@ class ManyToManyRelation extends OneToManyRelation
             $id = $this->from->{$this->from::getIdColumn()};
 
             if (is_null($id)) {
-                $this->dry = [];
+                $this->dry = new ModelCollection();
 
                 return $this->dry;
             }

@@ -2,6 +2,8 @@
 
 namespace Fwt\Framework\Kernel\Database\ORM\Relation;
 
+use Fwt\Framework\Kernel\Database\ORM\ModelCollection;
+use Fwt\Framework\Kernel\Database\ORM\ModelRepository;
 use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
 
 class OneToManyRelation extends AbstractRelation
@@ -11,18 +13,48 @@ class OneToManyRelation extends AbstractRelation
         parent::__construct($from, $related, $field);
     }
 
-    public function get()
+    public function add(AbstractModel $model): void
+    {
+        $this->checkClassAndUpdateForeign($model);
+
+        $model->toDb();
+    }
+
+    public function addMany(ModelCollection $models): void
+    {
+        $forUpdate = [];
+        $forInsert = [];
+
+        foreach ($models as $model) {
+            $this->checkClass($model);
+
+            if ($model->isInitialized()) {
+                $forUpdate[] = $model;
+            } else {
+                $this->updateForeign($model);
+                $forInsert[] = $model;
+            }
+        }
+
+        /** @var ModelRepository $repository */
+        $repository = ModelRepository::getInstance();
+
+        $repository->insertMany(new ModelCollection($forInsert));
+        $repository->updateMany(new ModelCollection($forUpdate), [$this->through => $this->from->{$this->from::getIdColumn()}]);
+    }
+
+    public function get(): ModelCollection
     {
         return $this->getDry()->initializeAll();
     }
 
-    public function getDry()
+    public function getDry(): ModelCollection
     {
         if (!isset($this->dry)) {
             $id = $this->from->{$this->from::getIdColumn()};
 
             if (is_null($id)) {
-                $this->dry = [];
+                $this->dry = new ModelCollection();
 
                 return $this->dry;
             }
@@ -31,5 +63,24 @@ class OneToManyRelation extends AbstractRelation
         }
 
         return $this->dry;
+    }
+
+    protected function checkClassAndUpdateForeign(AbstractModel $model): void
+    {
+        $this->checkClass($model);
+        $this->updateForeign($model);
+    }
+
+    protected function updateForeign(AbstractModel $model): void
+    {
+        $model->{$this->through} = $this->from->{$this->from::getIdColumn()};
+    }
+
+    protected function checkClass(AbstractModel $model): void
+    {
+        if ($this->isRelated($model)) {
+            //todo: exception
+            throw new \Exception();
+        }
     }
 }

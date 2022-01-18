@@ -39,6 +39,13 @@ class QueryBuilder implements Builder
         return $this->builder;
     }
 
+    public function insertMany(string $table, array $data): InsertManyBuilder
+    {
+        $this->builder = new InsertManyBuilder($table, $data);
+
+        return $this->builder;
+    }
+
     public function setParams(array $params): self
     {
         $this->builder->setParams($params);
