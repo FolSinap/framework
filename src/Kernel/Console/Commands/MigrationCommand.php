@@ -48,7 +48,7 @@ class MigrationCommand extends AbstractCommand
         $executedMigrations = Migration::all();
         $executedMigrations = array_map(function ($migration) {
             return $migration->name;
-        }, $executedMigrations);
+        }, $executedMigrations->toArray());
 
         $down = $input->getOption('down', 'd');
         $back = $input->getOption('back', 'b');
@@ -84,7 +84,7 @@ class MigrationCommand extends AbstractCommand
     {
         $migration->down();
 
-        $migration = Migration::where(['name' => $migration->getName()]);
+        $migration = Migration::where('name', $migration->getName())->fetch();
 
         if (count($migration) !== 1) {
             throw new Exception('This should never happen!');

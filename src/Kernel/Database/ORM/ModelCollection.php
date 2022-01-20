@@ -5,18 +5,35 @@ namespace Fwt\Framework\Kernel\Database\ORM;
 use ArrayAccess;
 use Countable;
 use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Where\WhereBuilder;
-use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
+use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
+use Fwt\Framework\Kernel\Exceptions\ORM\ModelInitializationException;
 use IteratorAggregate;
 use ArrayIterator;
 
 class ModelCollection implements ArrayAccess, IteratorAggregate, Countable
 {
-    protected array $data;
+    protected array $data = [];
 
     public function __construct(array $data = [])
     {
+        $this->setData($data);
+    }
+
+    public function setData(array $data)
+    {
+        $this->checkType($data);
+
         $this->data = $data;
+    }
+
+    public function toArray(): array
+    {
+        return $this->data;
+    }
+
+    public static function __set_state($array)
+    {
+        return new self($array['data']);
     }
 
     public function initializeAll(): self
@@ -24,18 +41,20 @@ class ModelCollection implements ArrayAccess, IteratorAggregate, Countable
         $ids = [];
 
         foreach ($this->data as $model) {
-            if (!$model instanceof AbstractModel) {
-                throw new InvalidExtensionException(get_class($model), AbstractModel::class);
+            $id = $model->{$model::getIdColumn()};
+
+            if (!$id) {
+                throw ModelInitializationException::idIsNotSet($model);
             }
 
-            $ids[get_class($model)][] = $model->{$model::getIdColumn()};
+            $ids[get_class($model)][] = $id;
         }
 
         $models = [];
 
         /** @var AbstractModel $class */
         foreach ($ids as $class => $id) {
-            array_push($models, ...$class::where(WhereBuilder::whereIn($class::getIdColumn(), $id)));
+            array_push($models, ...$class::whereIn($class::getIdColumn(), $id)->fetch());
         }
 
         $this->data = $models;
@@ -60,7 +79,11 @@ class ModelCollection implements ArrayAccess, IteratorAggregate, Countable
 
     public function offsetSet($offset, $value)
     {
-        $this->data[$offset] = $value;
+        if (is_null($offset)) {
+            $this->data[] = $value;
+        } else {
+            $this->data[$offset] = $value;
+        }
     }
 
     public function offsetUnset($offset)
@@ -76,5 +99,14 @@ class ModelCollection implements ArrayAccess, IteratorAggregate, Countable
     public function count(): int
     {
         return count($this->data);
+    }
+
+    protected function checkType(array $data): void
+    {
+        foreach ($data as $model) {
+            if (!$model instanceof AbstractModel) {
+                throw new IllegalTypeException($model, [AbstractModel::class]);
+            }
+        }
     }
 }

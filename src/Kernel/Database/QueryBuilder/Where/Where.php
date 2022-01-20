@@ -23,6 +23,6 @@ class Where extends Expression
 
     public function build(): string
     {
-        return "WHERE $this->field $this->expression $this->value";
+        return "$this->field $this->expression $this->value";
     }
 }
