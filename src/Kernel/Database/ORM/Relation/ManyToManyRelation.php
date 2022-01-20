@@ -2,6 +2,8 @@
 
 namespace Fwt\Framework\Kernel\Database\ORM\Relation;
 
+use Fwt\Framework\Kernel\App;
+use Fwt\Framework\Kernel\Database\Database;
 use Fwt\Framework\Kernel\Database\ORM\ModelCollection;
 use Fwt\Framework\Kernel\Database\ORM\ModelRepository;
 use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
@@ -18,6 +20,28 @@ class ManyToManyRelation extends OneToManyRelation
 
         $this->pivot = $pivot ?? $this->defaultPivot();
         $this->definedBy = $definedBy;
+    }
+
+    public function delete(AbstractModel $model): void
+    {
+        /** @var Database $database */
+        $database = App::$app->getContainer()->get(Database::class);
+
+        $database->delete($this->pivot)
+            ->where($this->definedBy, $this->from->primary())
+            ->andWhere($this->through, $model->primary());
+
+        $database->execute();
+    }
+
+    public function clear(): void
+    {
+        /** @var Database $database */
+        $database = App::$app->getContainer()->get(Database::class);
+
+        $database->delete($this->pivot)->where($this->definedBy, $this->from->primary());
+
+        $database->execute();
     }
 
     public function add(AbstractModel $model): void

@@ -43,6 +43,23 @@ class OneToManyRelation extends AbstractRelation
         $repository->updateMany(new ModelCollection($forUpdate), [$this->through => $this->from->primary()]);
     }
 
+    public function delete(AbstractModel $model)
+    {
+        $this->checkClassAndDeleteForeign($model);
+
+        $model->update();
+    }
+
+    public function clear(): void
+    {
+        $relations = $this->get();
+
+        /** @var ModelRepository $repository */
+        $repository = ModelRepository::getInstance();
+
+        $repository->updateMany($relations, [$this->through => null]);
+    }
+
     public function get(): ModelCollection
     {
         return $this->getDry()->initializeAll();
@@ -71,9 +88,20 @@ class OneToManyRelation extends AbstractRelation
         $this->updateForeign($model);
     }
 
+    protected function checkClassAndDeleteForeign(AbstractModel $model): void
+    {
+        $this->checkClass($model);
+        $this->deleteForeign($model);
+    }
+
     protected function updateForeign(AbstractModel $model): void
     {
         $model->{$this->through} = $this->from->primary();
+    }
+
+    protected function deleteForeign(AbstractModel $model): void
+    {
+        $model->{$this->through} = null;
     }
 
     protected function checkClass(AbstractModel $model): void

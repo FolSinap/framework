@@ -13,6 +13,32 @@ class ModelRepository extends Container
 {
     protected Database $database;
 
+    public function deleteMany(ModelCollection $models): void
+    {
+        if ($models->isEmpty()) {
+            return;
+        }
+
+        $database = $this->getDatabase();
+        $data = [];
+
+        foreach ($models as $model) {
+            if (!$model->isInitialized()) {
+                continue;
+            }
+
+            $data[get_class($model)][] = $model->primary();
+        }
+
+        foreach (array_keys($data) as $class) {
+            $database->delete($class::getTableName())->whereIn($class::getIdColumn(), $data[$class]);
+        }
+
+        $database->execute();
+
+        $this->deleteManyFromRep($models);
+    }
+
     public function insertMany(ModelCollection $models): void
     {
         $database = $this->getDatabase();
@@ -210,8 +236,23 @@ class ModelRepository extends Container
 
     public function save(AbstractModel $model): void
     {
-        if ($id = $model->{$model::getIdColumn()}) {
+        if ($id = $model->primary()) {
             $this->data[get_class($model)][$id] = $model;
+        }
+    }
+
+    public function deleteManyFromRep(ModelCollection $models): void
+    {
+        /** @var AbstractModel $model */
+        foreach ($models as $model) {
+            $this->deleteFromRep($model);
+        }
+    }
+
+    public function deleteFromRep(AbstractModel $model): void
+    {
+        if ($id = $model->primary()) {
+            unset($this->data[get_class($model)][$id]);
         }
     }
 
