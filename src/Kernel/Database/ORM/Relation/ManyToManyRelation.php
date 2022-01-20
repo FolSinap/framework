@@ -48,9 +48,7 @@ class ManyToManyRelation extends OneToManyRelation
     {
         $this->checkClass($model);
 
-        if ($model->isInitialized()) {
-            $model->toDb();
-        }
+        $model->synchronize();
 
         $id = $this->from->primary();
 
@@ -90,29 +88,23 @@ class ManyToManyRelation extends OneToManyRelation
         $repository->insertMany($forInsertion);
     }
 
-    public function getDry(): ModelCollection
+    public function get(): ModelCollection
     {
-        if (!isset($this->dry)) {
-            AnonymousModel::$tableNames[AnonymousModel::class] = $this->pivot;
+        /** @var Database $database */
+        $database = App::$app->getContainer()->get(Database::class);
 
-            $id = $this->from->primary();
+        //todo: use subquery here
+        $database->select($this->pivot, [$this->through])->where($this->definedBy, $this->from->primary());
+        $ids = $database->fetchAssoc();
+        $ids = array_map(function ($value) {
+            return $value[$this->through];
+        }, $ids);
 
-            if (is_null($id)) {
-                $this->dry = new ModelCollection();
-
-                return $this->dry;
-            }
-
-            $pivots = AnonymousModel::where($this->definedBy, $id)->fetch();
-
-            foreach ($pivots as $key => $pivot) {
-                $pivots[$key] = $this->related::createDry([$this->related::getIdColumn() => $pivot->{$this->through}]);
-            }
-
-            $this->dry = $pivots;
+        if (empty($ids)) {
+            return new ModelCollection();
         }
 
-        return $this->dry;
+        return $this->related::whereIn($this->related::getIdColumn(), $ids)->fetch();
     }
 
     protected function defaultPivot(): string

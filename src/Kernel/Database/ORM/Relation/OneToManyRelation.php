@@ -17,7 +17,7 @@ class OneToManyRelation extends AbstractRelation
     {
         $this->checkClassAndUpdateForeign($model);
 
-        $model->toDb();
+        $model->synchronize();
     }
 
     public function addMany(ModelCollection $models): void
@@ -62,21 +62,19 @@ class OneToManyRelation extends AbstractRelation
 
     public function get(): ModelCollection
     {
-        return $this->getDry()->initializeAll();
+        $id = $this->from->primary();
+
+        if (is_null($id)) {
+            return new ModelCollection();
+        }
+
+        return $this->related::where($this->through, $id)->fetch();
     }
 
     public function getDry(): ModelCollection
     {
         if (!isset($this->dry)) {
-            $id = $this->from->primary();
-
-            if (is_null($id)) {
-                $this->dry = new ModelCollection();
-
-                return $this->dry;
-            }
-
-            $this->dry = $this->related::where($this->through, $id)->fetch();
+            $this->dry = new ModelCollection();
         }
 
         return $this->dry;

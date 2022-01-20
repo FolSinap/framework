@@ -3,15 +3,19 @@
 namespace Fwt\Framework\Kernel\Database\ORM;
 
 use Fwt\Framework\Kernel\App;
-use Fwt\Framework\Kernel\Container;
 use Fwt\Framework\Kernel\Database\Database;
 use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
 use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
 use Fwt\Framework\Kernel\Exceptions\ORM\ModelInitializationException;
 
-class ModelRepository extends Container
+class ModelRepository
 {
     protected Database $database;
+
+    public function __construct()
+    {
+        $this->database = App::$app->getContainer()->get(Database::class);
+    }
 
     public function deleteMany(ModelCollection $models): void
     {
@@ -19,7 +23,6 @@ class ModelRepository extends Container
             return;
         }
 
-        $database = $this->getDatabase();
         $data = [];
 
         foreach ($models as $model) {
@@ -31,17 +34,14 @@ class ModelRepository extends Container
         }
 
         foreach (array_keys($data) as $class) {
-            $database->delete($class::getTableName())->whereIn($class::getIdColumn(), $data[$class]);
+            $this->database->delete($class::getTableName())->whereIn($class::getIdColumn(), $data[$class]);
         }
 
-        $database->execute();
-
-        $this->deleteManyFromRep($models);
+        $this->database->execute();
     }
 
     public function insertMany(ModelCollection $models): void
     {
-        $database = $this->getDatabase();
         $data = [];
 
         foreach ($models as $model) {
@@ -49,13 +49,12 @@ class ModelRepository extends Container
         }
 
         foreach (array_keys($data) as $class) {
-            $database->insertMany($data[$class], $class::getTableName());
+            $this->database->insertMany($data[$class], $class::getTableName());
         }
     }
 
     public function updateMany(ModelCollection $models, array $values)
     {
-        $database = $this->getDatabase();
         $data = [];
 
         foreach ($models as $model) {
@@ -63,211 +62,92 @@ class ModelRepository extends Container
         }
 
         foreach (array_keys($data) as $class) {
-            $database->update($class::getTableName(), $values)->whereIn($class::getIdColumn(), $data[$class]);
+            $this->database->update($class::getTableName(), $values)->whereIn($class::getIdColumn(), $data[$class]);
         }
 
-        $database->execute();
+        $this->database->execute();
     }
 
     public function where(string $class, string $field, string $value, string $expression = '='): WhereBuilderFacade
     {
         $this->checkClass($class);
 
-        /** @var AbstractModel $class */
-        $database = $this->getDatabase();
-        $select = $database->select($class::getTableName())->where($field, $value, $expression);
+        $select = $this->database->select($class::getTableName())->where($field, $value, $expression);
 
-        return new WhereBuilderFacade($database, $select, $class);
+        return new WhereBuilderFacade($this->database, $select, $class);
     }
 
     public function whereIn(string $class, string $field, array $values): WhereBuilderFacade
     {
         $this->checkClass($class);
 
-        /** @var AbstractModel $class */
-        $database = $this->getDatabase();
-        $select = $database->select($class::getTableName())->whereIn($field, $values);
+        $select = $this->database->select($class::getTableName())->whereIn($field, $values);
 
-        return new WhereBuilderFacade($database, $select, $class);
+        return new WhereBuilderFacade($this->database, $select, $class);
     }
 
     public function delete(AbstractModel $model): void
     {
-        $database = $this->getDatabase();
         $id = $model::getIdColumn();
 
-        $database->delete($model::getTableName())->where($id, $model->$id);
+        $this->database->delete($model::getTableName())->where($id, $model->$id);
 
-        $database->execute();
+        $this->database->execute();
     }
 
     public function update(AbstractModel $model, array $data = []): void
     {
-        if (!$model->isInitialized()) {
+        if (!$model->exists()) {
+            //todo: change exception, updatingNotInitializedModel -> updatingNotExistingModel
             throw ModelInitializationException::updatingNotInitializedModel($model);
         }
 
-        $database = $this->getDatabase();
         $id = $model::getIdColumn();
 
         if (empty($data)) {
+            if (!$model->isChanged()) {
+                return;
+            }
+
             $data = $model->getForInsertion();
         }
 
-        $database->update($model::getTableName(), $data)->where($id, $model->$id);
+        $this->database->update($model::getTableName(), $data)->where($id, $model->$id);
 
-        $database->execute();
-    }
-
-    public function dry(string $class, array $data = []): AbstractModel
-    {
-        $this->checkClass($class);
-        $needsToSave = true;
-
-        if (array_key_exists($idCol = $class::getIdColumn(), $data)) {
-            if ($model = $this->getByIdIfExists($class, $data[$idCol])) {
-                $needsToSave = false;
-
-                unset($data[$idCol]);
-            }
-        }
-
-        $model = $model ?? new $class();
-
-        foreach ($data as $property => $value) {
-            $model->$property = $value;
-        }
-
-        if ($needsToSave) {
-            $this->save($model);
-        }
-
-        return $model;
+        $this->database->execute();
     }
 
     public function allByClass(string $class): ModelCollection
     {
         $this->checkClass($class);
 
-        $database = $this->getDatabase();
-        $database->select($class::getTableName());
+        $this->database->select($class::getTableName());
 
-        $models = new ModelCollection($database->fetchAsObject($class));
-
-        $this->saveMany($models);
-
-        return $models;
+        return new ModelCollection($this->database->fetchAsObject($class));
     }
 
-    public function initializedById(string $class, $id): ?AbstractModel
+    public function find(string $class, $id): ?AbstractModel
     {
         $this->checkClass($class);
 
-        $model = $this->getById($class, $id);
+        $this->database->select($class::getTableName())->where($class::getIdColumn(), $id);
 
-        if (!$model->isInitialized()) {
-            $model = $this->initialize($model);
-        }
+        $object = new ModelCollection($this->database->fetchAsObject($class));
 
-        return $model;
-    }
-
-    public function getById(string $class, $id): ?AbstractModel
-    {
-        $this->checkClass($class);
-
-        if ($model = $this->getByIdIfExists($class, $id)) {
-            return $model;
-        }
-
-        $model = $this->fromDbById($class, $id);
-        $this->data[$class][$id] = $model;
-
-        return $model;
-    }
-
-    public function getByIdIfExists(string $class, $id): ?AbstractModel
-    {
-        $this->checkClass($class);
-
-        if (isset($this->data[$class][$id])) {
-            return $this->data[$class][$id];
-        }
-
-        return null;
-    }
-
-    public function initialize(AbstractModel $model): ?AbstractModel
-    {
-        $id = $model->{$model::getIdColumn()};
-
-        if (!$id) {
-            throw ModelInitializationException::idIsNotSet($model);
-        }
-
-        $this->getDatabase()->select($model::getTableName())->where($model::getIdColumn(), $id);
-
-        return $this->populateModel($model);
+        return $object->isEmpty() ? null : $object[0];
     }
 
     public function insert(AbstractModel $model): void
     {
-        if ($model->isInitialized()) {
+        if ($model->exists()) {
             return;
         }
 
-        $database = $this->getDatabase();
         $data = $model->getForInsertion();
-        $id = $database->insert($data, $model::getTableName());
+        $id = $this->database->insert($data, $model::getTableName());
 
         //todo: what if multiple cols are primary keys?
         $model->{$model::getIdColumn()} = $id;
-
-        $this->save($model);
-    }
-
-    public function saveMany(ModelCollection $models): void
-    {
-        /** @var AbstractModel $model */
-        foreach ($models as $model) {
-            $this->save($model);
-        }
-    }
-
-    public function save(AbstractModel $model): void
-    {
-        if ($id = $model->primary()) {
-            $this->data[get_class($model)][$id] = $model;
-        }
-    }
-
-    public function deleteManyFromRep(ModelCollection $models): void
-    {
-        /** @var AbstractModel $model */
-        foreach ($models as $model) {
-            $this->deleteFromRep($model);
-        }
-    }
-
-    public function deleteFromRep(AbstractModel $model): void
-    {
-        if ($id = $model->primary()) {
-            unset($this->data[get_class($model)][$id]);
-        }
-    }
-
-    protected function fromDbById(string $class, $id): ?AbstractModel
-    {
-        $this->checkClass($class);
-
-        $database = $this->getDatabase();
-
-        /** @var AbstractModel $class */
-        $database->select($class::getTableName())->where($class::getIdColumn(), $id);
-
-        $object = new ModelCollection($database->fetchAsObject($class));
-
-        return $object->isEmpty() ? null : $object[0];
     }
 
     protected function checkClass(string $class): void
@@ -277,17 +157,8 @@ class ModelRepository extends Container
         }
     }
 
-    protected function getDatabase(): Database
-    {
-        if (!isset($this->database)) {
-            $this->database = App::$app->getContainer()->get(Database::class);
-        }
-
-        return $this->database;
-    }
-
     protected function populateModel(AbstractModel $model): ?AbstractModel
     {
-        return $this->getDatabase()->populateObject($model);
+        return $this->database->populateObject($model);
     }
 }

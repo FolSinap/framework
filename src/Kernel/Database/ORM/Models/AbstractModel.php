@@ -18,12 +18,12 @@ abstract class AbstractModel
 {
     protected const RELATIONS = [];
 
-    //todo: add flag 'fromDb'
     protected static array $tableNames;
     protected array $fields = [];
     /** @var AbstractRelation[] $relations */
     private array $relations = [];
-    private bool $isInitialized = false;
+    private bool $exists = false;
+    private bool $isChanged = false;
     private ?RelationFactory $relationFactory;
     private static ModelRepository $repository;
 
@@ -35,10 +35,10 @@ abstract class AbstractModel
 
     public static function find($id): ?self
     {
-        $model = self::getRepository()->initializedById(static::class, $id);
+        $model = self::getRepository()->find(static::class, $id);
 
         if ($model) {
-            $model->setInitialized();
+            $model->setExists();
         }
 
         return $model;
@@ -48,14 +48,25 @@ abstract class AbstractModel
     {
         $models = self::getRepository()->allByClass(static::class);
 
-        self::setInitializedAll($models);
+        self::setExistsAll($models);
 
         return $models;
     }
 
+    public static function fromId($id): self
+    {
+        return static::createDry([static::getIdColumn() => $id])->setExists()->setIsChanged();
+    }
+
     public static function createDry(array $data): self
     {
-        return self::getRepository()->dry(static::class, $data);
+        $model = new static();
+
+        foreach ($data as $property => $value) {
+            $model->$property = $value;
+        }
+
+        return $model;
     }
 
     public static function create(array $data): self
@@ -67,36 +78,39 @@ abstract class AbstractModel
         return $object;
     }
 
-    public function initialize(): bool
+    public function fetch(): self
     {
-        if (!is_null(self::getRepository()->initialize($this))) {
-            $this->setInitialized();
+        if (!$this->primary()) {
+            //todo: change exception
+            throw new \Exception('id is not set');
         }
 
-        $this->initRelations();
+        return static::find($this->primary());
+    }
 
-        return $this->isInitialized();
+    public function synchronize(): self
+    {
+        if (!$this->exists()) {
+            $this->insert();
+        } elseif ($this->isChanged()) {
+            $this->update();
+        }
+
+        return $this;
     }
 
     public function delete(): void
     {
         self::getRepository()->delete($this);
 
-        $this->setInitialized(false);
+        $this->setExists(false);
     }
 
     public function update(array $data = []): void
     {
         self::getRepository()->update($this, $data);
-    }
 
-    public function toDb(): void
-    {
-        if ($this->isInitialized()) {
-            $this->update();
-        } else {
-            $this->insert();
-        }
+        $this->setExists()->setIsChanged(false);
     }
 
     public function primary()
@@ -154,12 +168,7 @@ abstract class AbstractModel
     {
         self::getRepository()->insert($this);
 
-        $this->setInitialized()->initRelations();
-    }
-
-    public function isInitialized(): bool
-    {
-        return $this->isInitialized;
+        $this->setExists()->setIsChanged(false)->initRelations();
     }
 
     public function getRelations(): array
@@ -198,9 +207,12 @@ abstract class AbstractModel
 
     public function __set(string $name, $value): void
     {
+        $isChanged = $this->exists();
+
         if (array_key_exists($name, $this->relations)) {
             $relation = $this->relations[$name];
             $relatedClass = $relation->getRelated();
+            $isChanged = $this->isChanged();
 
             if ($relation instanceof ToOneRelation) {
                 if (is_null($value)) {
@@ -212,10 +224,13 @@ abstract class AbstractModel
 
                     $this->{$relation->getConnectField()} = $value->{$value::getIdColumn()};
                 }
+
+                $isChanged = $this->exists();
             }
         }
 
         $this->fields[$name] = $value;
+        $this->setIsChanged($isChanged);
     }
 
     public function __isset(string $name): bool
@@ -233,22 +248,53 @@ abstract class AbstractModel
         return array_diff_key($this->fields, $this->relations);
     }
 
-    protected function setInitialized(bool $isInitialized = true): self
+    public function isSynchronized(): bool
     {
-        $this->isInitialized = $isInitialized;
+        return $this->exists && !$this->isChanged;
+    }
+
+    public function exists(): bool
+    {
+        return $this->exists;
+    }
+
+    public function isChanged(): bool
+    {
+        return $this->isChanged;
+    }
+
+    private function setExists(bool $exists = true): self
+    {
+        if (!$exists) {
+            $this->isChanged = false;
+        }
+
+        $this->exists = $exists;
 
         return $this;
     }
 
-    protected static function setInitializedAll(ModelCollection $models, bool $isInitialized = true): void
+    private static function setExistsAll(ModelCollection $models, bool $exists = true): void
     {
         foreach ($models as $model) {
             if (!$model instanceof self) {
                 throw new InvalidExtensionException($model, self::class);
             }
 
-            $model->setInitialized($isInitialized);
+            $model->setExists($exists);
         }
+    }
+
+    private function setIsChanged(bool $isChanged = true): self
+    {
+        if (!$this->exists && $isChanged) {
+            //todo: change exception
+            throw new \Exception('Couldn\'t set isChanged = true, while model is not in database');
+        }
+
+        $this->isChanged = $isChanged;
+
+        return $this;
     }
 
     protected static function getDatabase(): Database
@@ -284,7 +330,7 @@ abstract class AbstractModel
     private static function getRepository(): ModelRepository
     {
         if (!isset(self::$repository)) {
-            self::$repository = ModelRepository::getInstance();
+            self::$repository = new ModelRepository();
         }
 
         return self::$repository;

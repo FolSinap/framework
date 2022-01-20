@@ -29,8 +29,7 @@ class WhereBuilderFacade
     {
         $models = new ModelCollection($this->database->fetchAsObject($this->class));
 
-        $this->setInitialized($models);
-        ModelRepository::getInstance()->saveMany($models);
+        $this->setExists($models);
 
         return $models;
     }
@@ -78,10 +77,10 @@ class WhereBuilderFacade
         return $this;
     }
 
-    private function setInitialized(ModelCollection $models): void
+    private function setExists(ModelCollection $models): void
     {
         foreach ($models as $model) {
-            $reflection = new ReflectionProperty(AbstractModel::class, 'isInitialized');
+            $reflection = new ReflectionProperty(AbstractModel::class, 'exists');
             $reflection->setAccessible(true);
             $reflection->setValue($model, true);
         }

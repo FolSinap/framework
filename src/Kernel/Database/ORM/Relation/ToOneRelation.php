@@ -10,8 +10,8 @@ class ToOneRelation extends AbstractRelation
     {
         $dry = $this->getDry();
 
-        if ($dry && $dry->initialize()) {
-            return $dry;
+        if ($dry) {
+            return $dry->fetch();
         }
 
         return null;
@@ -25,7 +25,7 @@ class ToOneRelation extends AbstractRelation
             if (is_null($foreignKey)) {
                 $this->dry = null;
             } else {
-                $this->dry = $this->related::createDry([$this->related::getIdColumn() => $foreignKey]);
+                $this->dry = $this->related::fromId($foreignKey);
             }
         }
 
