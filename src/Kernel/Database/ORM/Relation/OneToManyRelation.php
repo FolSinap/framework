@@ -40,7 +40,7 @@ class OneToManyRelation extends AbstractRelation
         $repository = ModelRepository::getInstance();
 
         $repository->insertMany(new ModelCollection($forInsert));
-        $repository->updateMany(new ModelCollection($forUpdate), [$this->through => $this->from->{$this->from::getIdColumn()}]);
+        $repository->updateMany(new ModelCollection($forUpdate), [$this->through => $this->from->primary()]);
     }
 
     public function get(): ModelCollection
@@ -51,7 +51,7 @@ class OneToManyRelation extends AbstractRelation
     public function getDry(): ModelCollection
     {
         if (!isset($this->dry)) {
-            $id = $this->from->{$this->from::getIdColumn()};
+            $id = $this->from->primary();
 
             if (is_null($id)) {
                 $this->dry = new ModelCollection();
@@ -73,7 +73,7 @@ class OneToManyRelation extends AbstractRelation
 
     protected function updateForeign(AbstractModel $model): void
     {
-        $model->{$this->through} = $this->from->{$this->from::getIdColumn()};
+        $model->{$this->through} = $this->from->primary();
     }
 
     protected function checkClass(AbstractModel $model): void

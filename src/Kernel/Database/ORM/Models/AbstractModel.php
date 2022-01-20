@@ -18,6 +18,7 @@ abstract class AbstractModel
 {
     protected const RELATIONS = [];
 
+    //todo: add flag 'fromDb'
     protected static array $tableNames;
     protected array $fields = [];
     /** @var AbstractRelation[] $relations */
@@ -96,6 +97,13 @@ abstract class AbstractModel
         } else {
             $this->insert();
         }
+    }
+
+    public function primary()
+    {
+        //todo: add cases where primary key includes multiple cols
+
+        return $this->{$this::getIdColumn()};
     }
 
     public static function getIdColumn(): string

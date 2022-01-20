@@ -4,8 +4,6 @@ namespace Fwt\Framework\Kernel\Database\ORM;
 
 use ArrayAccess;
 use Countable;
-use Fwt\Framework\Kernel\App;
-use Fwt\Framework\Kernel\Database\Database;
 use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
 use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
 use Fwt\Framework\Kernel\Exceptions\ORM\ModelInitializationException;
@@ -81,7 +79,11 @@ class ModelCollection implements ArrayAccess, IteratorAggregate, Countable
 
     public function offsetSet($offset, $value)
     {
-        $this->data[$offset] = $value;
+        if (is_null($offset)) {
+            $this->data[] = $value;
+        } else {
+            $this->data[$offset] = $value;
+        }
     }
 
     public function offsetUnset($offset)
