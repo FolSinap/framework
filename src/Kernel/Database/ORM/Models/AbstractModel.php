@@ -19,6 +19,7 @@ abstract class AbstractModel
     protected const RELATIONS = [];
 
     protected static array $tableNames;
+    protected static array $columns = [];
     protected array $fields = [];
     /** @var AbstractRelation[] $relations */
     private array $relations = [];
@@ -215,6 +216,8 @@ abstract class AbstractModel
             $isChanged = $this->isChanged();
 
             if ($relation instanceof ToOneRelation) {
+                $original = $this->{$relation->getConnectField()};
+
                 if (is_null($value)) {
                     $this->{$relation->getConnectField()} = $value;
                 } else {
@@ -225,7 +228,9 @@ abstract class AbstractModel
                     $this->{$relation->getConnectField()} = $value->{$value::getIdColumn()};
                 }
 
-                $isChanged = $this->exists();
+                if ($this->{$relation->getConnectField()} !== $original) {
+                    $isChanged = $this->exists();
+                }
             }
         }
 
@@ -245,7 +250,17 @@ abstract class AbstractModel
 
     public function getForInsertion(): array
     {
-        return array_diff_key($this->fields, $this->relations);
+        $fields = [];
+
+        foreach (static::$columns as $column) {
+            $fields[$column] = $this->$column;
+        }
+
+        if (empty($fields)) {
+            return array_diff_key($this->fields, $this->relations);
+        }
+
+        return $fields;
     }
 
     public function isSynchronized(): bool
