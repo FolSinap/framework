@@ -5,11 +5,13 @@ namespace Fwt\Framework\Kernel\Database\ORM\Models;
 use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Database\Database;
 use Fwt\Framework\Kernel\Database\ORM\ModelCollection;
-use Fwt\Framework\Kernel\Database\ORM\Relation;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Where\WhereBuilder;
+use Fwt\Framework\Kernel\Database\ORM\ModelRepository;
+use Fwt\Framework\Kernel\Database\ORM\Relation\AbstractRelation;
+use Fwt\Framework\Kernel\Database\ORM\Relation\RelationFactory;
+use Fwt\Framework\Kernel\Database\ORM\Relation\ToOneRelation;
+use Fwt\Framework\Kernel\Database\ORM\WhereBuilderFacade;
 use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
 use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
-use Fwt\Framework\Kernel\Exceptions\ORM\ModelInitializationException;
 use Fwt\Framework\Kernel\Exceptions\ORM\RelationDefinitionException;
 
 abstract class AbstractModel
@@ -17,75 +19,55 @@ abstract class AbstractModel
     protected const RELATIONS = [];
 
     protected static array $tableNames;
+    protected static array $columns = [];
     protected array $fields = [];
-    /** @var Relation[] $relations */
+    /** @var AbstractRelation[] $relations */
     private array $relations = [];
-    private bool $isInitialized = false;
+    private bool $exists = false;
+    private bool $isChanged = false;
+    private ?RelationFactory $relationFactory;
+    private static ModelRepository $repository;
 
     public function __construct()
     {
+        $this->relationFactory = $this->getFactory();
         $this->initRelations();
-    }
-
-    public function initialize(): self
-    {
-        $id = $this->{static::getIdColumn()};
-
-        if (!$id) {
-            throw ModelInitializationException::idIsNotSet($this);
-        }
-
-        $database = self::getDatabase();
-
-        $database->select(static::getTableName())
-            ->where(static::getIdColumn(), $id);
-
-        if (!is_null($database->populateModel($this))) {
-            //todo: otherwise throw exception??
-            $this->setInitialized();
-        }
-
-        $this->initRelations();
-
-        return $this;
     }
 
     public static function find($id): ?self
     {
-        $database = self::getDatabase();
+        $model = self::getRepository()->find(static::class, $id);
 
-        $database->select(static::getTableName())->where(static::getIdColumn(), $id);
+        if ($model) {
+            $model->setExists();
+        }
 
-        $object = new ModelCollection($database->fetchAsObject(static::class));
-        self::setInitializedAll($object);
-
-        return $object->isEmpty() ? null : $object[0];
+        return $model;
     }
 
     public static function all(): ModelCollection
     {
-        $database = self::getDatabase();
+        $models = self::getRepository()->allByClass(static::class);
 
-        $database->select(static::getTableName());
-
-        $models = new ModelCollection($database->fetchAsObject(static::class));
-
-        self::setInitializedAll($models);
+        self::setExistsAll($models);
 
         return $models;
     }
 
+    public static function fromId($id): self
+    {
+        return static::createDry([static::getIdColumn() => $id])->setExists()->setIsChanged();
+    }
+
     public static function createDry(array $data): self
     {
-        $object = new static();
+        $model = new static();
 
         foreach ($data as $property => $value) {
-            $object->$property = $value;
+            $model->$property = $value;
         }
 
-        $object->setInitialized(false);
-
-        return $object;
+        return $model;
     }
 
     public static function create(array $data): self
@@ -97,30 +79,46 @@ abstract class AbstractModel
         return $object;
     }
 
-    public function delete()
+    public function fetch(): self
     {
-        $database = self::getDatabase();
-        $id = static::getIdColumn();
-
-        $database->delete(static::getTableName())
-            ->where($id, $this->$id);
-
-        $database->execute();
-        $this->setInitialized(false);
-    }
-
-    public function update(array $data): void
-    {
-        if (!$this->isInitialized()) {
-            throw ModelInitializationException::updatingNotInitializedModel($this);
+        if (!$this->primary()) {
+            //todo: change exception
+            throw new \Exception('id is not set');
         }
 
-        $database = self::getDatabase();
-        $id = static::getIdColumn();
+        return static::find($this->primary());
+    }
 
-        $database->update(static::getTableName(), $data)->where($id, $this->$id);
+    public function synchronize(): self
+    {
+        if (!$this->exists()) {
+            $this->insert();
+        } elseif ($this->isChanged()) {
+            $this->update();
+        }
 
-        $database->execute();
+        return $this;
+    }
+
+    public function delete(): void
+    {
+        self::getRepository()->delete($this);
+
+        $this->setExists(false);
+    }
+
+    public function update(array $data = []): void
+    {
+        self::getRepository()->update($this, $data);
+
+        $this->setExists()->setIsChanged(false);
+    }
+
+    public function primary()
+    {
+        //todo: add cases where primary key includes multiple cols
+
+        return $this->{$this::getIdColumn()};
     }
 
     public static function getIdColumn(): string
@@ -130,41 +128,14 @@ abstract class AbstractModel
         return 'id';
     }
 
-    public static function where($where): ModelCollection
+    public static function where(string $field, $value, string $expression = '='): WhereBuilderFacade
     {
-        $database = self::getDatabase();
+        return self::getRepository()->where(static::class, $field, $value, $expression);
+    }
 
-        $queryBuilder = $database->getQueryBuilder()->select(static::getTableName());
-
-        if ($where instanceof WhereBuilder) {
-            $queryBuilder->whereFromBuilder($where);
-        } elseif (is_array($where)) {
-            $firstField = array_key_first($where);
-            $firstValue = array_shift($where);
-
-            if (is_array($firstValue)) {
-                $firstValue = $firstValue[0];
-                $expression = $firstValue[1];
-            }
-
-            $queryBuilder->where($firstField, $firstValue, $expression ?? '=');
-
-            foreach ($where as $field => $value) {
-                if (is_array($value)) {
-                    $value = $value[0];
-                    $expression = $value[1];
-                }
-
-                $queryBuilder->andWhere($field, $value, $expression ?? '=');
-            }
-        } else {
-            throw new IllegalTypeException($where, ['array', WhereBuilder::class]);
-        }
-
-        $models = new ModelCollection($database->fetchAsObject(static::class));
-        self::setInitializedAll($models);
-
-        return $models;
+    public static function whereIn(string $field, array $values): WhereBuilderFacade
+    {
+        return self::getRepository()->whereIn(static::class, $field, $values);
     }
 
     public static function getTableName(): string
@@ -188,26 +159,36 @@ abstract class AbstractModel
         return static::$tableNames[static::class];
     }
 
-    public function insert(): void
+    public function prepareForExport()
     {
-        if ($this->isInitialized) {
-            return;
-        }
-
-        $database = static::getDatabase();
-        $data = array_diff_key($this->fields, $this->relations);
-
-        unset($data['isInitialized']);
-
-        //todo: what if multiple cols are primary keys?
-        $this->{static::getIdColumn()} = $database->insert($data, static::getTableName());
-
-        $this->setInitialized()->initRelations();
+        $this->relations = [];
+        $this->relationFactory = null;
     }
 
-    public function isInitialized(): bool
+    public function insert(): void
     {
-        return $this->isInitialized;
+        self::getRepository()->insert($this);
+
+        $this->setExists()->setIsChanged(false)->initRelations();
+    }
+
+    public function getRelations(): array
+    {
+        return $this->relations;
+    }
+
+    public function getRelation(string $name): AbstractRelation
+    {
+        if (!$this->relationExists($name)) {
+            throw RelationDefinitionException::undefinedRelation($this, $name);
+        }
+
+        return $this->relations[$name];
+    }
+
+    public function relationExists(string $name): bool
+    {
+        return array_key_exists($name, $this->relations);
     }
 
     public static function __set_state($fields): self
@@ -227,11 +208,16 @@ abstract class AbstractModel
 
     public function __set(string $name, $value): void
     {
+        $isChanged = $this->exists();
+
         if (array_key_exists($name, $this->relations)) {
             $relation = $this->relations[$name];
             $relatedClass = $relation->getRelated();
+            $isChanged = $this->isChanged();
 
-            if ($relation->getType() === Relation::TO_ONE) {
+            if ($relation instanceof ToOneRelation) {
+                $original = $this->{$relation->getConnectField()};
+
                 if (is_null($value)) {
                     $this->{$relation->getConnectField()} = $value;
                 } else {
@@ -241,10 +227,15 @@ abstract class AbstractModel
 
                     $this->{$relation->getConnectField()} = $value->{$value::getIdColumn()};
                 }
+
+                if ($this->{$relation->getConnectField()} !== $original) {
+                    $isChanged = $this->exists();
+                }
             }
         }
 
         $this->fields[$name] = $value;
+        $this->setIsChanged($isChanged);
     }
 
     public function __isset(string $name): bool
@@ -257,22 +248,68 @@ abstract class AbstractModel
         unset($this->fields[$name]);
     }
 
-    protected function setInitialized(bool $isInitialized = true): self
+    public function getForInsertion(): array
     {
-        $this->isInitialized = $isInitialized;
+        $fields = [];
+
+        foreach (static::$columns as $column) {
+            $fields[$column] = $this->$column;
+        }
+
+        if (empty($fields)) {
+            return array_diff_key($this->fields, $this->relations);
+        }
+
+        return $fields;
+    }
+
+    public function isSynchronized(): bool
+    {
+        return $this->exists && !$this->isChanged;
+    }
+
+    public function exists(): bool
+    {
+        return $this->exists;
+    }
+
+    public function isChanged(): bool
+    {
+        return $this->isChanged;
+    }
+
+    private function setExists(bool $exists = true): self
+    {
+        if (!$exists) {
+            $this->isChanged = false;
+        }
+
+        $this->exists = $exists;
 
         return $this;
     }
 
-    protected static function setInitializedAll(ModelCollection $models, bool $isInitialized = true): void
+    private static function setExistsAll(ModelCollection $models, bool $exists = true): void
     {
         foreach ($models as $model) {
             if (!$model instanceof self) {
                 throw new InvalidExtensionException($model, self::class);
             }
 
-            $model->setInitialized($isInitialized);
+            $model->setExists($exists);
         }
+    }
+
+    private function setIsChanged(bool $isChanged = true): self
+    {
+        if (!$this->exists && $isChanged) {
+            //todo: change exception
+            throw new \Exception('Couldn\'t set isChanged = true, while model is not in database');
+        }
+
+        $this->isChanged = $isChanged;
+
+        return $this;
     }
 
     protected static function getDatabase(): Database
@@ -287,22 +324,30 @@ abstract class AbstractModel
                 continue;
             }
 
-            RelationDefinitionException::checkRequiredKeys(['class', 'field'], $definition);
-
-            $relation = new Relation($this, $definition['class'], $definition['field'], $definition['type'] ?? null);
-
-            if (array_key_exists('pivot', $definition)) {
-                $relation->setPivotTable($definition['pivot']);
-            }
-
-            if (array_key_exists('defined_by', $definition)) {
-                $relation->setDefinedBy($definition['defined_by']);
-            }
+            $relation = $this->getFactory()->create($this, $definition);
 
             $this->$field = $relation->getDry();
             $this->relations[$field] = $relation;
         }
 
         return $this;
+    }
+
+    private function getFactory(): RelationFactory
+    {
+        if (!isset($this->relationFactory)) {
+            $this->relationFactory = new RelationFactory();
+        }
+
+        return $this->relationFactory;
+    }
+
+    private static function getRepository(): ModelRepository
+    {
+        if (!isset(self::$repository)) {
+            self::$repository = new ModelRepository();
+        }
+
+        return self::$repository;
     }
 }

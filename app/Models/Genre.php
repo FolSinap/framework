@@ -11,7 +11,7 @@ class Genre extends AbstractModel
         'books' => [
             'class' => Book::class,
             'field' => 'book_id',
-            'type' => Relation::TO_MANY,
+            'type' => 'many-to-many',
             'pivot' => 'books_genres',
             'defined_by' => 'genre_id',
         ],

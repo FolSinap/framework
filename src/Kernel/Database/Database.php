@@ -2,7 +2,6 @@
 
 namespace Fwt\Framework\Kernel\Database;
 
-use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
 use Fwt\Framework\Kernel\Database\QueryBuilder\DeleteBuilder;
 use Fwt\Framework\Kernel\Database\QueryBuilder\QueryBuilder;
 use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\SchemaBuilder;
@@ -45,11 +44,19 @@ class Database
         return $this->connection->getPdo()->lastInsertId();
     }
 
-    public function populateModel(AbstractModel $model): ?AbstractModel
+    public function insertMany(array $data, string $table): string
+    {
+        $this->queryBuilder->insertMany($table, $data);
+        $this->execute();
+
+        return $this->connection->getPdo()->lastInsertId();
+    }
+
+    public function populateObject(object $object): ?object
     {
         $statement = $this->execute();
 
-        $statement->setFetchMode(PDO::FETCH_INTO, $model);
+        $statement->setFetchMode(PDO::FETCH_INTO, $object);
         $fetched = $statement->fetch(PDO::FETCH_INTO);
 
         return $fetched === false ? null : $fetched;

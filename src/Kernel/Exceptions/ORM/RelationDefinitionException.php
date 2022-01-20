@@ -2,6 +2,7 @@
 
 namespace Fwt\Framework\Kernel\Exceptions\ORM;
 
+use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
 use LogicException;
 
 class RelationDefinitionException extends LogicException
@@ -13,5 +14,10 @@ class RelationDefinitionException extends LogicException
                 throw new self("Required key $key is not defined in relation definition");
             }
         }
+    }
+
+    public static function undefinedRelation(AbstractModel $model, string $relation): self
+    {
+        throw new self("Undefined relation $relation for" . get_class($model));
     }
 }
