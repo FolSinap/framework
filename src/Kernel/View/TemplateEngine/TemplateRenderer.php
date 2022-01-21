@@ -22,10 +22,10 @@ class TemplateRenderer
     public const EXECUTABLE_DIRECTIVES = [
         IncludeDirective::class,
         FlashDirective::class,
-        IfDirective::class,
         AuthDirective::class,
         AnonDirective::class,
         ForeachDirective::class,
+        IfDirective::class,
         RouteDirective::class,
         MethodDirective::class,
         RenderParametersDirective::class,

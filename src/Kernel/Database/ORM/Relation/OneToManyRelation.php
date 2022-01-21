@@ -25,10 +25,11 @@ class OneToManyRelation extends AbstractRelation
         $forUpdate = [];
         $forInsert = [];
 
+        /** @var AbstractModel $model */
         foreach ($models as $model) {
             $this->checkClass($model);
 
-            if ($model->isInitialized()) {
+            if ($model->exists()) {
                 $forUpdate[] = $model;
             } else {
                 $this->updateForeign($model);
@@ -36,8 +37,7 @@ class OneToManyRelation extends AbstractRelation
             }
         }
 
-        /** @var ModelRepository $repository */
-        $repository = ModelRepository::getInstance();
+        $repository = new ModelRepository();
 
         $repository->insertMany(new ModelCollection($forInsert));
         $repository->updateMany(new ModelCollection($forUpdate), [$this->through => $this->from->primary()]);
@@ -54,8 +54,7 @@ class OneToManyRelation extends AbstractRelation
     {
         $relations = $this->get();
 
-        /** @var ModelRepository $repository */
-        $repository = ModelRepository::getInstance();
+        $repository = new ModelRepository();
 
         $repository->updateMany($relations, [$this->through => null]);
     }

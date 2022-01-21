@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Controllers\RequestValidators\Books\CreateRequestValidator;
 use App\Models\Book;
+use App\Models\Genre;
 use Fwt\Framework\Kernel\Controllers\AbstractController;
 use Fwt\Framework\Kernel\Response\RedirectResponse;
 use Fwt\Framework\Kernel\Response\Response;
@@ -20,7 +21,9 @@ class BooksController extends AbstractController
 
     public function create(): Response
     {
-        return $this->render('books/create.php');
+        $genres = Genre::all();
+
+        return $this->render('books/create.php', compact('genres'));
     }
 
     public function store(CreateRequestValidator $validator): RedirectResponse
@@ -30,8 +33,16 @@ class BooksController extends AbstractController
         }
 
         $user = $this->getUser();
-        $book = Book::createDry($validator->getBodyData());
+        $body = $validator->getBodyData();
+
+        if (array_key_exists('genres', $body)) {
+            $genres = Genre::fromIds($body['genres']);
+            unset($body['genres']);
+        }
+
+        $book = Book::createDry($body);
         $book->author = $user;
+        $book->genres = $genres ?? null;
 
         $book->insert();
 
@@ -40,16 +51,25 @@ class BooksController extends AbstractController
 
     public function edit(Book $book): Response
     {
-        $title = $book->title;
-        $id = $book->id;
+        $genres = Genre::all();
+        $bookGenreIds = $book->genres->map(function ($genre) {
+            return $genre->id;
+        });
 
-        return $this->render('/books/edit.php', compact('title', 'id'));
+        return $this->render('/books/edit.php', compact('book', 'genres', 'bookGenreIds'));
     }
 
     public function update(CreateRequestValidator $validator, Book $book): RedirectResponse
     {
         if ($validator->validate()) {
-            $book->update($validator->getBodyData());
+            $body = $validator->getBodyData();
+
+            if (array_key_exists('genres', $body)) {
+                $genres = Genre::fromIds($body['genres']);
+                $book->genres = $genres;
+            }
+
+            $book->update($body);
 
             return $this->redirect('books_index');
         }

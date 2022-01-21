@@ -23,7 +23,7 @@ class Validator
 
         foreach ($this->rules as $field => $rules) {
             foreach ($rules as $rule) {
-                if (!$rule->validate($data[$field])) {
+                if (!$rule->validate($data[$field] ?? null)) {
                     $errorMessages[$field][] = $rule->getErrorMessage();
                 }
             }

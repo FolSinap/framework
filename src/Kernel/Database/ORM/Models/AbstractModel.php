@@ -34,6 +34,11 @@ abstract class AbstractModel
         $this->initRelations();
     }
 
+    public static function getColumns(): array
+    {
+        return static::$columns;
+    }
+
     public static function find($id): ?self
     {
         $model = self::getRepository()->find(static::class, $id);
@@ -57,6 +62,17 @@ abstract class AbstractModel
     public static function fromId($id): self
     {
         return static::createDry([static::getIdColumn() => $id])->setExists()->setIsChanged();
+    }
+
+    public static function fromIds(array $ids): ModelCollection
+    {
+        $collection = new ModelCollection();
+
+        foreach ($ids as $id) {
+            $collection[] = static::fromId($id);
+        }
+
+        return $collection;
     }
 
     public static function createDry(array $data): self
@@ -110,6 +126,15 @@ abstract class AbstractModel
     public function update(array $data = []): void
     {
         self::getRepository()->update($this, $data);
+
+        foreach ($this->relations as $name => $relation) {
+            if ($relation instanceof ToOneRelation) {
+                continue;
+            }
+
+            $relation->clear();
+            $relation->addMany($this->fields[$name]);
+        }
 
         $this->setExists()->setIsChanged(false);
     }
@@ -168,6 +193,14 @@ abstract class AbstractModel
     public function insert(): void
     {
         self::getRepository()->insert($this);
+
+        foreach ($this->relations as $name => $relation) {
+            if ($relation instanceof ToOneRelation) {
+                continue;
+            }
+
+            $relation->addMany($this->fields[$name]);
+        }
 
         $this->setExists()->setIsChanged(false)->initRelations();
     }
@@ -230,6 +263,21 @@ abstract class AbstractModel
 
                 if ($this->{$relation->getConnectField()} !== $original) {
                     $isChanged = $this->exists();
+                }
+            } else {
+                switch (true) {
+                    case is_array($value):
+                        $value = new ModelCollection($value);
+
+                        break;
+                    case ($value instanceof ModelCollection):
+                        break;
+                    case  is_null($value):
+                        $value = new ModelCollection();
+
+                        break;
+                    default:
+                        throw new IllegalTypeException($value, ['null', 'array', ModelCollection::class]);
                 }
             }
         }
