@@ -26,45 +26,45 @@ class ModelCollection implements ArrayAccess, IteratorAggregate, Countable
         $this->data = $data;
     }
 
+    public function add(self $models): self
+    {
+        array_push($this->data, ...$models->toArray());
+
+        return $this;
+    }
+
     public function toArray(): array
     {
         return $this->data;
     }
 
-    public static function __set_state($array)
+    public function map(callable $function): array
     {
-        return new self($array['data']);
-    }
-
-    public function initializeAll(): self
-    {
-        $ids = [];
-
-        foreach ($this->data as $model) {
-            $id = $model->{$model::getIdColumn()};
-
-            if (!$id) {
-                throw ModelInitializationException::idIsNotSet($model);
-            }
-
-            $ids[get_class($model)][] = $id;
-        }
-
-        $models = [];
-
-        /** @var AbstractModel $class */
-        foreach ($ids as $class => $id) {
-            array_push($models, ...$class::whereIn($class::getIdColumn(), $id)->fetch());
-        }
-
-        $this->data = $models;
-
-        return $this;
+        return array_map($function, $this->data);
     }
 
     public function isEmpty(): bool
     {
         return empty($this->data);
+    }
+
+    public function count(): int
+    {
+        return count($this->data);
+    }
+
+    protected function checkType(array $data): void
+    {
+        foreach ($data as $model) {
+            if (!$model instanceof AbstractModel) {
+                throw new IllegalTypeException($model, [AbstractModel::class]);
+            }
+        }
+    }
+
+    public static function __set_state($array)
+    {
+        return new self($array['data']);
     }
 
     public function offsetExists($offset): bool
@@ -94,19 +94,5 @@ class ModelCollection implements ArrayAccess, IteratorAggregate, Countable
     public function getIterator(): ArrayIterator
     {
         return new ArrayIterator($this->data);
-    }
-
-    public function count(): int
-    {
-        return count($this->data);
-    }
-
-    protected function checkType(array $data): void
-    {
-        foreach ($data as $model) {
-            if (!$model instanceof AbstractModel) {
-                throw new IllegalTypeException($model, [AbstractModel::class]);
-            }
-        }
     }
 }

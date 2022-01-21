@@ -28,6 +28,8 @@ abstract class AbstractRelation
         $this->through = $field;
     }
 
+    abstract public function get();
+
     public function isRelated(AbstractModel $model): bool
     {
         if (!$model instanceof $this->related) {
@@ -46,8 +48,4 @@ abstract class AbstractRelation
     {
         return $this->through;
     }
-
-    abstract public function getDry();
-
-    abstract public function get();
 }
