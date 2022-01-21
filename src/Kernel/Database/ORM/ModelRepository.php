@@ -5,6 +5,7 @@ namespace Fwt\Framework\Kernel\Database\ORM;
 use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Database\Database;
 use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
+use Fwt\Framework\Kernel\Database\ORM\Relation\ToOneRelation;
 use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
 use Fwt\Framework\Kernel\Exceptions\ORM\ModelInitializationException;
 
@@ -110,6 +111,8 @@ class ModelRepository
             }
 
             $data = $model->getForInsertion();
+        } elseif (!empty($model::getColumns())) {
+            $data = array_intersect_key($data, array_flip($model::getColumns()));
         }
 
         $this->database->update($model::getTableName(), $data)->where($id, $model->$id);

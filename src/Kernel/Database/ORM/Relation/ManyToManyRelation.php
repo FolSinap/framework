@@ -8,6 +8,7 @@ use Fwt\Framework\Kernel\Database\ORM\ModelCollection;
 use Fwt\Framework\Kernel\Database\ORM\ModelRepository;
 use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
 use Fwt\Framework\Kernel\Database\ORM\Models\AnonymousModel;
+use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
 
 class ManyToManyRelation extends OneToManyRelation
 {
@@ -52,7 +53,7 @@ class ManyToManyRelation extends OneToManyRelation
 
         $id = $this->from->primary();
 
-        AnonymousModel::$tableNames[AnonymousModel::class] = $this->pivot;
+        AnonymousModel::setTableName($this->pivot);
         $pivot = AnonymousModel::where($this->definedBy, $id)
             ->andWhere($this->through, $model->primary())
             ->fetch();
@@ -67,13 +68,16 @@ class ManyToManyRelation extends OneToManyRelation
 
     public function addMany(ModelCollection $models): void
     {
+        AnonymousModel::setTableName($this->pivot);
+
         $forInsertion = new ModelCollection();
         $id = $this->from->primary();
 
+        /** @var AbstractModel $model */
         foreach ($models as $model) {
-            if (!$model->isInitialized()) {
+            if (!$model->exists()) {
                 //todo: change exception
-                throw new \Exception('Model must be initialized');
+                throw new \Exception('Model must exist in DB');
             }
 
             $forInsertion[] = AnonymousModel::createDry([
@@ -82,8 +86,7 @@ class ManyToManyRelation extends OneToManyRelation
             ]);
         }
 
-        /** @var ModelRepository $repository */
-        $repository = ModelRepository::getInstance();
+        $repository = new ModelRepository();
 
         $repository->insertMany($forInsertion);
     }

@@ -2,11 +2,11 @@
 
 namespace Fwt\Framework\Kernel\Database\ORM\Models;
 
-use Fwt\Framework\Kernel\App;
-use Fwt\Framework\Kernel\Database\Database;
 use Fwt\Framework\Kernel\Database\ORM\ModelCollection;
 use Fwt\Framework\Kernel\Database\ORM\ModelRepository;
 use Fwt\Framework\Kernel\Database\ORM\Relation\AbstractRelation;
+use Fwt\Framework\Kernel\Database\ORM\Relation\ManyToManyRelation;
+use Fwt\Framework\Kernel\Database\ORM\Relation\OneToManyRelation;
 use Fwt\Framework\Kernel\Database\ORM\Relation\RelationFactory;
 use Fwt\Framework\Kernel\Database\ORM\Relation\ToOneRelation;
 use Fwt\Framework\Kernel\Database\ORM\WhereBuilderFacade;
@@ -21,6 +21,7 @@ abstract class AbstractModel
     protected static array $tableNames;
     protected static array $columns = [];
     protected array $fields = [];
+    protected array $changed = [];
     /** @var AbstractRelation[] $relations */
     private array $relations = [];
     private bool $exists = false;
@@ -32,6 +33,11 @@ abstract class AbstractModel
     {
         $this->relationFactory = $this->getFactory();
         $this->initRelations();
+    }
+
+    public static function getColumns(): array
+    {
+        return static::$columns;
     }
 
     public static function find($id): ?self
@@ -59,12 +65,23 @@ abstract class AbstractModel
         return static::createDry([static::getIdColumn() => $id])->setExists()->setIsChanged();
     }
 
+    public static function fromIds(array $ids): ModelCollection
+    {
+        $collection = new ModelCollection();
+
+        foreach ($ids as $id) {
+            $collection[] = static::fromId($id);
+        }
+
+        return $collection;
+    }
+
     public static function createDry(array $data): self
     {
         $model = new static();
 
         foreach ($data as $property => $value) {
-            $model->$property = $value;
+            $model->silentSet($property, $value);
         }
 
         return $model;
@@ -110,6 +127,15 @@ abstract class AbstractModel
     public function update(array $data = []): void
     {
         self::getRepository()->update($this, $data);
+
+        foreach ($this->relations as $name => $relation) {
+            if ($relation instanceof ToOneRelation || !in_array($name, $this->changed)) {
+                continue;
+            }
+
+            $relation->clear();
+            $relation->addMany($this->fields[$name]);
+        }
 
         $this->setExists()->setIsChanged(false);
     }
@@ -169,6 +195,16 @@ abstract class AbstractModel
     {
         self::getRepository()->insert($this);
 
+        foreach ($this->relations as $name => $relation) {
+            if ($relation instanceof ToOneRelation) {
+                continue;
+            }
+
+            if (!$this->fields[$name]->isEmpty()) {
+                $relation->addMany($this->fields[$name]);
+            }
+        }
+
         $this->setExists()->setIsChanged(false)->initRelations();
     }
 
@@ -177,6 +213,11 @@ abstract class AbstractModel
         return $this->relations;
     }
 
+    /**
+     * @return ToOneRelation|ManyToManyRelation|OneToManyRelation
+     *
+     * @throws RelationDefinitionException
+     */
     public function getRelation(string $name): AbstractRelation
     {
         if (!$this->relationExists($name)) {
@@ -200,7 +241,7 @@ abstract class AbstractModel
     {
         if (array_key_exists($name, $this->relations)) {
             $relation = $this->relations[$name]->get();
-            $this->$name = $relation;
+            $this->silentSet($name, $relation);
         }
 
         return $this->fields[$name] ?? null;
@@ -208,33 +249,14 @@ abstract class AbstractModel
 
     public function __set(string $name, $value): void
     {
-        $isChanged = $this->exists();
+        $fields = array_keys($this->fields);
 
-        if (array_key_exists($name, $this->relations)) {
-            $relation = $this->relations[$name];
-            $relatedClass = $relation->getRelated();
-            $isChanged = $this->isChanged();
+        $isChanged = $this->setFieldValue($name, $value);
 
-            if ($relation instanceof ToOneRelation) {
-                $original = $this->{$relation->getConnectField()};
-
-                if (is_null($value)) {
-                    $this->{$relation->getConnectField()} = $value;
-                } else {
-                    if (!$value instanceof $relatedClass) {
-                        throw new IllegalTypeException($value, [$relatedClass]);
-                    }
-
-                    $this->{$relation->getConnectField()} = $value->{$value::getIdColumn()};
-                }
-
-                if ($this->{$relation->getConnectField()} !== $original) {
-                    $isChanged = $this->exists();
-                }
-            }
+        if (in_array($name, $fields)) {
+            $this->changed[] = $name;
         }
 
-        $this->fields[$name] = $value;
         $this->setIsChanged($isChanged);
     }
 
@@ -312,11 +334,6 @@ abstract class AbstractModel
         return $this;
     }
 
-    protected static function getDatabase(): Database
-    {
-        return App::$app->getContainer()->get(Database::class);
-    }
-
     private function initRelations(): self
     {
         foreach (static::RELATIONS as $field => $definition) {
@@ -349,5 +366,85 @@ abstract class AbstractModel
         }
 
         return self::$repository;
+    }
+
+    private function setFieldValue(string $name, $value): bool
+    {
+        $isChanged = $this->exists();
+
+        if ($this->relationExists($name)) {
+            $isChanged = $this->setRelation($name, $value);
+        } else {
+            $this->fields[$name] = $value;
+        }
+
+        return $isChanged;
+    }
+
+    private function silentSet(string $name, $value): void
+    {
+        $this->setFieldValue($name, $value);
+    }
+
+    /**
+     * @param string $name Name of a relation
+     * @param $value
+     * @return bool new value for $this->isChanged
+     */
+    private function setRelation(string $name, $value): bool
+    {
+        $relation = $this->relations[$name];
+        $isChanged = $this->isChanged();
+
+        if ($relation instanceof ToOneRelation) {
+            $original = $this->{$relation->getConnectField()};
+
+            $this->setToOneRelation($relation, $value);
+
+            if ($this->{$relation->getConnectField()} !== $original) {
+                $isChanged = $this->exists();
+            }
+        } else {
+            $value = $this->normalizeToManyValue($value);
+        }
+
+        $this->fields[$name] = $value;
+
+        return $isChanged;
+    }
+
+    private function normalizeToManyValue($value)
+    {
+        switch (true) {
+            case is_array($value):
+                $value = new ModelCollection($value);
+
+                break;
+            case ($value instanceof ModelCollection):
+                break;
+            case  is_null($value):
+                $value = new ModelCollection();
+
+                break;
+            default:
+                throw new IllegalTypeException($value, ['null', 'array', ModelCollection::class]);
+        }
+
+        return $value;
+    }
+
+    private function setToOneRelation(ToOneRelation $relation, $value)
+    {
+        $relatedClass = $relation->getRelated();
+
+        if (is_null($value)) {
+            $this->{$relation->getConnectField()} = $value;
+        } else {
+            if (!$value instanceof $relatedClass) {
+                throw new IllegalTypeException($value, [$relatedClass]);
+            }
+
+            $this->{$relation->getConnectField()} = $value->{$value::getIdColumn()};
+        }
     }
 }

@@ -27,8 +27,7 @@ class UniqueRule implements Rule
        $database = App::$app->getContainer()->get(Database::class);
 
        $database
-           ->select()
-           ->from($this->table)
+           ->select($this->table)
            ->where($this->column, (string) $value);
 
        if (empty($database->fetchAssoc())) {
