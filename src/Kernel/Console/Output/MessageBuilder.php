@@ -81,6 +81,9 @@ class MessageBuilder
         return $this;
     }
 
+    /**
+     * Same as write() but all tabs are ignored
+     */
     public function type(string $message): self
     {
         $this->message .= $message;
