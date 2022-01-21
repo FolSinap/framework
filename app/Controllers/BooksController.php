@@ -67,6 +67,8 @@ class BooksController extends AbstractController
             if (array_key_exists('genres', $body)) {
                 $genres = Genre::fromIds($body['genres']);
                 $book->genres = $genres;
+            } else {
+                $book->genres = null;
             }
 
             $book->update($body);
