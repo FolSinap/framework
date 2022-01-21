@@ -200,7 +200,9 @@ abstract class AbstractModel
                 continue;
             }
 
-            $relation->addMany($this->fields[$name]);
+            if (!$this->fields[$name]->isEmpty()) {
+                $relation->addMany($this->fields[$name]);
+            }
         }
 
         $this->setExists()->setIsChanged(false)->initRelations();
