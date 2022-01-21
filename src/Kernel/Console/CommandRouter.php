@@ -6,6 +6,7 @@ use Fwt\Framework\Kernel\Console\Commands\Command;
 use Fwt\Framework\Kernel\Console\Commands\CommandWrapper;
 use Fwt\Framework\Kernel\Console\Commands\HelpCommand;
 use Fwt\Framework\Kernel\Console\Commands\Make\MakeMigrationCommand;
+use Fwt\Framework\Kernel\Console\Commands\Make\MakeModelCommand;
 use Fwt\Framework\Kernel\Console\Commands\MigrationCommand;
 use Fwt\Framework\Kernel\Exceptions\Console\CommandNotFoundException;
 use Fwt\Framework\Kernel\Exceptions\InterfaceNotFoundException;
@@ -25,6 +26,7 @@ class CommandRouter
             HelpCommand::class,
             MigrationCommand::class,
             MakeMigrationCommand::class,
+            MakeModelCommand::class,
         ];
     }
 

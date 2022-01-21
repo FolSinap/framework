@@ -1,0 +1,8 @@
+<?php
+
+namespace {{|namespace|}};
+
+use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
+
+class {{|class_name|}} extends AbstractModel
+{{{|relations|}}{{|columns|}}}

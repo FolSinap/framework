@@ -15,6 +15,10 @@ return [
             'routes.php',
         ],
     ],
+    'models' => [
+        'dir' => $projectDir . '/app/Models',
+        'namespace' => '\\App\\Models',
+    ],
     'app' => [
         'dir' => $projectDir . '/app',
     ],
