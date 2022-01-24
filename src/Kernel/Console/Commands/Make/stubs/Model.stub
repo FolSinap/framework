@@ -3,6 +3,6 @@
 namespace {{|namespace|}};
 
 use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
-
+{{|use|}}
 class {{|class_name|}} extends AbstractModel
 {{{|relations|}}{{|columns|}}}
