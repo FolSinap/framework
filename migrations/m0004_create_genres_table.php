@@ -12,14 +12,10 @@ class m0004_create_genres_table extends Migration
 
         $table->id();
         $table->string('name', 30);
-
-        $this->execute();
     }
 
     public function down(): void
     {
         $this->drop('genres');
-
-        $this->execute();
     }
 }

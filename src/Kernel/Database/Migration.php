@@ -15,11 +15,25 @@ abstract class Migration
         $this->database = $database;
     }
 
+    abstract public function up(): void;
+
+    abstract public function down(): void;
+
     public function getName(): string
     {
         $namespace = explode('\\', static::class);
 
         return array_pop($namespace);
+    }
+
+    public function execute(): void
+    {
+        $this->database->execute();
+    }
+
+    public function dry(): string
+    {
+        return $this->database->getQueryBuilder()->getQuery();
     }
 
     protected function create(string $table): TableBuilder
@@ -36,18 +50,4 @@ abstract class Migration
     {
         return $this->database->alter($table);
     }
-
-    protected function execute(): void
-    {
-        $this->database->execute();
-    }
-
-    public function dry(): string
-    {
-        return $this->database->getQueryBuilder()->getQuery();
-    }
-
-    abstract public function up(): void;
-
-    abstract public function down(): void;
 }

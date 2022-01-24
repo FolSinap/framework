@@ -14,14 +14,10 @@ class m0001_create_users_table extends Migration
         $table->string('email', 30)->unique();
         $table->string('password');
         $table->string('token')->nullable();
-
-        $this->execute();
     }
 
     public function down(): void
     {
         $this->drop('users');
-
-        $this->execute();
     }
 }

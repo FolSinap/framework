@@ -9,14 +9,10 @@ class {{|class_name|}} extends Migration
     public function up(): void
     {
         // TODO: Implement up() method.
-
-        $this->execute();
     }
 
     public function down(): void
     {
         // TODO: Implement down() method.
-
-        $this->execute();
     }
 }

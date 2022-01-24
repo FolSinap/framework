@@ -16,6 +16,7 @@ class MigrationCommand extends AbstractCommand
 {
     protected Database $database;
     protected ObjectResolver $resolver;
+    protected array $dry = [];
 
     public function __construct(Database $database, ObjectResolver $resolver)
     {
@@ -38,6 +39,7 @@ class MigrationCommand extends AbstractCommand
         return [
             'down' => ['Run down all migrations', 'd'],
             'back' => ['Rollback last migration', 'b'],
+            'dry' => ['Print queries without executing it'],
         ];
     }
 
@@ -52,6 +54,7 @@ class MigrationCommand extends AbstractCommand
 
         $down = $input->getOption('down', 'd');
         $back = $input->getOption('back', 'b');
+        $dry = $input->getOption('dry') ?? false;
 
         $migrations = $this->resolveMigrationObjects();
 
@@ -59,30 +62,44 @@ class MigrationCommand extends AbstractCommand
 
         if ($back) {
             if ($last = array_pop($executedMigrations)) {
-                $this->runDown($migrations[$last]);
+                $this->runDown($migrations[$last], $dry);
 
                 $numberOfExecutions++;
             }
         } else {
             foreach ($migrations as $migration) {
                 if ($down && in_array($migration->getName(), $executedMigrations)) {
-                    $this->runDown($migration);
+                    $this->runDown($migration, $dry);
 
                     $numberOfExecutions++;
                 } elseif (!$down && !in_array($migration->getName(), $executedMigrations)) {
-                    $this->runUp($migration);
+                    $this->runUp($migration, $dry);
 
                     $numberOfExecutions++;
                 }
             }
         }
 
-        $output->success($numberOfExecutions . ' migrations were executed.');
+        if ($dry) {
+            foreach ($this->dry as $query) {
+                $output->info($query);
+            }
+        } else {
+            $output->success($numberOfExecutions . ' migrations were executed.');
+        }
     }
 
-    protected function runDown(ExecutableMigration $migration): void
+    protected function runDown(ExecutableMigration $migration, bool $dry = false): void
     {
         $migration->down();
+
+        if ($dry) {
+            $this->dry[] = $migration->dry();
+
+            return;
+        }
+
+        $migration->execute();
 
         $migration = Migration::where('name', $migration->getName())->fetch();
 
@@ -95,9 +112,17 @@ class MigrationCommand extends AbstractCommand
         $migration->delete();
     }
 
-    protected function runUp(ExecutableMigration $migration): void
+    protected function runUp(ExecutableMigration $migration, bool $dry = false): void
     {
         $migration->up();
+
+        if ($dry) {
+            $this->dry[] = $migration->dry();
+
+            return;
+        }
+
+        $migration->execute();
 
         Migration::create(['name' => $migration->getName()]);
     }

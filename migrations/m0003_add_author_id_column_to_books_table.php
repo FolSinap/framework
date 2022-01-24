@@ -13,8 +13,6 @@ class m0003_add_author_id_column_to_books_table extends Migration
         $table->bigInt('author_id')->nullable()->default(null)
             ->references('users', 'id')
             ->onUpdate('CASCADE')->onDelete('CASCADE');
-
-        $this->execute();
     }
 
     public function down(): void
@@ -22,7 +20,5 @@ class m0003_add_author_id_column_to_books_table extends Migration
         $this->alter('books')
             ->dropForeign('users', 'id')
             ->drop('author_id');
-
-        $this->execute();
     }
 }
