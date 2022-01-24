@@ -4,7 +4,7 @@ namespace Fwt\Framework\Kernel\Database\ORM;
 
 use Fwt\Framework\Kernel\Database\Database;
 use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
-use Fwt\Framework\Kernel\Database\QueryBuilder\SelectBuilder;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Data\SelectBuilder;
 use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
 use ReflectionProperty;
 

@@ -6,6 +6,7 @@ use Fwt\Framework\Kernel\Database\QueryBuilder\Builder;
 use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableAlterer;
 use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableBuilder;
 use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableDropper;
+use Fwt\Framework\Kernel\Database\SQL\Query;
 
 class SchemaBuilder
 {
@@ -38,8 +39,8 @@ class SchemaBuilder
         return $this->builder;
     }
 
-    public function getQuery(): string
+    public function getQuery(): Query
     {
-        return $this->builder->getQuery();
+        return new Query($this->builder->getQuery());
     }
 }

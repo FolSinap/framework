@@ -125,11 +125,11 @@ class MigrationCommand extends AbstractCommand
 
     protected function createMigrationsTable(): void
     {
-        $table = SchemaBuilder::getBuilder()->create('migrations')->ifNotExists();
+        $table = $this->database->create('migrations')->ifNotExists();
 
         $table->id();
         $table->string('name');
 
-        $this->database->executeQuery($table->getQuery());
+        $this->database->execute();
     }
 }
