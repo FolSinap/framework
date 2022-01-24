@@ -58,7 +58,6 @@ class MakeModelCommand extends AbstractMakeCommand
         $relations = $this->renderRelations($output);
         $columns = $this->renderColumns($output);
 
-        //todo: add {{|use|}} template
         $stub = $this->replaceStubTemplates([
             'class_name' => $name,
             'namespace' => $this->namespace,
