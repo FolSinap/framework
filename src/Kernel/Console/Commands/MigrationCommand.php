@@ -34,7 +34,7 @@ class MigrationCommand extends AbstractCommand
         return 'Run up or down existing migrations.';
     }
 
-    public function getOptionalOptions(): array
+    public function getOptions(): array
     {
         return [
             'down' => ['Run down all migrations', 'd'],

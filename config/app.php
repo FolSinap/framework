@@ -28,4 +28,10 @@ return [
     'templates' => [
         'dir' => $projectDir . '/templates',
     ],
+    'commands' => [
+        'dir' => $projectDir . '/app/Commands',
+        'namespace' => '\\App\\Commands',
+        //todo: automatically update?
+        'list' => [],
+    ],
 ];

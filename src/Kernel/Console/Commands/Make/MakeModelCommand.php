@@ -34,7 +34,7 @@ class MakeModelCommand extends AbstractMakeCommand
         return App::$app->getConfig('app.models.dir');
     }
 
-    public function getParameters(): array
+    public function getRequiredParameters(): array
     {
         return [
             'name' => ['Name of Model class.'],
@@ -49,11 +49,7 @@ class MakeModelCommand extends AbstractMakeCommand
     public function execute(Input $input, Output $output): void
     {
         //todo: add recursive dir creation
-        if (!empty($params = $input->getParameters())) {
-            $name = $params[0];
-        } else {
-            $name = $output->input('Input Model name: ');
-        }
+        $name = $input->getParameters()[0];
 
         $relations = $this->renderRelations($output);
         $columns = $this->renderColumns($output);

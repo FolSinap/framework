@@ -11,11 +11,11 @@ interface Command
 
     public function getDescription(): string;
 
-    public function getRequiredOptions(): array;
+    public function getOptions(): array;
 
-    public function getOptionalOptions(): array;
+    public function getRequiredParameters(): array;
 
-    public function getParameters(): array;
+    public function getOptionalParameters(): array;
 
     public function execute(Input $input, Output $output): void;
 }

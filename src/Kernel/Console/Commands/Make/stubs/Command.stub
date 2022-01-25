@@ -1,0 +1,25 @@
+<?php
+
+namespace {{|namespace|}};
+
+use Fwt\Framework\Kernel\Console\Commands\AbstractCommand;
+use Fwt\Framework\Kernel\Console\Input;
+use Fwt\Framework\Kernel\Console\Output\Output;
+
+class {{|class_name|}} extends AbstractCommand
+{
+    public function getName(): string
+    {
+        return '{{|name|}}';
+    }
+
+    public function getDescription(): string
+    {
+        return '{{|description|}}';
+    }
+
+    public function execute(Input $input, Output $output): void
+    {
+        // TODO: Implement execute() method.
+    }
+}

@@ -5,6 +5,7 @@ namespace Fwt\Framework\Kernel\Console;
 use Fwt\Framework\Kernel\Console\Commands\Command;
 use Fwt\Framework\Kernel\Console\Commands\CommandWrapper;
 use Fwt\Framework\Kernel\Console\Commands\HelpCommand;
+use Fwt\Framework\Kernel\Console\Commands\Make\MakeCommandCommand;
 use Fwt\Framework\Kernel\Console\Commands\Make\MakeMigrationCommand;
 use Fwt\Framework\Kernel\Console\Commands\Make\MakeModelCommand;
 use Fwt\Framework\Kernel\Console\Commands\MigrationCommand;
@@ -27,9 +28,10 @@ class CommandRouter
             MigrationCommand::class,
             MakeMigrationCommand::class,
             MakeModelCommand::class,
+            MakeCommandCommand::class,
         ];
 
-        $this->addCommands(App::$app->getConfig('console.commands', []));
+        $this->addCommands(App::$app->getConfig('app.commands.list', []));
     }
 
     public function map(string $name): Command

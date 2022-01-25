@@ -18,7 +18,7 @@ class MakeMigrationCommand extends AbstractMakeCommand
         return 'Create new migration file.';
     }
 
-    public function getParameters(): array
+    public function getRequiredParameters(): array
     {
         return [
             'name' => ['Name of migration class.'],
@@ -45,12 +45,7 @@ class MakeMigrationCommand extends AbstractMakeCommand
 
         $nextNumber = str_pad((max($numbers) + 1), 4, '0', STR_PAD_LEFT);
 
-        if (!empty($params = $input->getParameters())) {
-            $name = $params[0];
-        } else {
-            $name = $output->input('Input migration name: ');
-        }
-
+        $name = $input->getParameters()[0];
         $name = "m$nextNumber" . "_$name";
 
         $stub = $this->replaceStubTemplates([

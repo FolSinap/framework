@@ -25,6 +25,12 @@ abstract class AbstractMakeCommand extends AbstractCommand
 
     protected function createFile(string $name, string $content): bool
     {
-        return file_put_contents($this->getBaseDir() . "/$name", $content);
+        $baseDir = $this->getBaseDir();
+
+        if (!is_dir($baseDir)) {
+            mkdir($baseDir);
+        }
+
+        return file_put_contents("$baseDir/$name", $content);
     }
 }
