@@ -28,6 +28,8 @@ class CommandRouter
             MakeMigrationCommand::class,
             MakeModelCommand::class,
         ];
+
+        $this->addCommands(App::$app->getConfig('console.commands', []));
     }
 
     public function map(string $name): Command
@@ -52,7 +54,7 @@ class CommandRouter
         return $this->map;
     }
 
-    public function addCommands(array $commands): void
+    protected function addCommands(array $commands): void
     {
         $this->commands = array_merge($this->commands, $commands);
     }
