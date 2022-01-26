@@ -3,7 +3,9 @@
 namespace Fwt\Framework\Kernel\Console\Commands\Make;
 
 use Fwt\Framework\Kernel\Console\App;
+use Fwt\Framework\Kernel\Console\Commands\AbstractCommand;
 use Fwt\Framework\Kernel\Console\Input;
+use Fwt\Framework\Kernel\Console\Output\MessageBuilder;
 use Fwt\Framework\Kernel\Console\Output\Output;
 
 class MakeCommandCommand extends AbstractMakeCommand
@@ -25,6 +27,13 @@ class MakeCommandCommand extends AbstractMakeCommand
         ];
     }
 
+    public function getOptions(): array
+    {
+        return [
+            'make' => ['Create make command (different inheritance).', 'm']
+        ];
+    }
+
     public function getOptionalParameters(): array
     {
         return [
@@ -33,24 +42,39 @@ class MakeCommandCommand extends AbstractMakeCommand
         ];
     }
 
-    //todo: add --make option
     public function execute(Input $input, Output $output): void
     {
         $className = $this->getParameters($input)['class_name'];
         $description = $this->getParameters($input)['description'] ?? '';
         $name = $this->getParameters($input)['name'];
         $namespace = ltrim(App::$app->getConfig('app.commands.namespace'), '\\');
+        $isMake = (bool) $input->getOption('make', 'm');
+
+        if ($isMake) {
+            $class = AbstractMakeCommand::class;
+            $additionalMethods = $this->renderAdditionalMethods();
+        } else {
+            $class = AbstractCommand::class;
+            $additionalMethods = '';
+        }
+
+        $use = "use $class;";
+        $class = explode('\\', $class);
+        $extends = array_pop($class);
 
         if (!$name) {
             $name = $this->defaultNameFromClass($className);
         }
 
-        $stub = $this->replaceStubTemplates([
-            'namespace' => $namespace,
-            'class_name' => $className,
-            'description' => $description,
-            'name' => $name,
-        ]);
+        $stub = $this->replaceStubTemplates(compact(
+            'namespace',
+            'className',
+            'description',
+            'name',
+            'use',
+            'extends',
+            'additionalMethods'
+        ));
 
         $this->createFile("$className.php", $stub);
 
@@ -76,6 +100,22 @@ class MakeCommandCommand extends AbstractMakeCommand
         }
 
         return $name;
+    }
+
+    protected function renderAdditionalMethods(): string
+    {
+        return MessageBuilder::getBuilder()
+            ->skipLines(2)
+                ->tab()->writeln('protected function getBaseDir(): string')
+                ->writeln('{')
+                ->tab()->writeln('// TODO: Implement getBaseDir() method.')
+                ->dropTab()->write('}')
+            ->skipLines(2)
+                ->writeln('protected function getStubFile(): string')
+                ->writeln('{')
+                ->tab()->writeln('// TODO: Implement getStubFile() method.')
+                ->dropTab()->write('}')
+            ->nextLine();
     }
 
     protected function getBaseDir(): string
