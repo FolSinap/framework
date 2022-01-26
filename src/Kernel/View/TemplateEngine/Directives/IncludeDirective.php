@@ -5,7 +5,7 @@ namespace Fwt\Framework\Kernel\View\TemplateEngine\Directives;
 use Fwt\Framework\Kernel\View\TemplateEngine\TemplateRegexBuilder;
 use Fwt\Framework\Kernel\View\TemplateEngine\Templates\Template;
 
-class IncludeDirective extends AbstractDirective
+class IncludeDirective extends Directive
 {
     public function getRegex(): string
     {

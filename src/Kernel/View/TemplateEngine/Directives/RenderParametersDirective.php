@@ -4,7 +4,7 @@ namespace Fwt\Framework\Kernel\View\TemplateEngine\Directives;
 
 use Fwt\Framework\Kernel\View\TemplateEngine\ExpressionParser;
 
-class RenderParametersDirective implements Directive
+class RenderParametersDirective implements IDirective
 {
     protected ExpressionParser $expressionParser;
 

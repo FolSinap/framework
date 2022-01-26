@@ -6,7 +6,7 @@ use Fwt\Framework\Kernel\Exceptions\InterfaceNotFoundException;
 use Fwt\Framework\Kernel\ObjectResolver;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\AnonDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\AuthDirective;
-use Fwt\Framework\Kernel\View\TemplateEngine\Directives\Directive;
+use Fwt\Framework\Kernel\View\TemplateEngine\Directives\IDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\ForeachDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\Invokable\FlashDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\Invokable\MethodDirective;
@@ -58,8 +58,8 @@ class TemplateRenderer
         foreach (self::EXECUTABLE_DIRECTIVES as $class) {
             $directive = $this->resolver->resolve($class);
 
-            if (!$directive instanceof Directive) {
-                throw new InterfaceNotFoundException(get_class($directive), Directive::class);
+            if (!$directive instanceof IDirective) {
+                throw new InterfaceNotFoundException(get_class($directive), IDirective::class);
             }
 
             $content = preg_replace_callback($directive->getRegex(),
