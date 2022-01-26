@@ -5,7 +5,7 @@ namespace Fwt\Framework\Kernel\Validator\Rules;
 use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Database\Database;
 
-class UniqueRule implements Rule
+class UniqueRule implements IRule
 {
     protected string $errorMessage = 'This value already exists.';
     protected string $column;

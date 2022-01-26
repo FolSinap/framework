@@ -2,7 +2,7 @@
 
 namespace Fwt\Framework\Kernel\Validator\Rules;
 
-class EmailRule implements Rule
+class EmailRule implements IRule
 {
     protected string $errorMessage = 'Value must be correct email.';
 
