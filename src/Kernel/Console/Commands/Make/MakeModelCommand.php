@@ -46,7 +46,7 @@ class MakeModelCommand extends MakeCommand
         return __DIR__ . '/stubs/Model.stub';
     }
 
-    public function execute(Input $input, Output $output): void
+    public function make(Input $input, Output $output): void
     {
         //todo: add recursive dir creation
         $name = $input->getParameters()[0];
@@ -54,19 +54,17 @@ class MakeModelCommand extends MakeCommand
         $relations = $this->renderRelations($output);
         $columns = $this->renderColumns($output);
 
-        $stub = $this->replaceStubTemplates([
-            'class_name' => $name,
+        $this->stubReplacements = [
+            'className' => $name,
             'namespace' => $this->namespace,
             'relations' => $relations,
             'columns' => $columns,
             'use' => $this->renderUses(),
-        ]);
+        ];
 
-        if ($this->createFile("$name.php", $stub)) {
-            $output->success('New Model is created successfully!');
-        } else {
-            $output->error('Something went wrong.');
-        }
+        $this->fileName = "$name.php";
+
+        $this->successful = 'New Model class has been successfully created.';
     }
 
     protected function renderUses(): string

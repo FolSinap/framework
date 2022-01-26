@@ -4,7 +4,7 @@ namespace {{|namespace|}};
 
 use Fwt\Framework\Kernel\Database\Migration;
 
-class {{|class_name|}} extends Migration
+class {{|className|}} extends Migration
 {
     public function up(): void
     {

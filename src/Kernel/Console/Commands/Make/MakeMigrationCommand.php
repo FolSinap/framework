@@ -25,7 +25,7 @@ class MakeMigrationCommand extends MakeCommand
         ];
     }
 
-    public function execute(Input $input, Output $output): void
+    public function make(Input $input, Output $output): void
     {
         $migrations = scandir($this->getBaseDir());
         $numbers = [];
@@ -48,16 +48,14 @@ class MakeMigrationCommand extends MakeCommand
         $name = $input->getParameters()[0];
         $name = "m$nextNumber" . "_$name";
 
-        $stub = $this->replaceStubTemplates([
-            'class_name' => $name,
+        $this->stubReplacements = [
+            'className' => $name,
             'namespace' => ltrim(App::$app->getConfig('app.migrations.namespace'), '\\'),
-        ]);
+        ];
 
-        if ($this->createFile("$name.php", $stub)) {
-            $output->success('New migration is created successfully!');
-        } else {
-            $output->error('Something went wrong.');
-        }
+        $this->fileName = "$name.php";
+
+        $this->successful = 'New migration has been successfully created.';
     }
 
     protected function getBaseDir(): string

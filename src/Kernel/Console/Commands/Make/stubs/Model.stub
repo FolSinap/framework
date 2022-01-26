@@ -2,7 +2,7 @@
 
 namespace {{|namespace|}};
 
-use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
+use Fwt\Framework\Kernel\Database\ORM\Models\Model;
 {{|use|}}
-class {{|class_name|}} extends AbstractModel
+class {{|className|}} extends Model
 {{{|relations|}}{{|columns|}}}

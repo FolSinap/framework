@@ -16,10 +16,5 @@ class {{|className|}} extends {{|extends|}}
     public function getDescription(): string
     {
         return '{{|description|}}';
-    }
-
-    public function execute(Input $input, Output $output): void
-    {
-        // TODO: Implement execute() method.
     }{{|additionalMethods|}}
 }

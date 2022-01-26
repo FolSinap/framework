@@ -42,7 +42,7 @@ class MakeCommandCommand extends MakeCommand
         ];
     }
 
-    public function execute(Input $input, Output $output): void
+    public function make(Input $input, Output $output): void
     {
         $className = $this->getParameters($input)['class_name'];
         $description = $this->getParameters($input)['description'] ?? '';
@@ -52,10 +52,10 @@ class MakeCommandCommand extends MakeCommand
 
         if ($isMake) {
             $class = MakeCommand::class;
-            $additionalMethods = $this->renderAdditionalMethods();
+            $additionalMethods = $this->renderMethodsForMakeCommand();
         } else {
             $class = Command::class;
-            $additionalMethods = '';
+            $additionalMethods = $this->renderExecuteMethod();
         }
 
         $use = "use $class;";
@@ -66,7 +66,7 @@ class MakeCommandCommand extends MakeCommand
             $name = $this->defaultNameFromClass($className);
         }
 
-        $stub = $this->replaceStubTemplates(compact(
+        $this->stubReplacements = compact(
             'namespace',
             'className',
             'description',
@@ -74,11 +74,11 @@ class MakeCommandCommand extends MakeCommand
             'use',
             'extends',
             'additionalMethods'
-        ));
+        );
 
-        $this->createFile("$className.php", $stub);
+        $this->fileName = "$className.php";
 
-        $output->success('Created new command successfully.');
+        $this->successful = 'New command has been successfully created.';
     }
 
     protected function defaultNameFromClass(string $className): string
@@ -102,7 +102,17 @@ class MakeCommandCommand extends MakeCommand
         return $name;
     }
 
-    protected function renderAdditionalMethods(): string
+    protected function renderExecuteMethod(): string
+    {
+        return MessageBuilder::getBuilder()
+            ->skipLines(2)
+            ->tab()->writeln('public function execute(Input $input, Output $output): void')
+            ->writeln('{')
+            ->tab()->writeln('// TODO: Implement execute() method.')
+            ->dropTab()->write('}');
+    }
+
+    protected function renderMethodsForMakeCommand(): string
     {
         return MessageBuilder::getBuilder()
             ->skipLines(2)
@@ -115,7 +125,15 @@ class MakeCommandCommand extends MakeCommand
                 ->writeln('{')
                 ->tab()->writeln('// TODO: Implement getStubFile() method.')
                 ->dropTab()->write('}')
-            ->nextLine();
+            ->skipLines(2)
+                ->writeln('protected function make(Input $input, Output $output): void')
+                ->writeln('{')
+                ->tab()->writeln('// TODO: Implement make() method.')
+                    ->skipLines()
+                    ->writeln('// Don\'t forget to set properties')
+                    ->writeln('$this->stubReplacements = [];')
+                    ->writeln('$this->fileName = \'\';')
+                ->dropTab()->write('}');
     }
 
     protected function getBaseDir(): string
