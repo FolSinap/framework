@@ -2,12 +2,12 @@
 
 namespace Fwt\Framework\Kernel\Database\ORM\Relation;
 
-use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
+use Fwt\Framework\Kernel\Database\ORM\Models\Model;
 use Fwt\Framework\Kernel\Exceptions\ORM\RelationDefinitionException;
 
 class RelationFactory
 {
-    public function create(AbstractModel $model, array $config): AbstractRelation
+    public function create(Model $model, array $config): AbstractRelation
     {
         RelationDefinitionException::checkRequiredKeys(['class', 'field'], $config);
 

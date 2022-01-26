@@ -14,7 +14,7 @@ use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
 use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
 use Fwt\Framework\Kernel\Exceptions\ORM\RelationDefinitionException;
 
-abstract class AbstractModel
+abstract class Model
 {
     protected const RELATIONS = [];
 

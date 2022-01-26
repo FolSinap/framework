@@ -4,16 +4,16 @@ namespace Fwt\Framework\Kernel\Database\ORM\Relation;
 
 use Fwt\Framework\Kernel\Database\ORM\ModelCollection;
 use Fwt\Framework\Kernel\Database\ORM\ModelRepository;
-use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
+use Fwt\Framework\Kernel\Database\ORM\Models\Model;
 
 class OneToManyRelation extends AbstractRelation
 {
-    public function __construct(AbstractModel $from, string $related, string $field)
+    public function __construct(Model $from, string $related, string $field)
     {
         parent::__construct($from, $related, $field);
     }
 
-    public function add(AbstractModel $model): void
+    public function add(Model $model): void
     {
         $this->checkClassAndUpdateForeign($model);
 
@@ -25,7 +25,7 @@ class OneToManyRelation extends AbstractRelation
         $forUpdate = [];
         $forInsert = [];
 
-        /** @var AbstractModel $model */
+        /** @var Model $model */
         foreach ($models as $model) {
             $this->checkClass($model);
 
@@ -43,7 +43,7 @@ class OneToManyRelation extends AbstractRelation
         $repository->updateMany(new ModelCollection($forUpdate), [$this->through => $this->from->primary()]);
     }
 
-    public function delete(AbstractModel $model)
+    public function delete(Model $model)
     {
         $this->checkClassAndDeleteForeign($model);
 
@@ -79,29 +79,29 @@ class OneToManyRelation extends AbstractRelation
         return $this->dry;
     }
 
-    protected function checkClassAndUpdateForeign(AbstractModel $model): void
+    protected function checkClassAndUpdateForeign(Model $model): void
     {
         $this->checkClass($model);
         $this->updateForeign($model);
     }
 
-    protected function checkClassAndDeleteForeign(AbstractModel $model): void
+    protected function checkClassAndDeleteForeign(Model $model): void
     {
         $this->checkClass($model);
         $this->deleteForeign($model);
     }
 
-    protected function updateForeign(AbstractModel $model): void
+    protected function updateForeign(Model $model): void
     {
         $model->{$this->through} = $this->from->primary();
     }
 
-    protected function deleteForeign(AbstractModel $model): void
+    protected function deleteForeign(Model $model): void
     {
         $model->{$this->through} = null;
     }
 
-    protected function checkClass(AbstractModel $model): void
+    protected function checkClass(Model $model): void
     {
         if ($this->isRelated($model)) {
             //todo: exception

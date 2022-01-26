@@ -6,16 +6,15 @@ use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Database\Database;
 use Fwt\Framework\Kernel\Database\ORM\ModelCollection;
 use Fwt\Framework\Kernel\Database\ORM\ModelRepository;
-use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
+use Fwt\Framework\Kernel\Database\ORM\Models\Model;
 use Fwt\Framework\Kernel\Database\ORM\Models\AnonymousModel;
-use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
 
 class ManyToManyRelation extends OneToManyRelation
 {
     protected string $pivot;
     protected string $definedBy;
 
-    public function __construct(AbstractModel $from, string $related, string $field, string $definedBy, string $pivot = null)
+    public function __construct(Model $from, string $related, string $field, string $definedBy, string $pivot = null)
     {
         parent::__construct($from, $related, $field);
 
@@ -23,7 +22,7 @@ class ManyToManyRelation extends OneToManyRelation
         $this->definedBy = $definedBy;
     }
 
-    public function delete(AbstractModel $model): void
+    public function delete(Model $model): void
     {
         /** @var Database $database */
         $database = App::$app->getContainer()->get(Database::class);
@@ -45,7 +44,7 @@ class ManyToManyRelation extends OneToManyRelation
         $database->execute();
     }
 
-    public function add(AbstractModel $model): void
+    public function add(Model $model): void
     {
         $this->checkClass($model);
 
@@ -73,7 +72,7 @@ class ManyToManyRelation extends OneToManyRelation
         $forInsertion = new ModelCollection();
         $id = $this->from->primary();
 
-        /** @var AbstractModel $model */
+        /** @var Model $model */
         foreach ($models as $model) {
             if (!$model->exists()) {
                 //todo: change exception

@@ -4,9 +4,8 @@ namespace Fwt\Framework\Kernel\Database\ORM;
 
 use ArrayAccess;
 use Countable;
-use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
+use Fwt\Framework\Kernel\Database\ORM\Models\Model;
 use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
-use Fwt\Framework\Kernel\Exceptions\ORM\ModelInitializationException;
 use IteratorAggregate;
 use ArrayIterator;
 
@@ -56,8 +55,8 @@ class ModelCollection implements ArrayAccess, IteratorAggregate, Countable
     protected function checkType(array $data): void
     {
         foreach ($data as $model) {
-            if (!$model instanceof AbstractModel) {
-                throw new IllegalTypeException($model, [AbstractModel::class]);
+            if (!$model instanceof Model) {
+                throw new IllegalTypeException($model, [Model::class]);
             }
         }
     }

@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
+use Fwt\Framework\Kernel\Database\ORM\Models\Model;
 use Fwt\Framework\Kernel\Database\ORM\Relation\AbstractRelation;
 
-class Book extends AbstractModel
+class Book extends Model
 {
     protected const RELATIONS = [
         'author' => ['class' => User::class, 'field' => 'author_id'],

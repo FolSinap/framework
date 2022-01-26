@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
+use Fwt\Framework\Kernel\Database\ORM\Models\Model;
 use Fwt\Framework\Kernel\Database\ORM\Relation\AbstractRelation;
 
-class Genre extends AbstractModel
+class Genre extends Model
 {
     protected const RELATIONS = [
         'books' => [
