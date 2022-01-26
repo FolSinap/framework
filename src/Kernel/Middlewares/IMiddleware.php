@@ -4,7 +4,7 @@ namespace Fwt\Framework\Kernel\Middlewares;
 
 use Fwt\Framework\Kernel\Request;
 
-interface Middleware
+interface IMiddleware
 {
     public function getName(): string;
 

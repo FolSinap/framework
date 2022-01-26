@@ -35,7 +35,7 @@ class MiddlewareMapper
         return $middlewares;
     }
 
-    public function map(string $name): Middleware
+    public function map(string $name): IMiddleware
     {
         $map = $this->getMap();
 
@@ -67,8 +67,8 @@ class MiddlewareMapper
         $middlewares = [];
 
         foreach ($this->middlewares as $middleware) {
-            if (!in_array(Middleware::class, class_implements($middleware))) {
-                throw new InterfaceNotFoundException($middleware, Middleware::class);
+            if (!in_array(IMiddleware::class, class_implements($middleware))) {
+                throw new InterfaceNotFoundException($middleware, IMiddleware::class);
             }
 
             $middleware = $this->resolver->resolve($middleware);
