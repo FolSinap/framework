@@ -4,13 +4,13 @@ namespace App\Controllers;
 
 use App\Controllers\RequestValidators\RegisterRequestValidator;
 use App\Models\User;
-use Fwt\Framework\Kernel\Controllers\AbstractController;
+use Fwt\Framework\Kernel\Controllers\Controller;
 use Fwt\Framework\Kernel\Login\Authentication;
 use Fwt\Framework\Kernel\Request;
 use Fwt\Framework\Kernel\Response\RedirectResponse;
 use Fwt\Framework\Kernel\Response\Response;
 
-class LoginController extends AbstractController
+class LoginController extends Controller
 {
     public function registrationForm(): Response
     {
