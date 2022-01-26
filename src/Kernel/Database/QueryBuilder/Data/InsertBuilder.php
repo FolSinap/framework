@@ -2,7 +2,7 @@
 
 namespace Fwt\Framework\Kernel\Database\QueryBuilder\Data;
 
-class InsertBuilder extends AbstractBuilder
+class InsertBuilder extends Builder
 {
     protected string $table;
     protected array $data = [];

@@ -2,7 +2,7 @@
 
 namespace Fwt\Framework\Kernel\Database\QueryBuilder\Data;
 
-class UpdateBuilder extends AbstractBuilder
+class UpdateBuilder extends Builder
 {
     use UsingWhereStatements;
 

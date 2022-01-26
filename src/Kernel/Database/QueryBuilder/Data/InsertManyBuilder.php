@@ -4,7 +4,7 @@ namespace Fwt\Framework\Kernel\Database\QueryBuilder\Data;
 
 use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
 
-class InsertManyBuilder extends AbstractBuilder
+class InsertManyBuilder extends Builder
 {
     protected string $table;
     protected array $data = [];

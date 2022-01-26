@@ -6,7 +6,7 @@ use Fwt\Framework\Kernel\Database\SQL\Query;
 
 class DataBuilder
 {
-    protected AbstractBuilder $builder;
+    protected Builder $builder;
 
     public static function getBuilder(): self
     {

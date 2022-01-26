@@ -2,7 +2,7 @@
 
 namespace Fwt\Framework\Kernel\Database\QueryBuilder\Data;
 
-abstract class AbstractBuilder
+abstract class Builder
 {
     protected array $params = [];
 
