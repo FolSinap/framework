@@ -6,7 +6,7 @@ use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Console\Input;
 use Fwt\Framework\Kernel\Console\Output\Output;
 
-class MakeMigrationCommand extends AbstractMakeCommand
+class MakeMigrationCommand extends MakeCommand
 {
     public function getName(): string
     {

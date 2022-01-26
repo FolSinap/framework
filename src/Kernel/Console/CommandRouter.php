@@ -2,7 +2,7 @@
 
 namespace Fwt\Framework\Kernel\Console;
 
-use Fwt\Framework\Kernel\Console\Commands\Command;
+use Fwt\Framework\Kernel\Console\Commands\ICommand;
 use Fwt\Framework\Kernel\Console\Commands\CommandWrapper;
 use Fwt\Framework\Kernel\Console\Commands\HelpCommand;
 use Fwt\Framework\Kernel\Console\Commands\Make\MakeCommandCommand;
@@ -34,7 +34,7 @@ class CommandRouter
         $this->addCommands(App::$app->getConfig('app.commands.list', []));
     }
 
-    public function map(string $name): Command
+    public function map(string $name): ICommand
     {
         $map = $this->getMap();
 
@@ -66,8 +66,8 @@ class CommandRouter
         $commands = [];
 
         foreach ($this->commands as $command) {
-            if (!in_array(Command::class, class_implements($command))) {
-                throw new InterfaceNotFoundException($command, Command::class);
+            if (!in_array(ICommand::class, class_implements($command))) {
+                throw new InterfaceNotFoundException($command, ICommand::class);
             }
 
             $command = $this->resolver->resolve($command);

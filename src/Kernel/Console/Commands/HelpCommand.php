@@ -7,7 +7,7 @@ use Fwt\Framework\Kernel\Console\Input;
 use Fwt\Framework\Kernel\Console\Output\MessageBuilder;
 use Fwt\Framework\Kernel\Console\Output\Output;
 
-class HelpCommand extends AbstractCommand
+class HelpCommand extends Command
 {
     protected CommandRouter $router;
 

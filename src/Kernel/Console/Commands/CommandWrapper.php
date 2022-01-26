@@ -7,16 +7,16 @@ use Fwt\Framework\Kernel\Console\Output\MessageBuilder;
 use Fwt\Framework\Kernel\Console\Output\Output;
 use Fwt\Framework\Kernel\Exceptions\Console\InvalidInputException;
 
-class CommandWrapper implements Command
+class CommandWrapper implements ICommand
 {
-    protected Command $command;
+    protected ICommand $command;
 
-    public function __construct(Command $command)
+    public function __construct(ICommand $command)
     {
         $this->command = $command;
     }
 
-    public static function wrap(Command $command): self
+    public static function wrap(ICommand $command): self
     {
         return new self($command);
     }

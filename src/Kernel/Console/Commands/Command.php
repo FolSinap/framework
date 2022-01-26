@@ -3,19 +3,37 @@
 namespace Fwt\Framework\Kernel\Console\Commands;
 
 use Fwt\Framework\Kernel\Console\Input;
-use Fwt\Framework\Kernel\Console\Output\Output;
 
-interface Command
+abstract class Command implements ICommand
 {
-    public function getName(): string;
+    public function getOptions(): array
+    {
+        return [];
+    }
 
-    public function getDescription(): string;
+    public function getOptionalParameters(): array
+    {
+        return [];
+    }
 
-    public function getOptions(): array;
+    public function getRequiredParameters(): array
+    {
+        return [];
+    }
 
-    public function getRequiredParameters(): array;
+    protected function getParameters(Input $input): array
+    {
+        $definedParameters = array_merge($this->getRequiredParameters(), $this->getOptionalParameters());
+        $input = $input->getParameters();
 
-    public function getOptionalParameters(): array;
+        $i = 0;
+        $parameters = [];
 
-    public function execute(Input $input, Output $output): void;
+        foreach ($definedParameters as $name => $description) {
+            $parameters[$name] = $input[$i] ?? null;
+            $i++;
+        }
+
+        return $parameters;
+    }
 }

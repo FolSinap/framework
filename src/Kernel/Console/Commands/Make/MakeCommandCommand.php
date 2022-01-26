@@ -3,12 +3,12 @@
 namespace Fwt\Framework\Kernel\Console\Commands\Make;
 
 use Fwt\Framework\Kernel\Console\App;
-use Fwt\Framework\Kernel\Console\Commands\AbstractCommand;
+use Fwt\Framework\Kernel\Console\Commands\Command;
 use Fwt\Framework\Kernel\Console\Input;
 use Fwt\Framework\Kernel\Console\Output\MessageBuilder;
 use Fwt\Framework\Kernel\Console\Output\Output;
 
-class MakeCommandCommand extends AbstractMakeCommand
+class MakeCommandCommand extends MakeCommand
 {
     public function getName(): string
     {
@@ -51,10 +51,10 @@ class MakeCommandCommand extends AbstractMakeCommand
         $isMake = (bool) $input->getOption('make', 'm');
 
         if ($isMake) {
-            $class = AbstractMakeCommand::class;
+            $class = MakeCommand::class;
             $additionalMethods = $this->renderAdditionalMethods();
         } else {
-            $class = AbstractCommand::class;
+            $class = Command::class;
             $additionalMethods = '';
         }
 

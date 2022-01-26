@@ -2,9 +2,9 @@
 
 namespace Fwt\Framework\Kernel\Console\Commands\Make;
 
-use Fwt\Framework\Kernel\Console\Commands\AbstractCommand;
+use Fwt\Framework\Kernel\Console\Commands\Command;
 
-abstract class AbstractMakeCommand extends AbstractCommand
+abstract class MakeCommand extends Command
 {
     abstract protected function getBaseDir(): string;
 

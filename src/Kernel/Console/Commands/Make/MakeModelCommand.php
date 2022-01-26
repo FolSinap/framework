@@ -8,7 +8,7 @@ use Fwt\Framework\Kernel\Console\Output\MessageBuilder;
 use Fwt\Framework\Kernel\Console\Output\Output;
 use Fwt\Framework\Kernel\Database\ORM\Relation\AbstractRelation;
 
-class MakeModelCommand extends AbstractMakeCommand
+class MakeModelCommand extends MakeCommand
 {
     protected string $namespace;
     protected array $uses = [];

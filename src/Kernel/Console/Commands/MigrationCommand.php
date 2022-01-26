@@ -12,7 +12,7 @@ use Fwt\Framework\Kernel\Database\Migration as ExecutableMigration;
 use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\SchemaBuilder;
 use Fwt\Framework\Kernel\ObjectResolver;
 
-class MigrationCommand extends AbstractCommand
+class MigrationCommand extends Command
 {
     protected Database $database;
     protected ObjectResolver $resolver;
