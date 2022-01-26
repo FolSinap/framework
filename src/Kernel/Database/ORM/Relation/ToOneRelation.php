@@ -4,7 +4,7 @@ namespace Fwt\Framework\Kernel\Database\ORM\Relation;
 
 use Fwt\Framework\Kernel\Database\ORM\Models\Model;
 
-class ToOneRelation extends AbstractRelation
+class ToOneRelation extends Relation
 {
     public function get(): ?Model
     {

@@ -5,7 +5,7 @@ namespace Fwt\Framework\Kernel\Database\ORM\Relation;
 use Fwt\Framework\Kernel\Database\ORM\Models\Model;
 use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
 
-abstract class AbstractRelation
+abstract class Relation
 {
     public const TO_ONE = 'to-one';
     public const MANY_TO_MANY = 'many-to-many';

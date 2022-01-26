@@ -6,7 +6,7 @@ use Fwt\Framework\Kernel\Database\ORM\ModelCollection;
 use Fwt\Framework\Kernel\Database\ORM\ModelRepository;
 use Fwt\Framework\Kernel\Database\ORM\Models\Model;
 
-class OneToManyRelation extends AbstractRelation
+class OneToManyRelation extends Relation
 {
     public function __construct(Model $from, string $related, string $field)
     {

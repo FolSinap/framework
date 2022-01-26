@@ -4,7 +4,7 @@ namespace Fwt\Framework\Kernel\Database\ORM\Models;
 
 use Fwt\Framework\Kernel\Database\ORM\ModelCollection;
 use Fwt\Framework\Kernel\Database\ORM\ModelRepository;
-use Fwt\Framework\Kernel\Database\ORM\Relation\AbstractRelation;
+use Fwt\Framework\Kernel\Database\ORM\Relation\Relation;
 use Fwt\Framework\Kernel\Database\ORM\Relation\ManyToManyRelation;
 use Fwt\Framework\Kernel\Database\ORM\Relation\OneToManyRelation;
 use Fwt\Framework\Kernel\Database\ORM\Relation\RelationFactory;
@@ -22,7 +22,7 @@ abstract class Model
     protected static array $columns = [];
     protected array $fields = [];
     protected array $changed = [];
-    /** @var AbstractRelation[] $relations */
+    /** @var Relation[] $relations */
     private array $relations = [];
     private bool $exists = false;
     private bool $isChanged = false;
@@ -218,7 +218,7 @@ abstract class Model
      *
      * @throws RelationDefinitionException
      */
-    public function getRelation(string $name): AbstractRelation
+    public function getRelation(string $name): Relation
     {
         if (!$this->relationExists($name)) {
             throw RelationDefinitionException::undefinedRelation($this, $name);

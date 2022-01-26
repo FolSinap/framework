@@ -7,12 +7,12 @@ use Fwt\Framework\Kernel\Exceptions\ORM\RelationDefinitionException;
 
 class RelationFactory
 {
-    public function create(Model $model, array $config): AbstractRelation
+    public function create(Model $model, array $config): Relation
     {
         RelationDefinitionException::checkRequiredKeys(['class', 'field'], $config);
 
-        switch ($config['type'] ?? AbstractRelation::TO_ONE) {
-            case AbstractRelation::MANY_TO_MANY:
+        switch ($config['type'] ?? Relation::TO_ONE) {
+            case Relation::MANY_TO_MANY:
                 RelationDefinitionException::checkRequiredKeys(['defined_by'], $config);
 
                 return new ManyToManyRelation(
@@ -22,7 +22,7 @@ class RelationFactory
                     $config['defined_by'],
                     $config['pivot'] ?? null
                 );
-            case AbstractRelation::ONE_TO_MANY:
+            case Relation::ONE_TO_MANY:
                 return new OneToManyRelation($model, $config['class'], $config['field']);
             default:
                 return new ToOneRelation($model, $config['class'], $config['field']);

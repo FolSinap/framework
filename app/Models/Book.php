@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Fwt\Framework\Kernel\Database\ORM\Models\Model;
-use Fwt\Framework\Kernel\Database\ORM\Relation\AbstractRelation;
+use Fwt\Framework\Kernel\Database\ORM\Relation\Relation;
 
 class Book extends Model
 {
@@ -12,7 +12,7 @@ class Book extends Model
         'genres' => [
             'class' => Genre::class,
             'field' => 'genre_id',
-            'type' => AbstractRelation::MANY_TO_MANY,
+            'type' => Relation::MANY_TO_MANY,
             'pivot' => 'books_genres',
             'defined_by' => 'book_id',
         ],

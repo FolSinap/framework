@@ -6,7 +6,7 @@ use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Console\Input;
 use Fwt\Framework\Kernel\Console\Output\MessageBuilder;
 use Fwt\Framework\Kernel\Console\Output\Output;
-use Fwt\Framework\Kernel\Database\ORM\Relation\AbstractRelation;
+use Fwt\Framework\Kernel\Database\ORM\Relation\Relation;
 
 class MakeModelCommand extends MakeCommand
 {
@@ -162,30 +162,30 @@ class MakeModelCommand extends MakeCommand
         while ($output->confirm($message)) {
             $relation = [];
             $relation['name'] = $output->input('Insert relation name: ');
-            $type = $output->choose('Choose relation type', AbstractRelation::TYPES);
+            $type = $output->choose('Choose relation type', Relation::TYPES);
             $related = "$this->namespace\\" . $output->input("Insert related class $this->namespace\\");
             $this->addUse($related);
-            $this->addUse(AbstractRelation::class);
+            $this->addUse(Relation::class);
 
             $className = explode('\\', $related);
             $relation['class'] = array_pop($className) . '::class';
 
             switch ($type) {
-                case AbstractRelation::TO_ONE:
+                case Relation::TO_ONE:
                     $relation['field'] = $field = $output->input("Insert field name that represents $related in DB: ");
-                    $relation['type'] = 'AbstractRelation::TO_ONE';
+                    $relation['type'] = 'Relation::TO_ONE';
                     $this->columns[] = $field;
 
                     break;
-                case AbstractRelation::ONE_TO_MANY:
+                case Relation::ONE_TO_MANY:
                     $relation['field'] = $output->input("Insert field name in $related that represents this object in DB: ");
-                    $relation['type'] = 'AbstractRelation::ONE_TO_MANY';
+                    $relation['type'] = 'Relation::ONE_TO_MANY';
 
                     break;
-                case AbstractRelation::MANY_TO_MANY:
+                case Relation::MANY_TO_MANY:
                     $relation['field'] = $output->input("Insert field name in pivot table that represents $related in DB: ");
                     $relation['defined_by'] = $output->input("Insert field name in pivot table that represents this object in DB: ");
-                    $relation['type'] = 'AbstractRelation::MANY_TO_MANY';
+                    $relation['type'] = 'Relation::MANY_TO_MANY';
 
                     $pivot = $output->input('Name of pivot table (empty for default): ');
 
