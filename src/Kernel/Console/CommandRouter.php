@@ -11,6 +11,7 @@ use Fwt\Framework\Kernel\Console\Commands\Make\MakeModelCommand;
 use Fwt\Framework\Kernel\Console\Commands\MigrationCommand;
 use Fwt\Framework\Kernel\Exceptions\Console\CommandNotFoundException;
 use Fwt\Framework\Kernel\Exceptions\InterfaceNotFoundException;
+use Fwt\Framework\Kernel\FileLoader;
 use Fwt\Framework\Kernel\ObjectResolver;
 
 class CommandRouter
@@ -31,7 +32,10 @@ class CommandRouter
             MakeCommandCommand::class,
         ];
 
-        $this->addCommands(App::$app->getConfig('app.commands.list', []));
+        $loader = $resolver->resolve(FileLoader::class);
+        $loader->load(App::$app->getConfig('app.commands.dir'));
+
+        $this->addCommands($loader->classNames());
     }
 
     public function map(string $name): ICommand
