@@ -31,7 +31,5 @@ return [
     'commands' => [
         'dir' => $projectDir . '/app/Commands',
         'namespace' => '\\App\\Commands',
-        //todo: automatically update?
-        'list' => [],
     ],
 ];
