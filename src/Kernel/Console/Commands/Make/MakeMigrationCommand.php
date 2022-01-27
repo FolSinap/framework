@@ -5,9 +5,17 @@ namespace Fwt\Framework\Kernel\Console\Commands\Make;
 use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Console\Input;
 use Fwt\Framework\Kernel\Console\Output\Output;
+use Fwt\Framework\Kernel\FileLoader;
 
 class MakeMigrationCommand extends MakeCommand
 {
+    protected FileLoader $loader;
+
+    public function __construct(FileLoader $loader)
+    {
+        $this->loader = $loader;
+    }
+
     public function getName(): string
     {
         return 'make:migration';
@@ -27,15 +35,12 @@ class MakeMigrationCommand extends MakeCommand
 
     public function make(Input $input, Output $output): void
     {
-        $migrations = scandir($this->getBaseDir());
+        $this->loader->load($this->getBaseDir());
+
         $numbers = [];
 
-        foreach ($migrations as $migration) {
-            if (in_array($migration, ['.', '..'])) {
-                continue;
-            }
-
-            $migrationName = rtrim($migration, '.php');
+        foreach ($this->loader->baseNames() as $migration) {
+            $migrationName = str_replace('.php', '', $migration);
 
             preg_match('/m(\d{4})_/', $migrationName, $matches);
             $numbers[] = (int) $matches[1];

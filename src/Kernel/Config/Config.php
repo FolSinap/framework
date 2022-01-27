@@ -27,8 +27,8 @@ class Config extends Container
 
         $loader->load($dir);
 
-        foreach ($loader->files() as $file) {
-            $file = str_replace('.php', '', (basename($file)));
+        foreach ($loader->baseNames() as $file) {
+            $file = str_replace('.php', '', $file);
             $config[$file] = new FileConfig($file);
         }
 

@@ -28,7 +28,7 @@ class FileLoader
             if (is_dir($fullPath)) {
                 $this->load($fullPath);
             } else {
-                $this->files[] = $fullPath;
+                $this->files[$file] = $fullPath;
             }
         }
     }
@@ -36,6 +36,11 @@ class FileLoader
     public function files(): array
     {
         return $this->files;
+    }
+
+    public function baseNames(): array
+    {
+        return array_keys($this->files);
     }
 
     public function classNames(): array
