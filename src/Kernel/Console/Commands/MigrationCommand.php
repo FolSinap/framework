@@ -10,18 +10,21 @@ use Fwt\Framework\Kernel\Database\Database;
 use Fwt\Framework\Kernel\Database\ORM\Models\Migration;
 use Fwt\Framework\Kernel\Database\Migration as ExecutableMigration;
 use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\SchemaBuilder;
+use Fwt\Framework\Kernel\FileLoader;
 use Fwt\Framework\Kernel\ObjectResolver;
 
 class MigrationCommand extends Command
 {
     protected Database $database;
     protected ObjectResolver $resolver;
+    protected FileLoader $loader;
     protected array $dry = [];
 
-    public function __construct(Database $database, ObjectResolver $resolver)
+    public function __construct(Database $database, ObjectResolver $resolver, FileLoader $loader)
     {
         $this->database = $database;
         $this->resolver = $resolver;
+        $this->loader = $loader;
     }
 
     public function getName(): string
@@ -129,20 +132,14 @@ class MigrationCommand extends Command
 
     protected function resolveMigrationObjects(): array
     {
-        $migrations = scandir(App::$app->getConfig('app.migrations.dir'));
+        $this->loader->load(App::$app->getConfig('app.migrations.dir'));
 
-        foreach ($migrations as $key => $migration) {
-            if (in_array($migration, ['.', '..'])) {
-                unset($migrations[$key]);
+        $migrations = [];
 
-                continue;
-            }
+        foreach ($this->loader->classNames() as $migration) {
+            $explode = explode('\\', $migration);
 
-            $migrationName = str_replace('.php', '', $migration);
-
-            $migrations[$migrationName] = $this->resolver->resolve(App::$app->getConfig('app.migrations.namespace') . "\\$migrationName");
-
-            unset($migrations[$key]);
+            $migrations[array_pop($explode)] = $this->resolver->resolve($migration);
         }
 
         return $migrations;
