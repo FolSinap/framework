@@ -33,9 +33,20 @@ abstract class MakeCommand extends Command
         }
     }
 
+    protected function normalizeClassAndNamespace(string $class, string $namespace): array
+    {
+        if (str_contains($class, '\\')) {
+            $newNamespace = explode('\\', $class);
+            $class = array_pop($newNamespace);
+            $namespace .= '\\' . implode('\\', $newNamespace);
+        }
+
+        return [$class, $namespace];
+    }
+
     private function checkProperties(): void
     {
-        if (!isset($this->fileName)) {
+        if (!isset($this->fileName) || $this->fileName === '') {
             throw new \Exception('property fileName should be set inside make method');
         }
     }
@@ -44,8 +55,14 @@ abstract class MakeCommand extends Command
     {
         $baseDir = $this->getBaseDir();
 
+        if (str_contains($name, '\\')) {
+            $structure = explode('\\', $name);
+            $name = array_pop($structure);
+            $baseDir .= '/' . implode('/', $structure);
+        }
+
         if (!is_dir($baseDir)) {
-            mkdir($baseDir);
+            mkdir($baseDir, 0777, true);
         }
 
         return file_put_contents("$baseDir/$name", $content);

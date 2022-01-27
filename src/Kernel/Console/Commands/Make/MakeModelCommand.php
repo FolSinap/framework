@@ -48,14 +48,15 @@ class MakeModelCommand extends MakeCommand
 
     public function make(Input $input, Output $output): void
     {
-        //todo: add recursive dir creation
-        $name = $input->getParameters()[0];
+        $name = $this->getParameters($input)['name'];
+
+        [$className, $this->namespace] = $this->normalizeClassAndNamespace($name, $this->namespace);
 
         $relations = $this->renderRelations($output);
         $columns = $this->renderColumns($output);
 
         $this->stubReplacements = [
-            'className' => $name,
+            'className' => $className,
             'namespace' => $this->namespace,
             'relations' => $relations,
             'columns' => $columns,

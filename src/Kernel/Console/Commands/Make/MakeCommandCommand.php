@@ -44,11 +44,13 @@ class MakeCommandCommand extends MakeCommand
 
     public function make(Input $input, Output $output): void
     {
-        $className = $this->getParameters($input)['class_name'];
+        $fullClassName = $this->getParameters($input)['class_name'];
         $description = $this->getParameters($input)['description'] ?? '';
         $name = $this->getParameters($input)['name'];
         $namespace = ltrim(App::$app->getConfig('app.commands.namespace'), '\\');
         $isMake = (bool) $input->getOption('make', 'm');
+
+        [$className, $namespace] = $this->normalizeClassAndNamespace($fullClassName, $namespace);
 
         if ($isMake) {
             $class = MakeCommand::class;
@@ -76,7 +78,7 @@ class MakeCommandCommand extends MakeCommand
             'additionalMethods'
         );
 
-        $this->fileName = "$className.php";
+        $this->fileName = "$fullClassName.php";
 
         $this->successful = 'New command has been successfully created.';
     }
