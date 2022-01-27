@@ -33,6 +33,11 @@ class FileLoader
         }
     }
 
+    public function files(): array
+    {
+        return $this->files;
+    }
+
     public function classNames(): array
     {
         $classes = [];
