@@ -62,9 +62,25 @@ class FileLoader
         return $classes;
     }
 
+    public function requireAll(): void
+    {
+        foreach ($this->files as $file) {
+            require $file;
+        }
+    }
+
+    public function requireOnceAll(): void
+    {
+        foreach ($this->files as $file) {
+            require_once $file;
+        }
+    }
+
     public function includeAll()
     {
-        //todo: implement
+        foreach ($this->files as $file) {
+            include $file;
+        }
     }
 
     protected function getClassName($source): string
