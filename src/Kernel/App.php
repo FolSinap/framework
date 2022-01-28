@@ -96,11 +96,9 @@ class App
 
     protected function initRoutes(): void
     {
-        $routesDir = $this->config->get('app.routes.dir');
-        $files = $this->config->get('app.routes.files');
+        $loader = new FileLoader();
 
-        foreach ($files as $file) {
-            require_once "$routesDir/$file";
-        }
+        $loader->load($this->config->get('app.routes.dir'));
+        $loader->requireOnceAll();
     }
 }
