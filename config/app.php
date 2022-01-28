@@ -14,9 +14,6 @@ return [
     ],
     'routes' => [
         'dir' => $projectDir . '/routes',
-        'files' => [
-            'routes.php',
-        ],
     ],
     'models' => [
         'dir' => $projectDir . '/app/Models',
