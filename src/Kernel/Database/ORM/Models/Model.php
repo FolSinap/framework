@@ -12,7 +12,10 @@ use Fwt\Framework\Kernel\Database\ORM\Relation\ToOneRelation;
 use Fwt\Framework\Kernel\Database\ORM\WhereBuilderFacade;
 use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
 use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
+use Fwt\Framework\Kernel\Exceptions\ORM\ModelInitializationException;
+use Fwt\Framework\Kernel\Exceptions\ORM\PrimaryKeyException;
 use Fwt\Framework\Kernel\Exceptions\ORM\RelationDefinitionException;
+use LogicException;
 
 abstract class Model
 {
@@ -106,8 +109,7 @@ abstract class Model
     public function fetch(): self
     {
         if (!$this->primary()) {
-            //todo: change exception
-            throw new \Exception('id is not set');
+            throw ModelInitializationException::idIsNotSet($this);
         }
 
         return static::find($this->primary());
@@ -347,8 +349,7 @@ abstract class Model
     private function setIsChanged(bool $isChanged = true): self
     {
         if (!$this->exists && $isChanged) {
-            //todo: change exception
-            throw new \Exception('Couldn\'t set isChanged = true, while model is not in database');
+            throw new LogicException('Couldn\'t set isChanged = true, while model does not exist.');
         }
 
         $this->isChanged = $isChanged;
@@ -393,11 +394,11 @@ abstract class Model
         switch (gettype($key)) {
             case 'array':
                 if (!self::hasCompositeKey() && count($key) > 1) {
-                    throw new \Exception('Cannot use composite value for non composite key');
+                    throw PrimaryKeyException::compositeValueForNonCompositeKey();
                 }
 
                 if (empty($key)) {
-                    throw new \Exception('Cannot use empty array as primary key');
+                    throw PrimaryKeyException::emptyArray();
                 }
 
                 $keys = $key;
@@ -406,7 +407,7 @@ abstract class Model
             case 'integer':
             case 'string':
                 if (static::hasCompositeKey()) {
-                    throw new \Exception('Cannot use single value for composite key');
+                    throw PrimaryKeyException::singleValueForCompositeKey();
                 }
 
                 $keys[self::ID_COLUMNS[0]] = $key;
@@ -514,8 +515,7 @@ abstract class Model
     private function initIdColumns(): self
     {
         if (empty(static::ID_COLUMNS)) {
-            //todo: exception
-            throw new \Exception('undefined id col');
+            throw new LogicException('Model must have at least one primary key column');
         }
 
         $ids = [];

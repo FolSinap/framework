@@ -8,6 +8,7 @@ use Fwt\Framework\Kernel\Database\ORM\ModelCollection;
 use Fwt\Framework\Kernel\Database\ORM\ModelRepository;
 use Fwt\Framework\Kernel\Database\ORM\Models\Model;
 use Fwt\Framework\Kernel\Database\ORM\Models\AnonymousModel;
+use Fwt\Framework\Kernel\Exceptions\ORM\ModelInitializationException;
 
 class ManyToManyRelation extends OneToManyRelation
 {
@@ -82,8 +83,7 @@ class ManyToManyRelation extends OneToManyRelation
             $this->checkClass($model);
 
             if (!$model->exists()) {
-                //todo: change exception
-                throw new \Exception('Model must exist in DB');
+                throw ModelInitializationException::nonexistentModel($model);
             }
 
             $primary = $model->primary();

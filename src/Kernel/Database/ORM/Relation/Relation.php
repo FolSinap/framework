@@ -4,6 +4,7 @@ namespace Fwt\Framework\Kernel\Database\ORM\Relation;
 
 use Fwt\Framework\Kernel\Database\ORM\Models\Model;
 use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
+use Fwt\Framework\Kernel\Exceptions\NotSupportedException;
 
 abstract class Relation
 {
@@ -24,8 +25,7 @@ abstract class Relation
         }
 
         if ($related::hasCompositeKey()) {
-            //todo: exception
-            throw new \Exception('Relations don\'t support related entities with composite key.');
+            throw new NotSupportedException('Relations don\'t support related entities with composite key.');
         }
 
         $this->from = $from;

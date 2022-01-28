@@ -5,6 +5,8 @@ namespace Fwt\Framework\Kernel\Database\ORM\Relation;
 use Fwt\Framework\Kernel\Database\ORM\ModelCollection;
 use Fwt\Framework\Kernel\Database\ORM\ModelRepository;
 use Fwt\Framework\Kernel\Database\ORM\Models\Model;
+use Fwt\Framework\Kernel\Exceptions\NotSupportedException;
+use Fwt\Framework\Kernel\Exceptions\ORM\UndefinedRelationException;
 
 class OneToManyRelation extends Relation
 {
@@ -13,8 +15,7 @@ class OneToManyRelation extends Relation
         parent::__construct($from, $related, $field);
 
         if ($from::hasCompositeKey()) {
-            //todo: exception
-            throw new \Exception('to-many relation types don\'t support composite keys.');
+            throw new NotSupportedException('to-many relation types don\'t support composite keys.');
         }
     }
 
@@ -109,8 +110,7 @@ class OneToManyRelation extends Relation
     protected function checkClass(Model $model): void
     {
         if ($this->isRelated($model)) {
-            //todo: exception
-            throw new \Exception('not related');
+            throw new UndefinedRelationException($this->from, $model);
         }
     }
 

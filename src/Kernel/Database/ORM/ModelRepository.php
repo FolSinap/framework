@@ -103,8 +103,7 @@ class ModelRepository
     public function update(Model $model, array $data = []): void
     {
         if (!$model->exists()) {
-            //todo: change exception, updatingNotInitializedModel -> updatingNotExistingModel
-            throw ModelInitializationException::updatingNotInitializedModel($model);
+            throw ModelInitializationException::nonexistentModel($model);
         }
 
         $idCols = $model::getIdColumns();

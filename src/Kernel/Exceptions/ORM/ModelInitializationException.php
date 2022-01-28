@@ -18,8 +18,8 @@ class ModelInitializationException extends LogicException
         return new self('Cannot initialize model ' . get_class($model) . ' when id is not set.');
     }
 
-    public static function updatingNotInitializedModel(Model $model): self
+    public static function nonexistentModel(Model $model): self
     {
-        return new self('Cannot update not initialized model ' . get_class($model));
+        return new self('Model doesn\'t exist in DB ' . get_class($model));
     }
 }
