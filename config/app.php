@@ -5,6 +5,9 @@ use Fwt\Framework\Kernel\App;
 $projectDir = App::$app->getProjectDir();
 
 return [
+    'app' => [
+        'dir' => $projectDir . '/app',
+    ],
     'migrations' => [
         'dir' => $projectDir . '/migrations',
         'namespace' => '\\App\\Migrations',
@@ -19,8 +22,8 @@ return [
         'dir' => $projectDir . '/app/Models',
         'namespace' => '\\App\\Models',
     ],
-    'app' => [
-        'dir' => $projectDir . '/app',
+    'middlewares' => [
+        'dir' => $projectDir . '/app/Middlewares',
     ],
     'public' => [
         'dir' => $projectDir . '/public',

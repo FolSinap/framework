@@ -5,6 +5,7 @@ namespace Fwt\Framework\Kernel\Middlewares;
 use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Exceptions\InterfaceNotFoundException;
 use Fwt\Framework\Kernel\Exceptions\Middleware\MiddlewareNotFoundException;
+use Fwt\Framework\Kernel\FileLoader;
 use Fwt\Framework\Kernel\ObjectResolver;
 
 class MiddlewareMapper
@@ -21,7 +22,10 @@ class MiddlewareMapper
             AuthMiddleware::class,
         ];
 
-        $this->addMiddlewares(App::$app->getConfig('middlewares')->toArray());
+        $loader = $resolver->resolve(FileLoader::class);
+        $loader->load(App::$app->getConfig('app.middlewares.dir'));
+
+        $this->addMiddlewares($loader->classNames());
     }
 
     public function mapMany(array $names): array
