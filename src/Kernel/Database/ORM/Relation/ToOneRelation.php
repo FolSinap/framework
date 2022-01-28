@@ -2,11 +2,11 @@
 
 namespace Fwt\Framework\Kernel\Database\ORM\Relation;
 
-use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
+use Fwt\Framework\Kernel\Database\ORM\Models\Model;
 
-class ToOneRelation extends AbstractRelation
+class ToOneRelation extends Relation
 {
-    public function get(): ?AbstractModel
+    public function get(): ?Model
     {
         $dry = $this->getDry();
 
@@ -17,7 +17,7 @@ class ToOneRelation extends AbstractRelation
         return null;
     }
 
-    public function getDry(): ?AbstractModel
+    public function getDry(): ?Model
     {
         if (!isset($this->dry)) {
             $foreignKey = $this->from->{$this->through};

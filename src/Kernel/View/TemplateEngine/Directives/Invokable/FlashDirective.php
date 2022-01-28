@@ -4,7 +4,7 @@ namespace Fwt\Framework\Kernel\View\TemplateEngine\Directives\Invokable;
 
 use Fwt\Framework\Kernel\Session\Session;
 
-class FlashDirective extends AbstractInvokableDirective
+class FlashDirective extends InvokableDirective
 {
     public function __invoke(...$args): string
     {

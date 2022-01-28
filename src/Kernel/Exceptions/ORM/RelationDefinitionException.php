@@ -2,7 +2,7 @@
 
 namespace Fwt\Framework\Kernel\Exceptions\ORM;
 
-use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
+use Fwt\Framework\Kernel\Database\ORM\Models\Model;
 use LogicException;
 
 class RelationDefinitionException extends LogicException
@@ -16,7 +16,7 @@ class RelationDefinitionException extends LogicException
         }
     }
 
-    public static function undefinedRelation(AbstractModel $model, string $relation): self
+    public static function undefinedRelation(Model $model, string $relation): self
     {
         throw new self("Undefined relation $relation for" . get_class($model));
     }

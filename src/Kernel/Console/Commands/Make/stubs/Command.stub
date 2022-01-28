@@ -1,0 +1,20 @@
+<?php
+
+namespace {{|namespace|}};
+
+{{|use|}}
+use Fwt\Framework\Kernel\Console\Input;
+use Fwt\Framework\Kernel\Console\Output\Output;
+
+class {{|className|}} extends {{|extends|}}
+{
+    public function getName(): string
+    {
+        return '{{|name|}}';
+    }
+
+    public function getDescription(): string
+    {
+        return '{{|description|}}';
+    }{{|additionalMethods|}}
+}

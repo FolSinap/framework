@@ -2,7 +2,7 @@
 
 namespace Fwt\Framework\Kernel\Database\QueryBuilder\Where;
 
-interface ExpressionBuilder
+interface IExpressionBuilder
 {
     public const OR = 'OR';
     public const AND = 'AND';

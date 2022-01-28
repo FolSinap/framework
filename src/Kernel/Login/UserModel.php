@@ -2,19 +2,19 @@
 
 namespace Fwt\Framework\Kernel\Login;
 
-use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
+use Fwt\Framework\Kernel\Database\ORM\Models\Model;
 use Fwt\Framework\Kernel\Exceptions\Login\LoginException;
 
-abstract class UserModel extends AbstractModel
+abstract class UserModel extends Model
 {
     private static PasswordHasher $hasher;
 
-    public static function create(array $data): AbstractModel
+    public static function create(array $data): Model
     {
         return parent::create(self::findAndHashPassword($data));
     }
 
-    public static function createDry(array $data): AbstractModel
+    public static function createDry(array $data): Model
     {
         return parent::createDry(self::findAndHashPassword($data));
     }

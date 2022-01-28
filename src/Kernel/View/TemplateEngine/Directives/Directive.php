@@ -2,13 +2,15 @@
 
 namespace Fwt\Framework\Kernel\View\TemplateEngine\Directives;
 
-interface Directive
+abstract class Directive implements IDirective
 {
-    public const DIRECTIVE_PREFIX = '#';
+    public function getOpeningTag(): string
+    {
+        return self::DIRECTIVE_PREFIX . $this->getName();
+    }
 
-    public function getRegex(): string;
-
-    public function execute(array $matches): string;
-
-    public function getName(): string;
+    public function getClosingTag(): string
+    {
+        return self::DIRECTIVE_PREFIX . 'end' . $this->getName();
+    }
 }

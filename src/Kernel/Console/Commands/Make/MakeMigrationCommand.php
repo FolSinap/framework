@@ -5,9 +5,17 @@ namespace Fwt\Framework\Kernel\Console\Commands\Make;
 use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Console\Input;
 use Fwt\Framework\Kernel\Console\Output\Output;
+use Fwt\Framework\Kernel\FileLoader;
 
-class MakeMigrationCommand extends AbstractMakeCommand
+class MakeMigrationCommand extends MakeCommand
 {
+    protected FileLoader $loader;
+
+    public function __construct(FileLoader $loader)
+    {
+        $this->loader = $loader;
+    }
+
     public function getName(): string
     {
         return 'make:migration';
@@ -18,24 +26,21 @@ class MakeMigrationCommand extends AbstractMakeCommand
         return 'Create new migration file.';
     }
 
-    public function getParameters(): array
+    public function getRequiredParameters(): array
     {
         return [
             'name' => ['Name of migration class.'],
         ];
     }
 
-    public function execute(Input $input, Output $output): void
+    public function make(Input $input, Output $output): void
     {
-        $migrations = scandir($this->getBaseDir());
+        $this->loader->load($this->getBaseDir());
+
         $numbers = [];
 
-        foreach ($migrations as $migration) {
-            if (in_array($migration, ['.', '..'])) {
-                continue;
-            }
-
-            $migrationName = rtrim($migration, '.php');
+        foreach ($this->loader->baseNames() as $migration) {
+            $migrationName = str_replace('.php', '', $migration);
 
             preg_match('/m(\d{4})_/', $migrationName, $matches);
             $numbers[] = (int) $matches[1];
@@ -45,24 +50,17 @@ class MakeMigrationCommand extends AbstractMakeCommand
 
         $nextNumber = str_pad((max($numbers) + 1), 4, '0', STR_PAD_LEFT);
 
-        if (!empty($params = $input->getParameters())) {
-            $name = $params[0];
-        } else {
-            $name = $output->input('Input migration name: ');
-        }
-
+        $name = $input->getParameters()[0];
         $name = "m$nextNumber" . "_$name";
 
-        $stub = $this->replaceStubTemplates([
-            'class_name' => $name,
+        $this->stubReplacements = [
+            'className' => $name,
             'namespace' => ltrim(App::$app->getConfig('app.migrations.namespace'), '\\'),
-        ]);
+        ];
 
-        if ($this->createFile("$name.php", $stub)) {
-            $output->success('New migration is created successfully!');
-        } else {
-            $output->error('Something went wrong.');
-        }
+        $this->fileName = "$name.php";
+
+        $this->successful = 'New migration has been successfully created.';
     }
 
     protected function getBaseDir(): string

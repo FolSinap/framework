@@ -4,19 +4,15 @@ namespace {{|namespace|}};
 
 use Fwt\Framework\Kernel\Database\Migration;
 
-class {{|class_name|}} extends Migration
+class {{|className|}} extends Migration
 {
     public function up(): void
     {
         // TODO: Implement up() method.
-
-        $this->execute();
     }
 
     public function down(): void
     {
         // TODO: Implement down() method.
-
-        $this->execute();
     }
 }

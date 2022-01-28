@@ -2,9 +2,22 @@
 
 namespace Fwt\Framework\Kernel\Database\QueryBuilder;
 
-class QueryBuilder implements Builder
+use Fwt\Framework\Kernel\Database\QueryBuilder\Data\DataBuilder;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Data\DeleteBuilder;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Data\InsertBuilder;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Data\InsertManyBuilder;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Data\SelectBuilder;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Data\UpdateBuilder;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\SchemaBuilder;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableAlterer;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableBuilder;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableDropper;
+use Fwt\Framework\Kernel\Database\SQL\Query;
+
+class QueryBuilder
 {
-    protected Builder $builder;
+    /** @var DataBuilder|SchemaBuilder $builder */
+    protected $builder;
 
     public static function getBuilder(): self
     {
@@ -13,53 +26,81 @@ class QueryBuilder implements Builder
 
     public function select(string $from, array $columns = []): SelectBuilder
     {
-        $this->builder = new SelectBuilder($from, $columns);
+        $this->setDataBuilder();
 
-        return $this->builder;
+        return $this->builder->select($from, $columns);
     }
 
     public function delete(string $from): DeleteBuilder
     {
-        $this->builder = new DeleteBuilder($from);
+        $this->setDataBuilder();
 
-        return $this->builder;
+        return $this->builder->delete($from);
     }
 
     public function update(string $table, array $data): UpdateBuilder
     {
-        $this->builder = new UpdateBuilder($table, $data);
+        $this->setDataBuilder();
 
-        return $this->builder;
+        return $this->builder->update($table, $data);
     }
 
     public function insert(string $table, array $data): InsertBuilder
     {
-        $this->builder = new InsertBuilder($table, $data);
+        $this->setDataBuilder();
 
-        return $this->builder;
+        return $this->builder->insert($table, $data);
     }
 
     public function insertMany(string $table, array $data): InsertManyBuilder
     {
-        $this->builder = new InsertManyBuilder($table, $data);
+        $this->setDataBuilder();
 
-        return $this->builder;
+        return $this->builder->insertMany($table, $data);
+    }
+
+    public function create(string $tableName): TableBuilder
+    {
+        $this->setSchemaBuilder();
+
+        return $this->builder->create($tableName);
+    }
+
+    public function drop(string $tableName): TableDropper
+    {
+        $this->setSchemaBuilder();
+
+        return $this->builder->drop($tableName);
+    }
+
+    public function alter(string $tableName): TableAlterer
+    {
+        $this->setSchemaBuilder();
+
+        return $this->builder->alter($tableName);
     }
 
     public function setParams(array $params): self
     {
-        $this->builder->setParams($params);
+        if (method_exists($this->builder, 'setParams')) {
+            $this->builder->setParams($params);
+        }
 
         return $this;
     }
 
-    public function getParams(): array
-    {
-        return $this->builder->getParams();
-    }
-
-    public function getQuery(): string
+    public function getQuery(): Query
     {
         return $this->builder->getQuery();
+    }
+
+    protected function setDataBuilder(): void
+    {
+        $this->builder = DataBuilder::getBuilder();
+    }
+
+    protected function setSchemaBuilder(): void
+    {
+        $this->builder = SchemaBuilder::getBuilder();
     }
 }

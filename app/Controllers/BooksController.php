@@ -5,11 +5,11 @@ namespace App\Controllers;
 use App\Controllers\RequestValidators\Books\CreateRequestValidator;
 use App\Models\Book;
 use App\Models\Genre;
-use Fwt\Framework\Kernel\Controllers\AbstractController;
+use Fwt\Framework\Kernel\Controllers\Controller;
 use Fwt\Framework\Kernel\Response\RedirectResponse;
 use Fwt\Framework\Kernel\Response\Response;
 
-class BooksController extends AbstractController
+class BooksController extends Controller
 {
     public function index(): Response
     {

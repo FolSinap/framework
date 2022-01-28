@@ -6,7 +6,7 @@ use Fwt\Framework\Kernel\Exceptions\ExpressionParser\UndefinedKeyException;
 use Fwt\Framework\Kernel\Exceptions\View\UnknownArgumentException;
 use Fwt\Framework\Kernel\View\TemplateEngine\ExpressionParser;
 
-class IfDirective extends AbstractDirective
+class IfDirective extends Directive
 {
     protected const ELIF = '#elif';
     protected const ELSE = '#else';

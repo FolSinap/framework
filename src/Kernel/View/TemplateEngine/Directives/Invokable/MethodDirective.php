@@ -5,7 +5,7 @@ namespace Fwt\Framework\Kernel\View\TemplateEngine\Directives\Invokable;
 use Fwt\Framework\Kernel\Exceptions\IllegalValueException;
 use Fwt\Framework\Kernel\Routing\Route;
 
-class MethodDirective extends AbstractInvokableDirective
+class MethodDirective extends InvokableDirective
 {
     public function __invoke(...$args): string
     {

@@ -18,6 +18,7 @@ class Container implements ArrayAccess
     public static function getInstance(array $data = []): self
     {
         $class = static::class;
+
         if (!isset(self::$instances[$class])) {
             self::$instances[$class] = new static($data);
         }

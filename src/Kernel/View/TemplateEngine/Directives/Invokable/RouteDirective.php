@@ -4,7 +4,7 @@ namespace Fwt\Framework\Kernel\View\TemplateEngine\Directives\Invokable;
 
 use Fwt\Framework\Kernel\Routing\Router;
 
-class RouteDirective extends AbstractInvokableDirective
+class RouteDirective extends InvokableDirective
 {
     public function getName(): string
     {

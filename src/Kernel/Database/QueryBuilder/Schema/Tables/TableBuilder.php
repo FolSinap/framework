@@ -2,11 +2,11 @@
 
 namespace Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables;
 
-use Fwt\Framework\Kernel\Database\QueryBuilder\Builder;
+use Fwt\Framework\Kernel\Database\QueryBuilder\IBuilder;
 use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Columns\ColumnBuilder;
 use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Columns\ForeignKeyColumn;
 
-class TableBuilder implements Builder
+class TableBuilder implements IBuilder
 {
     protected string $table;
     protected bool $ifNotExists = false;

@@ -2,7 +2,7 @@
 
 namespace Fwt\Framework\Kernel\Exceptions\ORM;
 
-use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
+use Fwt\Framework\Kernel\Database\ORM\Models\Model;
 use LogicException;
 use Throwable;
 
@@ -13,12 +13,12 @@ class ModelInitializationException extends LogicException
         parent::__construct("Initialization Error: $message", $code, $previous);
     }
 
-    public static function idIsNotSet(AbstractModel $model): self
+    public static function idIsNotSet(Model $model): self
     {
         return new self('Cannot initialize model ' . get_class($model) . ' when id is not set.');
     }
 
-    public static function updatingNotInitializedModel(AbstractModel $model): self
+    public static function updatingNotInitializedModel(Model $model): self
     {
         return new self('Cannot update not initialized model ' . get_class($model));
     }

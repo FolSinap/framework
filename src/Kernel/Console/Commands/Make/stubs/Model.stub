@@ -1,0 +1,8 @@
+<?php
+
+namespace {{|namespace|}};
+
+use Fwt\Framework\Kernel\Database\ORM\Models\Model;
+{{|use|}}
+class {{|className|}} extends Model
+{{{|relations|}}{{|columns|}}}

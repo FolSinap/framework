@@ -2,7 +2,7 @@
 
 namespace Fwt\Framework\Kernel\Database\QueryBuilder;
 
-interface Builder
+interface IBuilder
 {
     public function getQuery(): string;
 }
