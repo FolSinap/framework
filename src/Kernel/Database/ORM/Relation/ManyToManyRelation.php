@@ -8,6 +8,7 @@ use Fwt\Framework\Kernel\Database\ORM\ModelCollection;
 use Fwt\Framework\Kernel\Database\ORM\ModelRepository;
 use Fwt\Framework\Kernel\Database\ORM\Models\Model;
 use Fwt\Framework\Kernel\Database\ORM\Models\AnonymousModel;
+use Fwt\Framework\Kernel\Exceptions\ORM\ModelInitializationException;
 
 class ManyToManyRelation extends OneToManyRelation
 {
@@ -24,12 +25,17 @@ class ManyToManyRelation extends OneToManyRelation
 
     public function delete(Model $model): void
     {
+        $this->checkClass($model);
+
         /** @var Database $database */
         $database = App::$app->getContainer()->get(Database::class);
 
+        $primary = $model->primary();
+        $primary = array_pop($primary);
+
         $database->delete($this->pivot)
-            ->where($this->definedBy, $this->from->primary())
-            ->andWhere($this->through, $model->primary());
+            ->where($this->definedBy, $this->getFromPrimary())
+            ->andWhere($this->through, $primary);
 
         $database->execute();
     }
@@ -39,7 +45,7 @@ class ManyToManyRelation extends OneToManyRelation
         /** @var Database $database */
         $database = App::$app->getContainer()->get(Database::class);
 
-        $database->delete($this->pivot)->where($this->definedBy, $this->from->primary());
+        $database->delete($this->pivot)->where($this->definedBy, $this->getFromPrimary());
 
         $database->execute();
     }
@@ -70,18 +76,22 @@ class ManyToManyRelation extends OneToManyRelation
         AnonymousModel::setTableName($this->pivot);
 
         $forInsertion = new ModelCollection();
-        $id = $this->from->primary();
+        $id = $this->getFromPrimary();
 
         /** @var Model $model */
         foreach ($models as $model) {
+            $this->checkClass($model);
+
             if (!$model->exists()) {
-                //todo: change exception
-                throw new \Exception('Model must exist in DB');
+                throw ModelInitializationException::nonexistentModel($model);
             }
+
+            $primary = $model->primary();
+            $primary = array_pop($primary);
 
             $forInsertion[] = AnonymousModel::createDry([
                 $this->definedBy => $id,
-                $this->through => $model->primary(),
+                $this->through => $primary,
             ]);
         }
 
@@ -96,7 +106,7 @@ class ManyToManyRelation extends OneToManyRelation
         $database = App::$app->getContainer()->get(Database::class);
 
         //todo: use subquery here
-        $database->select($this->pivot, [$this->through])->where($this->definedBy, $this->from->primary());
+        $database->select($this->pivot, [$this->through])->where($this->definedBy, $this->getFromPrimary());
         $ids = $database->fetchAssoc();
         $ids = array_map(function ($value) {
             return $value[$this->through];
@@ -106,7 +116,7 @@ class ManyToManyRelation extends OneToManyRelation
             return new ModelCollection();
         }
 
-        return $this->related::whereIn($this->related::getIdColumn(), $ids)->fetch();
+        return $this->related::whereIn($this->getRelatedPrimaryColumn(), $ids)->fetch();
     }
 
     protected function defaultPivot(): string

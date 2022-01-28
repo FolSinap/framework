@@ -4,6 +4,7 @@ namespace Fwt\Framework\Kernel\Database\ORM\Relation;
 
 use Fwt\Framework\Kernel\Database\ORM\Models\Model;
 use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
+use Fwt\Framework\Kernel\Exceptions\NotSupportedException;
 
 abstract class Relation
 {
@@ -21,6 +22,10 @@ abstract class Relation
     {
         if (!is_subclass_of($related, Model::class)) {
             throw new InvalidExtensionException($related, Model::class);
+        }
+
+        if ($related::hasCompositeKey()) {
+            throw new NotSupportedException('Relations don\'t support related entities with composite key.');
         }
 
         $this->from = $from;
@@ -47,5 +52,12 @@ abstract class Relation
     public function getConnectField(): string
     {
         return $this->through;
+    }
+
+    protected function getRelatedPrimaryColumn(): string
+    {
+        $primary = $this->related::getIdColumns();
+
+        return array_pop($primary);
     }
 }

@@ -5,6 +5,7 @@ namespace Fwt\Framework\Kernel\Database\ORM;
 use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Database\Database;
 use Fwt\Framework\Kernel\Database\ORM\Models\Model;
+use Fwt\Framework\Kernel\Database\ORM\Models\PrimaryKey;
 use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
 use Fwt\Framework\Kernel\Exceptions\ORM\ModelInitializationException;
 
@@ -26,15 +27,17 @@ class ModelRepository
         $data = [];
 
         foreach ($models as $model) {
-            if (!$model->isInitialized()) {
+            if (!$model->exists()) {
                 continue;
             }
 
-            $data[get_class($model)][] = $model->primary();
+            foreach ($model->primary() as $field => $value) {
+                $data[get_class($model)][$field][] = $value;
+            }
         }
 
         foreach (array_keys($data) as $class) {
-            $this->database->delete($class::getTableName())->whereIn($class::getIdColumn(), $data[$class]);
+            $this->database->delete($class::getTableName())->AndWhereInAll($data[$class]);
         }
 
         $this->database->execute();
@@ -58,11 +61,13 @@ class ModelRepository
         $data = [];
 
         foreach ($models as $model) {
-            $data[get_class($model)][] = $model->{$model::getIdColumn()};
+            foreach ($model->primary() as $field => $value) {
+                $data[get_class($model)][$field][] = $value;
+            }
         }
 
         foreach (array_keys($data) as $class) {
-            $this->database->update($class::getTableName(), $values)->whereIn($class::getIdColumn(), $data[$class]);
+            $this->database->update($class::getTableName(), $values)->AndWhereInAll($data[$class]);
         }
 
         $this->database->execute();
@@ -88,9 +93,9 @@ class ModelRepository
 
     public function delete(Model $model): void
     {
-        $id = $model::getIdColumn();
+        $id = $model->primary();
 
-        $this->database->delete($model::getTableName())->where($id, $model->$id);
+        $this->database->delete($model::getTableName())->andWhereAll($id);
 
         $this->database->execute();
     }
@@ -98,11 +103,11 @@ class ModelRepository
     public function update(Model $model, array $data = []): void
     {
         if (!$model->exists()) {
-            //todo: change exception, updatingNotInitializedModel -> updatingNotExistingModel
-            throw ModelInitializationException::updatingNotInitializedModel($model);
+            throw ModelInitializationException::nonexistentModel($model);
         }
 
-        $id = $model::getIdColumn();
+        $idCols = $model::getIdColumns();
+        $idVals = $model->primary();
 
         if (empty($data)) {
             if (!$model->isChanged()) {
@@ -114,7 +119,7 @@ class ModelRepository
             $data = array_intersect_key($data, array_flip($model::getColumns()));
         }
 
-        $this->database->update($model::getTableName(), $data)->where($id, $model->$id);
+        $this->database->update($model::getTableName(), $data)->AndWhereAll(array_combine($idCols, $idVals));
 
         $this->database->execute();
     }
@@ -128,11 +133,11 @@ class ModelRepository
         return new ModelCollection($this->database->fetchAsObject($class));
     }
 
-    public function find(string $class, $id): ?Model
+    public function find(string $class, PrimaryKey $id): ?Model
     {
         $this->checkClass($class);
 
-        $this->database->select($class::getTableName())->where($class::getIdColumn(), $id);
+        $this->database->select($class::getTableName())->andWhereAll($id->getValues());
 
         $object = new ModelCollection($this->database->fetchAsObject($class));
 
@@ -148,8 +153,9 @@ class ModelRepository
         $data = $model->getForInsertion();
         $id = $this->database->insert($data, $model::getTableName());
 
-        //todo: what if multiple cols are primary keys?
-        $model->{$model::getIdColumn()} = $id;
+        if (!$model::hasCompositeKey()) {
+            $model->setPrimary($id);
+        }
     }
 
     protected function checkClass(string $class): void
