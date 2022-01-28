@@ -2,11 +2,15 @@
 
 namespace Fwt\Framework\Kernel\Database;
 
-use Fwt\Framework\Kernel\Database\QueryBuilder\DeleteBuilder;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Data\DeleteBuilder;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Data\SelectBuilder;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Data\UpdateBuilder;
 use Fwt\Framework\Kernel\Database\QueryBuilder\QueryBuilder;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\SchemaBuilder;
-use Fwt\Framework\Kernel\Database\QueryBuilder\SelectBuilder;
-use Fwt\Framework\Kernel\Database\QueryBuilder\UpdateBuilder;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableAlterer;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableBuilder;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableDropper;
+use Fwt\Framework\Kernel\Database\SQL\Query;
+use Fwt\Framework\Kernel\Database\SQL\SqlLogger;
 use PDO;
 use PDOStatement;
 
@@ -14,11 +18,13 @@ class Database
 {
     protected Connection $connection;
     protected QueryBuilder $queryBuilder;
+    protected SqlLogger $logger;
 
     public function __construct(Connection $connection)
     {
         $this->connection = $connection->establish();
         $this->queryBuilder = new QueryBuilder();
+        $this->logger = SqlLogger::getLogger();
     }
 
     public function update(string $table, array $data): UpdateBuilder
@@ -50,6 +56,21 @@ class Database
         $this->execute();
 
         return $this->connection->getPdo()->lastInsertId();
+    }
+
+    public function create(string $table): TableBuilder
+    {
+        return $this->queryBuilder->create($table);
+    }
+
+    public function drop(string $table): TableDropper
+    {
+        return $this->queryBuilder->drop($table);
+    }
+
+    public function alter(string $table): TableAlterer
+    {
+        return $this->queryBuilder->alter($table);
     }
 
     public function populateObject(object $object): ?object
@@ -86,20 +107,27 @@ class Database
         $this->queryBuilder = new QueryBuilder();
     }
 
-    public function getStructureQueryBuilder(): SchemaBuilder
+    public function executeNative(string $sql, array $parameters = []): bool
     {
-        return SchemaBuilder::getBuilder();
+        $query = new Query($sql, $parameters);
+
+        return $this->executeQuery($query);
     }
 
-    public function executeQuery(string $sql, array $parameters = []): bool
+    public function executeQuery(Query $query): bool
     {
-        return $this->connection->createStatement($sql)->execute($parameters);
+        $this->logger->log($query);
+
+        return $this->connection->createStatement($query->getQuery())->execute($query->getParams());
     }
 
     public function execute(): PDOStatement
     {
-        $statement = $this->connection->createStatement($this->queryBuilder->getQuery());
-        $statement->execute($this->queryBuilder->getParams());
+        $query = $this->queryBuilder->getQuery();
+        $this->logger->log($query);
+
+        $statement = $this->connection->createStatement($query);
+        $statement->execute($query->getParams());
 
         $this->refresh();
 

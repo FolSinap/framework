@@ -4,6 +4,7 @@ namespace Fwt\Framework\Kernel\Config;
 
 use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Container;
+use Fwt\Framework\Kernel\FileLoader;
 
 class Config extends Container
 {
@@ -21,14 +22,12 @@ class Config extends Container
     protected function readConfigFiles(): array
     {
         $dir = self::getFullPathToConfig();
-        $files = scandir($dir);
+        $loader = new FileLoader();
         $config = [];
 
-        foreach ($files as $file) {
-            if (in_array($file, ['.', '..'])) {
-                continue;
-            }
+        $loader->load($dir);
 
+        foreach ($loader->baseNames() as $file) {
             $file = str_replace('.php', '', $file);
             $config[$file] = new FileConfig($file);
         }

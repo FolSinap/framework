@@ -3,7 +3,7 @@
 namespace Fwt\Framework\Kernel\View\TemplateEngine;
 
 use BadFunctionCallException;
-use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
+use Fwt\Framework\Kernel\Database\ORM\Models\Model;
 use Fwt\Framework\Kernel\Exceptions\ExpressionParser\ParsingException;
 use Fwt\Framework\Kernel\Exceptions\ExpressionParser\UndefinedKeyException;
 use Fwt\Framework\Kernel\Exceptions\ExpressionParser\VariableParsingException;
@@ -50,7 +50,7 @@ class ExpressionParser
                     $variable = $this->getVariable($expression);
 
                     //todo: is this really necessary?
-                    if ($variable instanceof AbstractModel) {
+                    if ($variable instanceof Model) {
                         $variable->prepareForExport();
                     }
 

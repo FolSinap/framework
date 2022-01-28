@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\QueryBuilder;
+namespace Fwt\Framework\Kernel\Database\QueryBuilder\Data;
 
-class DeleteBuilder extends AbstractBuilder
+class DeleteBuilder extends Builder
 {
     use UsingWhereStatements;
 

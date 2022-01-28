@@ -2,7 +2,7 @@
 
 namespace Fwt\Framework\Kernel\Database\QueryBuilder\Where;
 
-class AndExpression implements ExpressionBuilder
+class AndExpression implements IExpressionBuilder
 {
     protected Expression $expression;
 

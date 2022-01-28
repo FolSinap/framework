@@ -2,13 +2,16 @@
 
 namespace Fwt\Framework\Kernel\Console;
 
-use Fwt\Framework\Kernel\Console\Commands\Command;
+use Fwt\Framework\Kernel\Console\Commands\ICommand;
 use Fwt\Framework\Kernel\Console\Commands\CommandWrapper;
 use Fwt\Framework\Kernel\Console\Commands\HelpCommand;
+use Fwt\Framework\Kernel\Console\Commands\Make\MakeCommandCommand;
 use Fwt\Framework\Kernel\Console\Commands\Make\MakeMigrationCommand;
+use Fwt\Framework\Kernel\Console\Commands\Make\MakeModelCommand;
 use Fwt\Framework\Kernel\Console\Commands\MigrationCommand;
 use Fwt\Framework\Kernel\Exceptions\Console\CommandNotFoundException;
 use Fwt\Framework\Kernel\Exceptions\InterfaceNotFoundException;
+use Fwt\Framework\Kernel\FileLoader;
 use Fwt\Framework\Kernel\ObjectResolver;
 
 class CommandRouter
@@ -25,10 +28,17 @@ class CommandRouter
             HelpCommand::class,
             MigrationCommand::class,
             MakeMigrationCommand::class,
+            MakeModelCommand::class,
+            MakeCommandCommand::class,
         ];
+
+        $loader = $resolver->resolve(FileLoader::class);
+        $loader->load(App::$app->getConfig('app.commands.dir'));
+
+        $this->addCommands($loader->classNames());
     }
 
-    public function map(string $name): Command
+    public function map(string $name): ICommand
     {
         $map = $this->getMap();
 
@@ -50,7 +60,7 @@ class CommandRouter
         return $this->map;
     }
 
-    public function addCommands(array $commands): void
+    protected function addCommands(array $commands): void
     {
         $this->commands = array_merge($this->commands, $commands);
     }
@@ -60,8 +70,8 @@ class CommandRouter
         $commands = [];
 
         foreach ($this->commands as $command) {
-            if (!in_array(Command::class, class_implements($command))) {
-                throw new InterfaceNotFoundException($command, Command::class);
+            if (!in_array(ICommand::class, class_implements($command))) {
+                throw new InterfaceNotFoundException($command, ICommand::class);
             }
 
             $command = $this->resolver->resolve($command);

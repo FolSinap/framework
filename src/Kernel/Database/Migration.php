@@ -2,7 +2,6 @@
 
 namespace Fwt\Framework\Kernel\Database;
 
-use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\SchemaBuilder;
 use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableAlterer;
 use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableBuilder;
 use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableDropper;
@@ -10,13 +9,15 @@ use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableDropper;
 abstract class Migration
 {
     private Database $database;
-    private SchemaBuilder $queryBuilder;
 
     public function __construct(Database $database)
     {
         $this->database = $database;
-        $this->queryBuilder = $this->database->getStructureQueryBuilder();
     }
+
+    abstract public function up(): void;
+
+    abstract public function down(): void;
 
     public function getName(): string
     {
@@ -25,32 +26,28 @@ abstract class Migration
         return array_pop($namespace);
     }
 
+    public function execute(): void
+    {
+        $this->database->execute();
+    }
+
+    public function dry(): string
+    {
+        return $this->database->getQueryBuilder()->getQuery();
+    }
+
     protected function create(string $table): TableBuilder
     {
-        return $this->queryBuilder->create($table);
+        return $this->database->create($table);
     }
 
     protected function drop(string $table): TableDropper
     {
-        return $this->queryBuilder->drop($table);
+        return $this->database->drop($table);
     }
 
     protected function alter(string $table): TableAlterer
     {
-        return $this->queryBuilder->alter($table);
+        return $this->database->alter($table);
     }
-
-    protected function getStructureBuilder(): SchemaBuilder
-    {
-        return $this->queryBuilder;
-    }
-
-    protected function execute(): void
-    {
-        $this->database->executeQuery($this->queryBuilder->getQuery());
-    }
-
-    abstract public function up(): void;
-
-    abstract public function down(): void;
 }

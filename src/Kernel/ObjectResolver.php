@@ -4,7 +4,7 @@ namespace Fwt\Framework\Kernel;
 
 use BadMethodCallException;
 use Fwt\Framework\Kernel\Config\FileConfig;
-use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
+use Fwt\Framework\Kernel\Database\ORM\Models\Model;
 use Fwt\Framework\Kernel\Exceptions\Resolver\UndefinedParameterException;
 use ReflectionClass;
 use ReflectionException;
@@ -48,7 +48,7 @@ class ObjectResolver
                 $dependencyClass = $parameter->getClass();
 
                 if (array_key_exists($parameter->name, $preset)) {
-                    if (!is_null($dependencyClass) && is_subclass_of($dependencyClass->name, AbstractModel::class)) {
+                    if (!is_null($dependencyClass) && is_subclass_of($dependencyClass->name, Model::class)) {
                         $parameters[] = $dependencyClass->name::find($preset[$parameter->name]);
                     } else {
                         $parameters[] = $preset[$parameter->name];

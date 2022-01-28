@@ -4,13 +4,13 @@ namespace Fwt\Framework\Kernel\Database\QueryBuilder\Where;
 
 use Fwt\Framework\Kernel\Exceptions\IllegalValueException;
 
-class WhereBuilder implements ExpressionBuilder
+class WhereBuilder implements IExpressionBuilder
 {
-    /** @var ExpressionBuilder[] $wheres */
+    /** @var IExpressionBuilder[] $wheres */
     protected array $wheres;
     protected ?string $quantifier;
 
-    public function __construct(ExpressionBuilder $where, string $quantifier = null)
+    public function __construct(IExpressionBuilder $where, string $quantifier = null)
     {
         IllegalValueException::checkValue($quantifier, [null, self::OR, self::AND]);
 

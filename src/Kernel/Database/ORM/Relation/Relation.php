@@ -2,25 +2,25 @@
 
 namespace Fwt\Framework\Kernel\Database\ORM\Relation;
 
-use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
+use Fwt\Framework\Kernel\Database\ORM\Models\Model;
 use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
 
-abstract class AbstractRelation
+abstract class Relation
 {
     public const TO_ONE = 'to-one';
     public const MANY_TO_MANY = 'many-to-many';
     public const ONE_TO_MANY = 'one-to-many';
     public const TYPES = [self::TO_ONE, self::MANY_TO_MANY, self::ONE_TO_MANY];
 
-    protected AbstractModel $from;
+    protected Model $from;
     protected string $related;
     protected string $through;
     protected $dry;
 
-    public function __construct(AbstractModel $from, string $related, string $field)
+    public function __construct(Model $from, string $related, string $field)
     {
-        if (!is_subclass_of($related, AbstractModel::class)) {
-            throw new InvalidExtensionException($related, AbstractModel::class);
+        if (!is_subclass_of($related, Model::class)) {
+            throw new InvalidExtensionException($related, Model::class);
         }
 
         $this->from = $from;
@@ -30,7 +30,7 @@ abstract class AbstractRelation
 
     abstract public function get();
 
-    public function isRelated(AbstractModel $model): bool
+    public function isRelated(Model $model): bool
     {
         if (!$model instanceof $this->related) {
             return true;

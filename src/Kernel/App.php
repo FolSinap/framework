@@ -62,10 +62,10 @@ class App
         return $this->container;
     }
 
-    public function getConfig(string $key = null)
+    public function getConfig(string $key = null, $default = null)
     {
         if ($key) {
-            return $this->config->get($key);
+            return $this->config->get($key, $default);
         }
 
         return $this->config;

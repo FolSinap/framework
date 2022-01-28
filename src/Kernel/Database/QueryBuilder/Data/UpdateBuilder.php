@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\QueryBuilder;
+namespace Fwt\Framework\Kernel\Database\QueryBuilder\Data;
 
-class UpdateBuilder extends AbstractBuilder
+class UpdateBuilder extends Builder
 {
     use UsingWhereStatements;
 

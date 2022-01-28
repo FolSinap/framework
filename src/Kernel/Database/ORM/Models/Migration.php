@@ -2,6 +2,6 @@
 
 namespace Fwt\Framework\Kernel\Database\ORM\Models;
 
-class Migration extends AbstractModel
+class Migration extends Model
 {
 }

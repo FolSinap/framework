@@ -3,14 +3,14 @@
 namespace Fwt\Framework\Kernel\Validator;
 
 use Fwt\Framework\Kernel\Session\Session;
-use Fwt\Framework\Kernel\Validator\Rules\Rule;
+use Fwt\Framework\Kernel\Validator\Rules\IRule;
 
 class Validator
 {
     protected array $rules;
 
     /**
-     * @param Rule[][] $rules
+     * @param IRule[][] $rules
      */
     public function __construct(array $rules = [])
     {

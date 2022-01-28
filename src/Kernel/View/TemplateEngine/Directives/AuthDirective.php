@@ -6,7 +6,7 @@ use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Exceptions\IllegalValueException;
 use Fwt\Framework\Kernel\Login\Authentication;
 
-class AuthDirective extends AbstractDirective
+class AuthDirective extends Directive
 {
     protected Authentication $auth;
 

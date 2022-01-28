@@ -4,8 +4,7 @@ namespace Fwt\Framework\Kernel\Database\ORM;
 
 use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Database\Database;
-use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
-use Fwt\Framework\Kernel\Database\ORM\Relation\ToOneRelation;
+use Fwt\Framework\Kernel\Database\ORM\Models\Model;
 use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
 use Fwt\Framework\Kernel\Exceptions\ORM\ModelInitializationException;
 
@@ -87,7 +86,7 @@ class ModelRepository
         return new WhereBuilderFacade($this->database, $select, $class);
     }
 
-    public function delete(AbstractModel $model): void
+    public function delete(Model $model): void
     {
         $id = $model::getIdColumn();
 
@@ -96,7 +95,7 @@ class ModelRepository
         $this->database->execute();
     }
 
-    public function update(AbstractModel $model, array $data = []): void
+    public function update(Model $model, array $data = []): void
     {
         if (!$model->exists()) {
             //todo: change exception, updatingNotInitializedModel -> updatingNotExistingModel
@@ -129,7 +128,7 @@ class ModelRepository
         return new ModelCollection($this->database->fetchAsObject($class));
     }
 
-    public function find(string $class, $id): ?AbstractModel
+    public function find(string $class, $id): ?Model
     {
         $this->checkClass($class);
 
@@ -140,7 +139,7 @@ class ModelRepository
         return $object->isEmpty() ? null : $object[0];
     }
 
-    public function insert(AbstractModel $model): void
+    public function insert(Model $model): void
     {
         if ($model->exists()) {
             return;
@@ -155,12 +154,12 @@ class ModelRepository
 
     protected function checkClass(string $class): void
     {
-        if (!is_subclass_of($class, AbstractModel::class)) {
-            throw new InvalidExtensionException($class, AbstractModel::class);
+        if (!is_subclass_of($class, Model::class)) {
+            throw new InvalidExtensionException($class, Model::class);
         }
     }
 
-    protected function populateModel(AbstractModel $model): ?AbstractModel
+    protected function populateModel(Model $model): ?Model
     {
         return $this->database->populateObject($model);
     }

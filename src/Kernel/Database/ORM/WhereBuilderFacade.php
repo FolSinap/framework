@@ -3,8 +3,8 @@
 namespace Fwt\Framework\Kernel\Database\ORM;
 
 use Fwt\Framework\Kernel\Database\Database;
-use Fwt\Framework\Kernel\Database\ORM\Models\AbstractModel;
-use Fwt\Framework\Kernel\Database\QueryBuilder\SelectBuilder;
+use Fwt\Framework\Kernel\Database\ORM\Models\Model;
+use Fwt\Framework\Kernel\Database\QueryBuilder\Data\SelectBuilder;
 use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
 use ReflectionProperty;
 
@@ -16,8 +16,8 @@ class WhereBuilderFacade
 
     public function __construct(Database $database, SelectBuilder $builder, string $class)
     {
-        if (!is_subclass_of($class, AbstractModel::class)) {
-            throw new InvalidExtensionException($class, AbstractModel::class);
+        if (!is_subclass_of($class, Model::class)) {
+            throw new InvalidExtensionException($class, Model::class);
         }
 
         $this->class = $class;
@@ -80,7 +80,7 @@ class WhereBuilderFacade
     private function setExists(ModelCollection $models): void
     {
         foreach ($models as $model) {
-            $reflection = new ReflectionProperty(AbstractModel::class, 'exists');
+            $reflection = new ReflectionProperty(Model::class, 'exists');
             $reflection->setAccessible(true);
             $reflection->setValue($model, true);
         }

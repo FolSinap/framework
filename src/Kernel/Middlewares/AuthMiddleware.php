@@ -6,7 +6,7 @@ use Fwt\Framework\Kernel\Login\Authentication;
 use Fwt\Framework\Kernel\Request;
 use Fwt\Framework\Kernel\Response\Response;
 
-class AuthMiddleware implements Middleware
+class AuthMiddleware implements IMiddleware
 {
     protected Authentication $auth;
 

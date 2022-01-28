@@ -2,7 +2,7 @@
 
 namespace Fwt\Framework\Kernel\Validator\Rules;
 
-interface Rule
+interface IRule
 {
     public function validate($value): bool;
 

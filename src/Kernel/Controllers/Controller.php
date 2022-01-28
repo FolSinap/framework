@@ -12,7 +12,7 @@ use Fwt\Framework\Kernel\Routing\Router;
 use Fwt\Framework\Kernel\Session\Session;
 use Fwt\Framework\Kernel\View\View;
 
-abstract class AbstractController
+abstract class Controller
 {
     protected function render(string $template, array $data = []): Response
     {

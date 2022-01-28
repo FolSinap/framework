@@ -55,6 +55,7 @@ class MessageBuilder
     public function foreach($data, callable $function): self
     {
         if (!is_array($data) && !$data instanceof Traversable) {
+            //todo: change exception
             throw new \Exception('$data must of type array or be traversable');
         }
 
@@ -81,6 +82,9 @@ class MessageBuilder
         return $this;
     }
 
+    /**
+     * Same as write() but all tabs are ignored
+     */
     public function type(string $message): self
     {
         $this->message .= $message;
@@ -121,6 +125,13 @@ class MessageBuilder
     public function dropTab(int $number = 1): self
     {
         $this->tabsCount -= $number;
+
+        return $this;
+    }
+
+    public function clearTab(): self
+    {
+        $this->tabsCount = 0;
 
         return $this;
     }

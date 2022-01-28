@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\QueryBuilder;
+namespace Fwt\Framework\Kernel\Database\QueryBuilder\Data;
 
-abstract class AbstractBuilder implements Builder
+abstract class Builder
 {
     protected array $params = [];
 

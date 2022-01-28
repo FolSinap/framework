@@ -7,7 +7,7 @@ use Fwt\Framework\Kernel\View\TemplateEngine\ExpressionParser;
 use Fwt\Framework\Kernel\View\TemplateEngine\TemplateRenderer;
 use Fwt\Framework\Kernel\View\VariableContainer;
 
-class ForeachDirective extends AbstractDirective
+class ForeachDirective extends Directive
 {
     protected ExpressionParser $parser;
     protected VariableContainer $container;

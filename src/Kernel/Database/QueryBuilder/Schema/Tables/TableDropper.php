@@ -2,9 +2,9 @@
 
 namespace Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables;
 
-use Fwt\Framework\Kernel\Database\QueryBuilder\Builder;
+use Fwt\Framework\Kernel\Database\QueryBuilder\IBuilder;
 
-class TableDropper implements Builder
+class TableDropper implements IBuilder
 {
     protected string $table;
     protected bool $ifExists = false;

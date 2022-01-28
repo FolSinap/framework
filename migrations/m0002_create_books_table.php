@@ -12,14 +12,10 @@ class m0002_create_books_table extends Migration
 
         $table->id();
         $table->string('title', 100);
-
-        $this->execute();
     }
 
     public function down(): void
     {
         $this->drop('books');
-
-        $this->execute();
     }
 }

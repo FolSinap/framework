@@ -3,11 +3,11 @@
 
 namespace Fwt\Framework\Kernel\View\TemplateEngine\Directives\Invokable;
 
-use Fwt\Framework\Kernel\View\TemplateEngine\Directives\AbstractDirective;
+use Fwt\Framework\Kernel\View\TemplateEngine\Directives\Directive;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\DirectiveRegexBuilder;
 use Fwt\Framework\Kernel\View\TemplateEngine\ExpressionParser;
 
-abstract class AbstractInvokableDirective extends AbstractDirective
+abstract class InvokableDirective extends Directive
 {
     protected ExpressionParser $parser;
 
