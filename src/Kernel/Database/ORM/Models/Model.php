@@ -17,6 +17,7 @@ use Fwt\Framework\Kernel\Exceptions\ORM\RelationDefinitionException;
 abstract class Model
 {
     protected const RELATIONS = [];
+    protected const ID_COLUMNS = ['id'];
 
     protected static array $tableNames;
     protected static array $columns = [];
@@ -26,6 +27,7 @@ abstract class Model
     private array $relations = [];
     private bool $exists = false;
     private bool $isChanged = false;
+    private ?PrimaryKey $primary;
     private ?RelationFactory $relationFactory;
     private static ModelRepository $repository;
 
@@ -33,6 +35,7 @@ abstract class Model
     {
         $this->relationFactory = $this->getFactory();
         $this->initRelations();
+        $this->initIdColumns();
     }
 
     public static function getColumns(): array
@@ -42,6 +45,8 @@ abstract class Model
 
     public static function find($id): ?self
     {
+        $id = new PrimaryKey(self::primaryKeyToAssoc($id));
+
         $model = self::getRepository()->find(static::class, $id);
 
         if ($model) {
@@ -62,7 +67,9 @@ abstract class Model
 
     public static function fromId($id): self
     {
-        return static::createDry([static::getIdColumn() => $id])->setExists()->setIsChanged();
+        $ids = self::primaryKeyToAssoc($id);
+
+        return static::createDry($ids)->initIdColumns()->setExists()->setIsChanged();
     }
 
     public static function fromIds(array $ids): ModelCollection
@@ -140,18 +147,32 @@ abstract class Model
         $this->setExists()->setIsChanged(false);
     }
 
-    public function primary()
+    public function setPrimary($id): self
     {
-        //todo: add cases where primary key includes multiple cols
+        $key = new PrimaryKey(self::primaryKeyToAssoc($id));
 
-        return $this->{$this::getIdColumn()};
+        foreach ($key->getValues() as $field => $value) {
+            $this->$field = $value;
+        }
+
+        $this->primary = $key;
+
+        return $this;
     }
 
-    public static function getIdColumn(): string
+    public function primary(): array
     {
-        //todo: add cases where primary key includes multiple cols
+        return $this->primary->getValues();
+    }
 
-        return 'id';
+    public static function getIdColumns(): array
+    {
+        return static::ID_COLUMNS;
+    }
+
+    public static function hasCompositeKey(): bool
+    {
+        return count(static::ID_COLUMNS) > 1;
     }
 
     public static function where(string $field, $value, string $expression = '='): WhereBuilderFacade
@@ -189,6 +210,7 @@ abstract class Model
     {
         $this->relations = [];
         $this->relationFactory = null;
+        $this->primary = null;
     }
 
     public function insert(): void
@@ -334,7 +356,7 @@ abstract class Model
         return $this;
     }
 
-    private function initRelations(): self
+    private function initRelations(): void
     {
         foreach (static::RELATIONS as $field => $definition) {
             if (isset($this->$field)) {
@@ -346,8 +368,6 @@ abstract class Model
             $this->$field = $relation->getDry();
             $this->relations[$field] = $relation;
         }
-
-        return $this;
     }
 
     private function getFactory(): RelationFactory
@@ -368,6 +388,43 @@ abstract class Model
         return self::$repository;
     }
 
+    private static function primaryKeyToAssoc($key): array
+    {
+        switch (gettype($key)) {
+            case 'array':
+                if (!self::hasCompositeKey() && count($key) > 1) {
+                    throw new \Exception('Cannot use composite value for non composite key');
+                }
+
+                if (empty($key)) {
+                    throw new \Exception('Cannot use empty array as primary key');
+                }
+
+                $keys = $key;
+
+                break;
+            case 'integer':
+            case 'string':
+                if (static::hasCompositeKey()) {
+                    throw new \Exception('Cannot use single value for composite key');
+                }
+
+                $keys[self::ID_COLUMNS[0]] = $key;
+
+                break;
+            case 'object':
+                if ($key instanceof PrimaryKey) {
+                    $keys = $key->getValues();
+
+                    break;
+                }
+            default:
+                throw new IllegalTypeException($key, ['array', 'string', 'integer', PrimaryKey::class]);
+        }
+
+        return $keys;
+    }
+
     private function setFieldValue(string $name, $value): bool
     {
         $isChanged = $this->exists();
@@ -376,6 +433,10 @@ abstract class Model
             $isChanged = $this->setRelation($name, $value);
         } else {
             $this->fields[$name] = $value;
+        }
+
+        if (isset($this->primary) && in_array($name, static::ID_COLUMNS)) {
+            $this->primary->setValue($name, $value);
         }
 
         return $isChanged;
@@ -444,7 +505,27 @@ abstract class Model
                 throw new IllegalTypeException($value, [$relatedClass]);
             }
 
-            $this->{$relation->getConnectField()} = $value->{$value::getIdColumn()};
+            $primary = $value->primary();
+
+            $this->{$relation->getConnectField()} = array_pop($primary);
         }
+    }
+
+    private function initIdColumns(): self
+    {
+        if (empty(static::ID_COLUMNS)) {
+            //todo: exception
+            throw new \Exception('undefined id col');
+        }
+
+        $ids = [];
+
+        foreach (static::ID_COLUMNS as $column) {
+            $ids[$column] = $this->fields[$column] ?? null;
+        }
+
+        $this->primary = new PrimaryKey($ids);
+
+        return $this;
     }
 }

@@ -23,6 +23,11 @@ abstract class Relation
             throw new InvalidExtensionException($related, Model::class);
         }
 
+        if ($related::hasCompositeKey()) {
+            //todo: exception
+            throw new \Exception('Relations don\'t support related entities with composite key.');
+        }
+
         $this->from = $from;
         $this->related = $related;
         $this->through = $field;
@@ -47,5 +52,12 @@ abstract class Relation
     public function getConnectField(): string
     {
         return $this->through;
+    }
+
+    protected function getRelatedPrimaryColumn(): string
+    {
+        $primary = $this->related::getIdColumns();
+
+        return array_pop($primary);
     }
 }

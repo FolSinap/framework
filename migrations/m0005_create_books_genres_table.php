@@ -17,6 +17,8 @@ class m0005_create_books_genres_table extends Migration
         $table->bigInt('genre_id')->references('genres', 'id')
             ->onDelete(ForeignKeyColumn::CASCADE)
             ->onUpdate(ForeignKeyColumn::CASCADE);
+
+        $table->primaryKeys(['book_id', 'genre_id']);
     }
 
     public function down(): void

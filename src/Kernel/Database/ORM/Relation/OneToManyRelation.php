@@ -11,6 +11,11 @@ class OneToManyRelation extends Relation
     public function __construct(Model $from, string $related, string $field)
     {
         parent::__construct($from, $related, $field);
+
+        if ($from::hasCompositeKey()) {
+            //todo: exception
+            throw new \Exception('to-many relation types don\'t support composite keys.');
+        }
     }
 
     public function add(Model $model): void
@@ -40,7 +45,7 @@ class OneToManyRelation extends Relation
         $repository = new ModelRepository();
 
         $repository->insertMany(new ModelCollection($forInsert));
-        $repository->updateMany(new ModelCollection($forUpdate), [$this->through => $this->from->primary()]);
+        $repository->updateMany(new ModelCollection($forUpdate), [$this->through => $this->getFromPrimary()]);
     }
 
     public function delete(Model $model)
@@ -105,7 +110,14 @@ class OneToManyRelation extends Relation
     {
         if ($this->isRelated($model)) {
             //todo: exception
-            throw new \Exception();
+            throw new \Exception('not related');
         }
+    }
+
+    protected function getFromPrimary()
+    {
+        $primary = $this->from->primary();
+
+        return array_pop($primary);
     }
 }
