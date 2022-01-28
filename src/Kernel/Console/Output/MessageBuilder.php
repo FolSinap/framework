@@ -2,6 +2,7 @@
 
 namespace Fwt\Framework\Kernel\Console\Output;
 
+use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
 use Traversable;
 
 class MessageBuilder
@@ -55,8 +56,7 @@ class MessageBuilder
     public function foreach($data, callable $function): self
     {
         if (!is_array($data) && !$data instanceof Traversable) {
-            //todo: change exception
-            throw new \Exception('$data must of type array or be traversable');
+            throw new IllegalTypeException($data, ['array', Traversable::class]);
         }
 
         foreach ($data as $key => $value) {
