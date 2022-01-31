@@ -24,6 +24,7 @@ class CommandRouter
     {
         $this->resolver = $resolver;
 
+        //todo: add debug-routes and container commands
         $this->commands = [
             HelpCommand::class,
             MigrationCommand::class,

@@ -2,6 +2,7 @@
 
 #block('content')
 <form action="#route('books_store')" method="post">
+    #csrf()
     <div class="form-group">
         <label for="title">Title</label>
         <div class="form-text text-danger">#flash('errors.title')</div>
