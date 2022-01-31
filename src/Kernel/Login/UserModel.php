@@ -61,6 +61,16 @@ abstract class UserModel extends Model
         return $candidate;
     }
 
+    public static function getUserIdentifierColumn(): string
+    {
+        return 'email';
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return $this->{static::getUserIdentifierColumn()};
+    }
+
     protected static function findAndHashPassword(array $data): array
     {
         $password = self::getPasswordField();

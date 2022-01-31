@@ -15,7 +15,7 @@ class ObjectResolver
 
     public function __construct()
     {
-        $this->presetDependencies = App::$app->getConfig('dependencies');
+        $this->presetDependencies = config('dependencies');
     }
 
     public function resolve(string $class): object
@@ -53,6 +53,10 @@ class ObjectResolver
                     } else {
                         $parameters[] = $preset[$parameter->name];
                     }
+
+                    continue;
+                } elseif ($parameter->isOptional()) {
+                    $parameters[] = $parameter->getDefaultValue();
 
                     continue;
                 }

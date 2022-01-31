@@ -1,5 +1,7 @@
 <?php
 
+use Fwt\Framework\Kernel\App;
+
 if (!function_exists('get_string_between')) {
     function get_string_between(string $string, string $start, string $end): string
     {
@@ -23,5 +25,19 @@ if (!function_exists('env')) {
         $var = getenv($name);
 
         return $var === false ? $default : $var;
+    }
+}
+
+if (!function_exists('container')) {
+    function container(string $name, $default = null)
+    {
+        return App::$app->getContainer()->get($name) ?? $default;
+    }
+}
+
+if (!function_exists('config')) {
+    function config(string $name, $default = null)
+    {
+        return App::$app->getConfig($name, $default);
     }
 }

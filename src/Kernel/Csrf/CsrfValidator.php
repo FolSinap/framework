@@ -15,7 +15,7 @@ abstract class CsrfValidator
 
     public static function getValidator(): self
     {
-        $validator = App::$app->getConfig('app.csrf', DoubleSubmitCookieCsrfValidator::class);
+        $validator = App::$app->getConfig('app.csrf', EncryptedTokenCsrfValidator::class);
         $resolver = App::$app->getContainer()->get(ObjectResolver::class);
 
         return $resolver->resolve($validator);
