@@ -26,11 +26,11 @@ class SynchronizerCsrfValidator extends CsrfValidator
 
     public function isValid(string $csrfToken): bool
     {
-        $token = $this->session->get(self::CSRF_TOKEN);
-
-        if (!$token) {
+        if (!$this->session->has(self::CSRF_TOKEN)) {
             return false;
         }
+
+        $token = $this->session->get(self::CSRF_TOKEN);
 
         return hash_equals($token, $csrfToken);
     }

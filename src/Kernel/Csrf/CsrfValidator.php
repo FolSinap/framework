@@ -3,6 +3,7 @@
 namespace Fwt\Framework\Kernel\Csrf;
 
 use Fwt\Framework\Kernel\App;
+use Fwt\Framework\Kernel\ObjectResolver;
 
 abstract class CsrfValidator
 {
@@ -14,8 +15,9 @@ abstract class CsrfValidator
 
     public static function getValidator(): self
     {
-        $validator = App::$app->getConfig('app.csrf', SynchronizerCsrfValidator::class);
+        $validator = App::$app->getConfig('app.csrf', DoubleSubmitCookieCsrfValidator::class);
+        $resolver = App::$app->getContainer()->get(ObjectResolver::class);
 
-        return new $validator();
+        return $resolver->resolve($validator);
     }
 }
