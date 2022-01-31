@@ -3,7 +3,7 @@
 namespace Fwt\Framework\Kernel;
 
 use Fwt\Framework\Kernel\Routing\Route;
-use Fwt\Framework\Kernel\Session\Session;
+use Fwt\Framework\Kernel\Storage\Session;
 
 class Request
 {

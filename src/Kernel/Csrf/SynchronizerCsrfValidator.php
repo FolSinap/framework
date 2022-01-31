@@ -2,7 +2,7 @@
 
 namespace Fwt\Framework\Kernel\Csrf;
 
-use Fwt\Framework\Kernel\Session\Session;
+use Fwt\Framework\Kernel\Storage\Session;
 
 class SynchronizerCsrfValidator extends CsrfValidator
 {

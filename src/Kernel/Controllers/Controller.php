@@ -9,7 +9,7 @@ use Fwt\Framework\Kernel\ObjectResolver;
 use Fwt\Framework\Kernel\Response\Response;
 use Fwt\Framework\Kernel\Response\RedirectResponse;
 use Fwt\Framework\Kernel\Routing\Router;
-use Fwt\Framework\Kernel\Session\Session;
+use Fwt\Framework\Kernel\Storage\Session;
 use Fwt\Framework\Kernel\View\View;
 
 abstract class Controller
