@@ -2,12 +2,20 @@
 
 namespace Fwt\Framework\Kernel\Storage;
 
+use Fwt\Framework\Kernel\Storage\Handlers\HandlersFactory;
+
 class Session
 {
     protected static self $instance;
 
     protected function __construct()
     {
+        $factory = new HandlersFactory(config('session'));
+
+        if (!is_null($handler = $factory->create())) {
+            session_set_save_handler($handler);
+        }
+
         if (!session_start()) {
             throw new \RuntimeException('Failed to start the session.');
         }
