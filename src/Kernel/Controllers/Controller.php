@@ -46,7 +46,7 @@ abstract class Controller
 
     protected function getUser(string $name = null): ?UserModel
     {
-        $auth = App::$app->getContainer()->get(ObjectResolver::class)->resolve(Authentication::class);
+        $auth = container(ObjectResolver::class)->resolve(Authentication::class);
 
         return $auth->getUser($name);
     }
