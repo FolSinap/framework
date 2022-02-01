@@ -30,7 +30,7 @@ class EncryptedTokenCsrfValidator extends CsrfValidator
 
     public function generate(): string
     {
-        $userId = $this->getUserId();
+        $userId = $this->getUsername();
 
         $nonceSize = openssl_cipher_iv_length($this->algorithm);
         $nonce = openssl_random_pseudo_bytes($nonceSize);
@@ -66,15 +66,15 @@ class EncryptedTokenCsrfValidator extends CsrfValidator
 
         [$userId, $time] = explode(self::SEPARATOR, $decrypted);
 
-        if ($userId === $this->getUserId() && (time() - $time) < self::FIFTEEN_MINS) {
+        if ($userId === $this->getUsername() && (time() - $time) < self::FIFTEEN_MINS) {
             return true;
         }
 
         return false;
     }
 
-    protected function getUserId(): string
+    protected function getUsername(): string
     {
-        return $this->auth->getUser($this->authName)->getUserIdentifier();
+        return $this->auth->getUser($this->authName)->getUsername();
     }
 }

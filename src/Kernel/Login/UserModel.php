@@ -4,6 +4,7 @@ namespace Fwt\Framework\Kernel\Login;
 
 use Fwt\Framework\Kernel\Database\ORM\Models\Model;
 use Fwt\Framework\Kernel\Exceptions\Login\LoginException;
+use Fwt\Framework\Kernel\Exceptions\RequiredArrayKeysException;
 
 abstract class UserModel extends Model
 {
@@ -42,8 +43,10 @@ abstract class UserModel extends Model
         $password = $data[$passwordField];
         unset($data[$passwordField]);
 
-        $keyFirst = array_key_first($data);
-        $candidate = static::where($keyFirst, $data[$keyFirst])->fetch();
+        $username = static::getUsernameColumn();
+        RequiredArrayKeysException::checkKeysExistence([$username], $data);
+
+        $candidate = static::where($username, $data[$username])->fetch();
 
         if (count($candidate) !== 1) {
             throw LoginException::incorrectData();
@@ -61,14 +64,14 @@ abstract class UserModel extends Model
         return $candidate;
     }
 
-    public static function getUserIdentifierColumn(): string
+    public static function getUsernameColumn(): string
     {
         return 'email';
     }
 
-    public function getUserIdentifier(): string
+    public function getUsername(): string
     {
-        return $this->{static::getUserIdentifierColumn()};
+        return $this->{static::getUsernameColumn()};
     }
 
     protected static function findAndHashPassword(array $data): array
