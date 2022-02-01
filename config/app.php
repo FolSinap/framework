@@ -32,4 +32,8 @@ return [
         'dir' => $projectDir . '/app/Commands',
         'namespace' => '\\App\\Commands',
     ],
+    'csrf' => [
+        'validate' => true,
+        'validator' => \Fwt\Framework\Kernel\Csrf\CsrfValidator::SYNCHRONIZER_TOKENS_PATTERN,
+    ],
 ];
