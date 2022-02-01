@@ -3,7 +3,6 @@
 namespace Fwt\Framework\Kernel;
 
 use Fwt\Framework\Kernel\Routing\Route;
-use Fwt\Framework\Kernel\Storage\Session;
 
 class Request
 {
@@ -12,7 +11,6 @@ class Request
     protected string $resource;
     protected array $bodyParameters;
     protected array $queryParameters;
-    protected Session $session;
 
     public function __construct()
     {
@@ -20,7 +18,6 @@ class Request
             $this->initPath();
             $this->initGlobals();
             $this->initMethod();
-            $this->startSession();
 
             $this->resource = $_SERVER['HTTP_REFERER'] ?? '/';
         }
@@ -64,12 +61,15 @@ class Request
             switch ($this->getBodyParameters()['_method']) {
                 case Route::PUT:
                     $method = Route::PUT;
+
                     break;
                 case Route::PATCH:
                     $method = Route::PATCH;
+
                     break;
                 case Route::DELETE:
                     $method = Route::DELETE;
+
                     break;
                 default:
                     $method = Route::POST;
@@ -79,11 +79,6 @@ class Request
         }
 
         $this->method = $method;
-    }
-
-    protected function startSession(): void
-    {
-        $this->session = Session::start();
     }
 
     protected function initGlobals(): void

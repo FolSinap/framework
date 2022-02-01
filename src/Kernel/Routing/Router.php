@@ -2,7 +2,6 @@
 
 namespace Fwt\Framework\Kernel\Routing;
 
-use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Exceptions\Router\UnknownRouteNameException;
 use Fwt\Framework\Kernel\Middlewares\MiddlewareMapper;
 use Fwt\Framework\Kernel\Pipeline;
@@ -55,7 +54,8 @@ class Router
         $pipeline = new Pipeline();
 
         if ($route = $this->findRoute($url, $verb)) {
-            $middlewares = App::$app->getContainer()->get(MiddlewareMapper::class)->mapMany($route->getMiddlewares());
+            $middlewares = container(MiddlewareMapper::class)
+                ->mapMany(array_merge(config('app.middlewares.default', []), $route->getMiddlewares()));
 
             return $pipeline->through($middlewares)->addPipe($route->resolveCallback());
         } else {

@@ -2,7 +2,7 @@
 
 namespace Fwt\Framework\Kernel\Csrf;
 
-use Fwt\Framework\Kerne\Exceptions\Csrf\UndefinedCsrfValidatorException;
+use Fwt\Framework\Kernel\Exceptions\Csrf\UndefinedCsrfValidatorException;
 use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
 use Fwt\Framework\Kernel\Exceptions\Resolver\ObjectResolverException;
 use Fwt\Framework\Kernel\ObjectResolver;

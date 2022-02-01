@@ -2,12 +2,12 @@
 
 namespace Fwt\Framework\Kernel\Validator;
 
-use Fwt\Framework\Kernel\Csrf\CsrfValidator;
 use Fwt\Framework\Kernel\Storage\Session;
 use Fwt\Framework\Kernel\Validator\Rules\IRule;
 
 class Validator
 {
+    //todo: add option 'stop on first error'
     protected array $rules;
 
     /**
@@ -21,15 +21,6 @@ class Validator
     public function validateData(array $data): bool
     {
         $errorMessages = [];
-
-        //todo: move to rule class
-        if (!$this->validateCsrf($data)) {
-            $errorMessages[CsrfValidator::TOKEN_KEY][] = 'Invalid CSRF Token.';
-
-            $this->saveToSession($errorMessages);
-
-            return false;
-        }
 
         foreach ($this->rules as $field => $rules) {
             foreach ($rules as $rule) {
@@ -49,15 +40,5 @@ class Validator
         foreach ($messages as $nestedKey => $message) {
             Session::start()->set("$key.$nestedKey", $message);
         }
-    }
-
-    protected function validateCsrf(array $data): bool
-    {
-        //todo: checking for field existence is stupid
-        if (array_key_exists(CsrfValidator::TOKEN_KEY, $data)) {
-            return CsrfValidator::getValidator()->isValid($data[CsrfValidator::TOKEN_KEY]);
-        }
-
-        return true;
     }
 }

@@ -41,3 +41,10 @@ if (!function_exists('config')) {
         return App::$app->getConfig($name, $default);
     }
 }
+
+if (!function_exists('app')) {
+    function app(): App
+    {
+        return App::$app;
+    }
+}
