@@ -16,7 +16,7 @@ $router->get('/books', [BooksController::class, 'index'])->name('books_index');
 $router->get('/books/create', [BooksController::class, 'create'])->name('books_create')->middleware('authenticate');
 $router->post('/books/create', [BooksController::class, 'store'])->name('books_store')->middleware('authenticate');
 $router->get('/books/edit/{book}', [BooksController::class, 'edit'])->name('books_edit')->middleware('authenticate');
-$router->patch('/books/edit/{book}', [BooksController::class, 'update'])->name('books_update')->middleware('authenticate');
+$router->put('/books/edit/{book}', [BooksController::class, 'update'])->name('books_update')->middleware('authenticate');
 $router->delete('/books/delete/{book}', [BooksController::class, 'delete'])->name('books_delete')->middleware('authenticate');
 
 $router->get('/register', [LoginController::class, 'registrationForm'])->name('register_form');
