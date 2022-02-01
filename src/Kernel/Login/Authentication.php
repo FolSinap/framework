@@ -2,7 +2,6 @@
 
 namespace Fwt\Framework\Kernel\Login;
 
-use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Config\FileConfig;
 use Fwt\Framework\Kernel\Exceptions\Config\ValueIsNotConfiguredException;
 use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
@@ -10,14 +9,14 @@ use Fwt\Framework\Kernel\Storage\Session;
 
 class Authentication
 {
-    protected const SESSION_KEY = 'auth-token';
+    protected const SESSION_KEY = 'username';
 
     protected Session $session;
     protected FileConfig $config;
 
     public function __construct()
     {
-        $this->config = App::$app->getConfig('auth');
+        $this->config = config('auth');
         $this->session = Session::start();
     }
 
@@ -32,20 +31,20 @@ class Authentication
             throw new ValueIsNotConfiguredException("auth.user_classes.$name");
         }
 
-        if (!($token = $this->getToken($name))) {
+        if (!($username = $this->getUsername($name))) {
             return null;
         }
 
-        return $this->getUserByClass($users[$name], $token);
+        return $this->getUserByClass($users[$name], $username);
     }
 
-    public function getToken(string $name): ?Token
+    public function getUsername(string $name): ?string
     {
         if (!$this->session->has(self::SESSION_KEY) || !isset($this->session->get(self::SESSION_KEY)[$name])) {
             return null;
         }
 
-        return Token::fromString($this->session->get(self::SESSION_KEY)[$name]);
+        return $this->session->get(self::SESSION_KEY)[$name];
     }
 
     public function authenticateAs(UserModel $user): void
@@ -58,11 +57,8 @@ class Authentication
         }
 
         $name = array_flip($classes)[$class];
-        $token = (new Token())->getToken();
 
-        $user->update(['token' => $token]);
-
-        $this->session->set(self::SESSION_KEY, [$name => $token]);
+        $this->session->set(self::SESSION_KEY, [$name => $user->getUsername()]);
     }
 
     public function unAuthenticate(): void
@@ -103,12 +99,12 @@ class Authentication
         return false;
     }
 
-    protected function getUserByClass(string $userClass, Token $token): ?UserModel
+    protected function getUserByClass(string $userClass, string $username): ?UserModel
     {
         if (!is_subclass_of($userClass, UserModel::class)) {
             throw new InvalidExtensionException($userClass, UserModel::class);
         }
 
-        return $userClass::getByToken($token);
+        return $userClass::getByUsername($username);
     }
 }

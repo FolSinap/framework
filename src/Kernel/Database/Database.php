@@ -50,6 +50,20 @@ class Database
         return $this->connection->getPdo()->lastInsertId();
     }
 
+    public function describe(string $table): array
+    {
+        //todo: only for MySQL
+        $description = $this->executeNative("DESCRIBE $table;")->fetchAll(PDO::FETCH_ASSOC);
+
+        $columns = [];
+
+        foreach ($description as $column) {
+            $columns[] = $column['Field'];
+        }
+
+        return $columns;
+    }
+
     public function insertMany(array $data, string $table): string
     {
         $this->queryBuilder->insertMany($table, $data);
@@ -107,18 +121,21 @@ class Database
         $this->queryBuilder = new QueryBuilder();
     }
 
-    public function executeNative(string $sql, array $parameters = []): bool
+    public function executeNative(string $sql, array $parameters = []): PDOStatement
     {
         $query = new Query($sql, $parameters);
 
         return $this->executeQuery($query);
     }
 
-    public function executeQuery(Query $query): bool
+    public function executeQuery(Query $query): PDOStatement
     {
         $this->logger->log($query);
 
-        return $this->connection->createStatement($query->getQuery())->execute($query->getParams());
+        $statement = $this->connection->createStatement($query->getQuery());
+        $statement->execute($query->getParams());
+
+        return $statement;
     }
 
     public function execute(): PDOStatement

@@ -9,6 +9,7 @@ class SelectBuilder extends Builder
     protected array $columns;
     protected string $from;
     protected array $groupBy;
+    protected int $limit;
 
     public function __construct(string $from, array $columns = [])
     {
@@ -23,6 +24,13 @@ class SelectBuilder extends Builder
         return $this;
     }
 
+    public function limit(int $limit): self
+    {
+        $this->limit = $limit;
+
+        return $this;
+    }
+
     public function getQuery(): string
     {
         $sql = 'SELECT ' . (empty($this->columns) ? '*' : implode(', ', $this->columns)) . " FROM $this->from";
@@ -31,6 +39,17 @@ class SelectBuilder extends Builder
 
         $sql .= isset($this->groupBy) ? ' GROUP BY ' . implode(', ', $this->groupBy) : '';
 
+        $sql .= $this->buildLimit();
+
         return $sql;
+    }
+
+    protected function buildLimit(): string
+    {
+        if (isset($this->limit)) {
+            return " LIMIT $this->limit";
+        }
+
+        return '';
     }
 }

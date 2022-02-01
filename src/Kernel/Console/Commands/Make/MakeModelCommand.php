@@ -108,7 +108,7 @@ class MakeModelCommand extends MakeCommand
 
     protected function buildColumns(Output $output): void
     {
-        if (!$output->confirm('Define columns array?')) {
+        if (!$output->confirm('Define columns array (it will optimize queries)?')) {
             $this->columns = [];
 
             return;
