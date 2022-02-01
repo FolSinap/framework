@@ -27,6 +27,7 @@
                 <td><a href="#route('books_edit', ['book' => {{book->id}}])">Edit</a></td>
                 <td>
                     <form action="#route('books_delete', ['book' => {{book->id}}])" method="post">
+                        #csrf()
                         #method('delete')
                         <button type="submit" class="btn btn-danger">Delete</button>
                     </form>

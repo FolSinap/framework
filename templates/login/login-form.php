@@ -2,6 +2,7 @@
 
 #block('content')
 <form method="post" action="#route('login')">
+    #csrf()
     <div class="mb-3">
         <label for="email" class="form-label">Email address</label>
         <div class="form-text text-danger">#flash('errors.email')</div>

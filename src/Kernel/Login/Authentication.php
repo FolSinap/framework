@@ -6,7 +6,7 @@ use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Config\FileConfig;
 use Fwt\Framework\Kernel\Exceptions\Config\ValueIsNotConfiguredException;
 use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
-use Fwt\Framework\Kernel\Session\Session;
+use Fwt\Framework\Kernel\Storage\Session;
 
 class Authentication
 {

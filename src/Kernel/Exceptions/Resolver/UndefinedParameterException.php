@@ -2,13 +2,12 @@
 
 namespace Fwt\Framework\Kernel\Exceptions\Resolver;
 
-use LogicException;
 use Throwable;
 use ReflectionParameter;
 use ReflectionMethod;
 use ReflectionClass;
 
-class UndefinedParameterException extends LogicException
+class UndefinedParameterException extends ObjectResolverException
 {
     public function __construct(ReflectionParameter $parameter, ReflectionMethod $method, ReflectionClass $class, Throwable $previous = null)
     {

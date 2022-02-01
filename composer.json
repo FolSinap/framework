@@ -19,6 +19,7 @@
     "require": {
         "symfony/var-dumper": "^5.4",
       "ext-pdo": "*",
-        "vlucas/phpdotenv": "^5.4"
+        "vlucas/phpdotenv": "^5.4",
+      "ext-openssl": "*"
     }
 }

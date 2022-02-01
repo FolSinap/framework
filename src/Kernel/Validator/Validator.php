@@ -2,11 +2,12 @@
 
 namespace Fwt\Framework\Kernel\Validator;
 
-use Fwt\Framework\Kernel\Session\Session;
+use Fwt\Framework\Kernel\Storage\Session;
 use Fwt\Framework\Kernel\Validator\Rules\IRule;
 
 class Validator
 {
+    //todo: add option 'stop on first error'
     protected array $rules;
 
     /**

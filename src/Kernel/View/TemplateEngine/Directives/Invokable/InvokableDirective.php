@@ -26,6 +26,7 @@ abstract class InvokableDirective extends Directive
             ->includeForSearch('\'", +-*/!?.%&()[]=>')
             ->useQuotes(false)
             ->setParentheses()
+            ->letEmptyContent()
             ->getRegex();
     }
 

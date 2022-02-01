@@ -2,7 +2,7 @@
 
 namespace Fwt\Framework\Kernel\View\TemplateEngine\Directives\Invokable;
 
-use Fwt\Framework\Kernel\Session\Session;
+use Fwt\Framework\Kernel\Storage\Session;
 
 class FlashDirective extends InvokableDirective
 {
