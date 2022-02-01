@@ -8,6 +8,7 @@ use Fwt\Framework\Kernel\View\TemplateEngine\Directives\AnonDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\AuthDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\IDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\ForeachDirective;
+use Fwt\Framework\Kernel\View\TemplateEngine\Directives\Invokable\CsrfDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\Invokable\FlashDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\Invokable\MethodDirective;
 use Fwt\Framework\Kernel\View\TemplateEngine\Directives\Invokable\RouteDirective;
@@ -21,6 +22,7 @@ class TemplateRenderer
 {
     public const EXECUTABLE_DIRECTIVES = [
         IncludeDirective::class,
+        CsrfDirective::class,
         FlashDirective::class,
         AuthDirective::class,
         AnonDirective::class,

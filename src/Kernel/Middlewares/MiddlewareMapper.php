@@ -20,6 +20,7 @@ class MiddlewareMapper
 
         $this->middlewares = [
             AuthMiddleware::class,
+            ValidateCsrfMiddleware::class,
         ];
 
         $loader = $resolver->resolve(FileLoader::class);

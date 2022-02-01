@@ -1,8 +1,6 @@
 <?php
 
-use Fwt\Framework\Kernel\App;
-
-$projectDir = App::$app->getProjectDir();
+$projectDir = app()->getProjectDir();
 
 return [
     'app' => [
@@ -21,6 +19,9 @@ return [
     ],
     'middlewares' => [
         'dir' => $projectDir . '/app/Middlewares',
+        'default' => [
+            \Fwt\Framework\Kernel\Middlewares\ValidateCsrfMiddleware::class,
+        ],
     ],
     'public' => [
         'dir' => $projectDir . '/public',
@@ -31,5 +32,9 @@ return [
     'commands' => [
         'dir' => $projectDir . '/app/Commands',
         'namespace' => '\\App\\Commands',
+    ],
+    'csrf' => [
+        'enable' => true,
+        'validator' => \Fwt\Framework\Kernel\Csrf\CsrfValidator::SYNCHRONIZER_TOKENS_PATTERN,
     ],
 ];

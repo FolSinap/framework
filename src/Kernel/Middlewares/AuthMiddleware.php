@@ -20,6 +20,9 @@ class AuthMiddleware implements IMiddleware
         return 'authenticate';
     }
 
+    /**
+     * @inheritDoc
+     */
     public function __invoke(Request $request)
     {
         if (!$this->auth->isAuthenticated()) {

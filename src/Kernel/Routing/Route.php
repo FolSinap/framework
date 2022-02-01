@@ -19,6 +19,7 @@ class Route
     public const OPTIONS = 'OPTIONS';
     public const DELETE = 'DELETE';
     public const VERBS = [self::GET, self::POST, self::PUT, self::PATCH, self::OPTIONS, self::DELETE];
+    public const DANGEROUS_METHODS = [self::POST, self::PUT, self::PATCH, self::DELETE];
 
     protected string $url;
     protected string $name;

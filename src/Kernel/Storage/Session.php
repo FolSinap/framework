@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Session;
+namespace Fwt\Framework\Kernel\Storage;
 
 class Session
 {
