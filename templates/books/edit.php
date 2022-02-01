@@ -2,6 +2,7 @@
 
 #block('content')
 <form action="#route('books_update', ['book' => book->id])" method="post">
+    #csrf()
     #method('patch')
     <div class="form-group">
         <label for="title">Title</label>
