@@ -70,6 +70,10 @@ class MigrationCommand extends Command
                 $numberOfExecutions++;
             }
         } else {
+            if ($down) {
+                krsort($migrations);
+            }
+
             foreach ($migrations as $migration) {
                 if ($down && in_array($migration->getName(), $executedMigrations)) {
                     $this->runDown($migration, $dry);
