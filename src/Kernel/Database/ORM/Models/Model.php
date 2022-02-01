@@ -43,6 +43,10 @@ abstract class Model
 
     public static function getColumns(): array
     {
+        if (empty(static::$columns)) {
+            static::$columns = self::getRepository()->getTableScheme(static::class);
+        }
+
         return static::$columns;
     }
 
@@ -298,7 +302,7 @@ abstract class Model
     {
         $fields = [];
 
-        foreach (static::$columns as $column) {
+        foreach (static::getColumns() as $column) {
             $fields[$column] = $this->$column;
         }
 
