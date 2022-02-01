@@ -10,6 +10,7 @@ class EncryptedTokenCsrfValidator extends CsrfValidator
 {
     protected const SECRET_KEY = '33Sht?U<up-~f=>@xy8sah3uwA?T(<E8gE92vh5]rs4M3%-EbX,u9SqCk6jQ)}-J';
     protected const SEPARATOR = '!|!';
+    protected const FIFTEEN_MINS = 15 * 60;
 
     protected ?string $authName;
     protected string $algorithm;
@@ -29,7 +30,7 @@ class EncryptedTokenCsrfValidator extends CsrfValidator
 
     public function generate(): string
     {
-        $userId = $this->auth->getUser($this->authName)->getUserIdentifier();
+        $userId = $this->getUserId();
 
         $nonceSize = openssl_cipher_iv_length($this->algorithm);
         $nonce = openssl_random_pseudo_bytes($nonceSize);
@@ -51,6 +52,10 @@ class EncryptedTokenCsrfValidator extends CsrfValidator
         $nonce = mb_substr($csrfToken, 0, $nonceSize, '8bit');
         $ciphertext = mb_substr($csrfToken, $nonceSize, null, '8bit');
 
+        if (mb_strlen($nonce, '8bit') !== $nonceSize) {
+            return false;
+        }
+
         $decrypted = openssl_decrypt(
             $ciphertext,
             $this->algorithm,
@@ -60,7 +65,12 @@ class EncryptedTokenCsrfValidator extends CsrfValidator
         );
 
         [$userId, $time] = explode(self::SEPARATOR, $decrypted);
-        dd($userId, $time);
+
+        if ($userId === $this->getUserId() && (time() - $time) < self::FIFTEEN_MINS) {
+            return true;
+        }
+
+        return false;
     }
 
     protected function getUserId(): string
