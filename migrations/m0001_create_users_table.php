@@ -13,7 +13,6 @@ class m0001_create_users_table extends Migration
         $table->id();
         $table->string('email', 30)->unique();
         $table->string('password');
-        $table->string('token')->nullable();
     }
 
     public function down(): void

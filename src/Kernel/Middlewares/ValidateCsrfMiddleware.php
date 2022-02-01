@@ -27,6 +27,7 @@ class ValidateCsrfMiddleware implements IMiddleware
      */
     public function __invoke(Request $request)
     {
+        //todo: check for X-CSRF-Token in header
         if (!in_array($this->request->getMethod(), Route::DANGEROUS_METHODS)) {
             return $request;
         }

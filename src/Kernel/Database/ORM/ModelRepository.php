@@ -2,7 +2,6 @@
 
 namespace Fwt\Framework\Kernel\Database\ORM;
 
-use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Database\Database;
 use Fwt\Framework\Kernel\Database\ORM\Models\Model;
 use Fwt\Framework\Kernel\Database\ORM\Models\PrimaryKey;
@@ -15,7 +14,14 @@ class ModelRepository
 
     public function __construct()
     {
-        $this->database = App::$app->getContainer()->get(Database::class);
+        $this->database = container(Database::class);
+    }
+
+    public function getTableScheme(string $class): array
+    {
+        $this->checkClass($class);
+
+        return $this->database->describe($class::getTableName());
     }
 
     public function deleteMany(ModelCollection $models): void
