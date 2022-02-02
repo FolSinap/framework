@@ -1,10 +1,11 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Storage\Handlers;
+namespace Fwt\Framework\Kernel\Storage;
 
 use Fwt\Framework\Kernel\Config\FileConfig;
 use Fwt\Framework\Kernel\Exceptions\IllegalValueException;
-use SessionHandler;
+use Fwt\Framework\Kernel\Storage\Handlers\FileSessionHandler;
+use SessionHandlerInterface;
 
 class HandlersFactory
 {
@@ -20,7 +21,7 @@ class HandlersFactory
         $this->config = $config;
     }
 
-    public function create(): ?SessionHandler
+    public function create(): ?SessionHandlerInterface
     {
         $driver = $this->config->get('driver');
 
@@ -29,11 +30,12 @@ class HandlersFactory
         }
 
         IllegalValueException::checkValue($driver, array_keys(self::DRIVERS));
-        $path = $this->config->get('filepath', 'storage/session');
+        $path = project_dir() . '/' . $this->config->get('filepath', 'storage/session');
+        $lifetime = $this->config->get('lifetime');
 
         switch ($driver) {
             case self::FILES:
-                return new FileSessionHandler($path);
+                return new FileSessionHandler($path, $lifetime);
             default:
                 return null;
         }

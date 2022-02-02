@@ -2,8 +2,6 @@
 
 namespace Fwt\Framework\Kernel\Storage;
 
-use Fwt\Framework\Kernel\Storage\Handlers\HandlersFactory;
-
 class Session
 {
     protected static self $instance;

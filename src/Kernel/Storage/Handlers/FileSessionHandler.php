@@ -3,9 +3,9 @@
 namespace Fwt\Framework\Kernel\Storage\Handlers;
 
 use Fwt\Framework\Kernel\FileLoader;
-use SessionHandler;
+use SessionHandlerInterface;
 
-class FileSessionHandler extends SessionHandler
+class FileSessionHandler implements SessionHandlerInterface
 {
     protected string $path;
     protected int $lifetime;
