@@ -61,6 +61,48 @@ class TableBuilder implements IBuilder
         return $column;
     }
 
+    public function mediumText(string $name): ColumnBuilder
+    {
+        $column = $this->createColumn($name, ColumnBuilder::MEDIUMTEXT);
+        $this->columns[] = $column;
+
+        return $column;
+    }
+
+    public function timestamps(): void
+    {
+        $this->createdAt();
+        $this->updatedAt();
+    }
+
+    public function createdAt($name = 'created_at'): ColumnBuilder
+    {
+        return $this->timestamp($name, true);
+    }
+
+    public function updatedAt($name = 'updated_at'): ColumnBuilder
+    {
+        return $this->timestamp($name, true, true);
+    }
+
+    public function timestamp(string $name, bool $updateOnInsert = false, bool $updateOnUpdate = false): ColumnBuilder
+    {
+        $options = [];
+
+        if ($updateOnUpdate) {
+            $options['on_update'] = ColumnBuilder::CURRENT_TIMESTAMP;
+        }
+
+        if ($updateOnInsert) {
+            $options['default'] = ColumnBuilder::CURRENT_TIMESTAMP;
+        }
+
+        $column = $this->createColumn($name, ColumnBuilder::TIMESTAMP, $options);
+        $this->columns[] = $column;
+
+        return $column;
+    }
+
     public function bool(string $name): self
     {
         $this->columns[] = $this->createColumn($name, ColumnBuilder::BIT);
