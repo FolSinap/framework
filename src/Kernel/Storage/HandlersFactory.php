@@ -5,13 +5,16 @@ namespace Fwt\Framework\Kernel\Storage;
 use Fwt\Framework\Kernel\Config\FileConfig;
 use Fwt\Framework\Kernel\Exceptions\IllegalValueException;
 use Fwt\Framework\Kernel\Storage\Handlers\FileSessionHandler;
+use Fwt\Framework\Kernel\Storage\Handlers\RedisSessionHandler;
 use SessionHandlerInterface;
 
 class HandlersFactory
 {
     protected const FILES = 'files';
+    protected const REDIS = 'redis';
     protected const DRIVERS = [
         self::FILES => FileSessionHandler::class,
+        self::REDIS => RedisSessionHandler::class,
     ];
 
     protected FileConfig $config;
@@ -36,6 +39,8 @@ class HandlersFactory
         switch ($driver) {
             case self::FILES:
                 return new FileSessionHandler($path, $lifetime);
+            case self::REDIS:
+                return new RedisSessionHandler($lifetime);
             default:
                 return null;
         }
