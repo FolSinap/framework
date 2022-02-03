@@ -10,6 +10,7 @@ use Fwt\Framework\Kernel\Console\Commands\Make\MakeMigrationCommand;
 use Fwt\Framework\Kernel\Console\Commands\Make\MakeModelCommand;
 use Fwt\Framework\Kernel\Console\Commands\Make\SessionTableCommand;
 use Fwt\Framework\Kernel\Console\Commands\MigrationCommand;
+use Fwt\Framework\Kernel\Console\Commands\RouterCommand;
 use Fwt\Framework\Kernel\Exceptions\Console\CommandNotFoundException;
 use Fwt\Framework\Kernel\Exceptions\InterfaceNotFoundException;
 use Fwt\Framework\Kernel\FileLoader;
@@ -33,10 +34,11 @@ class CommandRouter
             MakeModelCommand::class,
             MakeCommandCommand::class,
             SessionTableCommand::class,
+            RouterCommand::class,
         ];
 
         $loader = $resolver->resolve(FileLoader::class);
-        $loader->load(App::$app->getConfig('app.commands.dir'));
+        $loader->load(config('app.commands.dir'));
 
         $this->addCommands($loader->classNames());
     }

@@ -97,7 +97,12 @@ class Router
         $this->namedRoutes[$name] = $route;
     }
 
-    protected function findRoute(string $url, string $verb): ?Route
+    public function routes(): array
+    {
+        return $this->routes;
+    }
+
+    public function findRoute(string $url, string $verb): ?Route
     {
         foreach ($this->routes as $route) {
             if ($route->match($url, $verb)) {
@@ -106,6 +111,19 @@ class Router
         }
 
         return null;
+    }
+
+    public function findRoutesByUrl(string $url): array
+    {
+        $routes = [];
+
+        foreach ($this->routes as $route) {
+            if ($route->matchUrl($url)) {
+                $routes[] = $route;
+            }
+        }
+
+        return $routes;
     }
 
     protected function addRoute(string $url, string $verb, $callback, string $name = null): Route

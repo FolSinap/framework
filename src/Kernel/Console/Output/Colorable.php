@@ -24,91 +24,91 @@ trait Colorable
 
     public function startGreen(): self
     {
-        $this->message .= self::GREEN;
+        $this->text .= self::GREEN;
 
         return $this;
     }
 
     public function startBlack(): self
     {
-        $this->message .= self::BLACK;
+        $this->text .= self::BLACK;
 
         return $this;
     }
 
     public function startRed(): self
     {
-        $this->message .= self::RED;
+        $this->text .= self::RED;
 
         return $this;
     }
 
     public function startYellow(): self
     {
-        $this->message .= self::YELLOW;
+        $this->text .= self::YELLOW;
 
         return $this;
     }
 
     public function startBlue(): self
     {
-        $this->message .= self::BLUE;
+        $this->text .= self::BLUE;
 
         return $this;
     }
 
     public function startWhite(): self
     {
-        $this->message .= self::WHITE;
+        $this->text .= self::WHITE;
 
         return $this;
     }
 
     public function onBlack(): self
     {
-        $this->message .= self::ON_BLACK;
+        $this->text .= self::ON_BLACK;
 
         return $this;
     }
 
     public function onRed(): self
     {
-        $this->message .= self::ON_RED;
+        $this->text .= self::ON_RED;
 
         return $this;
     }
 
     public function onGreen(): self
     {
-        $this->message .= self::ON_GREEN;
+        $this->text .= self::ON_GREEN;
 
         return $this;
     }
 
     public function onYellow(): self
     {
-        $this->message .= self::ON_YELLOW;
+        $this->text .= self::ON_YELLOW;
 
         return $this;
     }
 
     public function onBlue(): self
     {
-        $this->message .= self::ON_BLUE;
+        $this->text .= self::ON_BLUE;
 
         return $this;
     }
 
     public function onWhite(): self
     {
-        $this->message .= self::ON_WHITE;
+        $this->text .= self::ON_WHITE;
 
         return $this;
     }
 
     public function closeColor(): self
     {
-        $this->message .= self::CLOSE_COLOR;
+        $this->text .= self::CLOSE_COLOR;
 
         return $this;
     }

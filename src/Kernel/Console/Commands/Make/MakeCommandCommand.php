@@ -5,7 +5,7 @@ namespace Fwt\Framework\Kernel\Console\Commands\Make;
 use Fwt\Framework\Kernel\Console\App;
 use Fwt\Framework\Kernel\Console\Commands\Command;
 use Fwt\Framework\Kernel\Console\Input;
-use Fwt\Framework\Kernel\Console\Output\MessageBuilder;
+use Fwt\Framework\Kernel\Console\TextBuilder;
 use Fwt\Framework\Kernel\Console\Output\Output;
 
 class MakeCommandCommand extends MakeCommand
@@ -106,7 +106,7 @@ class MakeCommandCommand extends MakeCommand
 
     protected function renderExecuteMethod(): string
     {
-        return MessageBuilder::getBuilder()
+        return TextBuilder::getBuilder()
             ->skipLines(2)
             ->tab()->writeln('public function execute(Input $input, Output $output): void')
             ->writeln('{')
@@ -116,7 +116,7 @@ class MakeCommandCommand extends MakeCommand
 
     protected function renderMethodsForMakeCommand(): string
     {
-        return MessageBuilder::getBuilder()
+        return TextBuilder::getBuilder()
             ->skipLines(2)
                 ->tab()->writeln('protected function getBaseDir(): string')
                 ->writeln('{')

@@ -94,9 +94,19 @@ class Route
         return $this;
     }
 
-    public function getName(): string
+    public function getCallback()
     {
-        return $this->name;
+        return $this->callback;
+    }
+
+    public function getVerbs(): array
+    {
+        return $this->verbs;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name ?? null;
     }
 
     public function getUrl(): string
@@ -127,12 +137,7 @@ class Route
         return $this;
     }
 
-    protected function matchVerb(string $verb): bool
-    {
-        return in_array($verb, $this->verbs);
-    }
-
-    protected function matchUrl(string $url): bool
+    public function matchUrl(string $url): bool
     {
         if ($url === $this->url) {
             return true;
@@ -159,6 +164,11 @@ class Route
         }
 
         return true;
+    }
+
+    protected function matchVerb(string $verb): bool
+    {
+        return in_array($verb, $this->verbs);
     }
 
     protected function isWildcard(string $urlPart): bool

@@ -2,15 +2,13 @@
 
 namespace Fwt\Framework\Kernel\Console\Output;
 
-use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
-use Traversable;
+use Fwt\Framework\Kernel\Console\TextBuilder;
 
-class MessageBuilder
+class MessageBuilder extends TextBuilder
 {
     use Colorable;
 
-    protected const TAB = "\t";
-    protected const NEXT_LINE = "\n";
+    protected const DEFAULT_TERMINAL_WIDTH = 80;
     protected const BLACK = "\e[30m";
     protected const RED = "\e[31m";
     protected const GREEN = "\e[32m";
@@ -26,12 +24,11 @@ class MessageBuilder
     protected const ON_WHITE = "\e[47m";
     protected const CLOSE_COLOR = "\033[0m";
 
-    protected string $message = '';
-    protected int $tabsCount = 0;
+    protected int $terminalWidth;
 
-    public function __toString()
+    public function __construct()
     {
-        return $this->getMessage();
+        $this->terminalWidth = app()->getTerminalWidth() ?? self::DEFAULT_TERMINAL_WIDTH;
     }
 
     public static function getBuilder(): self
@@ -39,100 +36,84 @@ class MessageBuilder
         return new self();
     }
 
-    public function getMessage(): string
+    public function drawLines(int $count = 1, string $char = '-'): self
     {
-        return $this->message;
-    }
-
-    public function if(bool $expression, $message): self
-    {
-        if ($expression) {
-            $this->write($message);
+        for ($i = 0;$i < $count;$i++) {
+            $this->drawLine($char);
         }
 
         return $this;
     }
 
-    public function foreach($data, callable $function): self
+    public function drawLine(string $char = '-'): self
     {
-        if (!is_array($data) && !$data instanceof Traversable) {
-            throw new IllegalTypeException($data, ['array', Traversable::class]);
-        }
+        $repeatCount = (int) floor($this->terminalWidth / strlen($char));
+        $postfixLength = $this->terminalWidth - ($repeatCount * strlen($char));
+        $postfix = substr($char, 0, $postfixLength);
+        $line = str_repeat($char, $repeatCount);
 
-        foreach ($data as $key => $value) {
-            $this->write($function($key, $value));
-        }
-
-        return $this;
-    }
-
-    public function writeln(string $message): self
-    {
-        $this->write($message . self::NEXT_LINE);
-
-        return $this;
-    }
-
-    public function write(string $message): self
-    {
-        $tabs = str_repeat(self::TAB, $this->tabsCount);
-
-        $this->type($tabs . $message);
+        $this->type($line . $postfix)->nextLine();
 
         return $this;
     }
 
     /**
-     * Same as write() but all tabs are ignored
+     * @param array<int> $percentage Percentage of each peace of content
+     * @param array<string> $contents Array of contents
+     * @param string $separator Char to separate columns
      */
-    public function type(string $message): self
+    public function separate(array $percentage, array $contents, string $separator = '|'): self
     {
-        $this->message .= $message;
+        if (array_sum($percentage) > 100) {
+            //todo: exception
+            throw new \Exception('Percentage can\'t be more than 100');
+        }
+
+        if (count($percentage) !== count($contents)) {
+            //todo: exception
+            throw new \Exception('Count of percentages must equal count of contents');
+        }
+
+        $percentage = array_values($percentage);
+        $contents = array_values($contents);
+
+        //subtract separators count
+        $screenWidth = $this->terminalWidth - (count($percentage) - strlen($separator));
+        $output = [];
+
+        foreach ($contents as $index => $content) {
+            $percent = $percentage[$index];
+            $width = ($screenWidth * $percent) / 100;
+            $contentLength = strlen($content);
+
+            if ($contentLength > $width) {
+                //since content might be dynamically declared we can't throw exceptions.
+                //So we just pretend terminal window is bigger than it is
+                $this->terminalWidth += $contentLength - $width;
+                $width = $contentLength;
+            }
+
+            $spaceCount = ($width - $contentLength) / 2;
+            $output[] = str_pad(self::getBuilder()->space($spaceCount)->type($content), $width);
+        }
+
+        $this->type(implode($separator, $output));
 
         return $this;
     }
 
-    public function skipLines(int $number = 1): self
+    public function middle(string $message): self
     {
-        $lines = str_repeat(self::NEXT_LINE, $number);
-        $this->message .= $lines;
+        $length = strlen($message);
+        $spaceCount = ($this->terminalWidth - $length) / 2;
+
+        $this->space($spaceCount)->type($message)->nextLine();
 
         return $this;
     }
 
-    public function nextLine(): self
+    public function getMessage(): string
     {
-        $this->skipLines();
-
-        return $this;
-    }
-
-    public function tab(int $number = 1): self
-    {
-        $this->tabsCount += $number;
-
-        return $this;
-    }
-
-    public function space(int $number = 1): self
-    {
-        $spaces = str_repeat(' ', $number);
-        $this->message .= $spaces;
-
-        return $this;
-    }
-
-    public function dropTab(int $number = 1): self
-    {
-        $this->tabsCount -= $number;
-
-        return $this;
-    }
-
-    public function clearTab(): self
-    {
-        $this->tabsCount = 0;
-
-        return $this;
+        return $this->getText();
     }
 }

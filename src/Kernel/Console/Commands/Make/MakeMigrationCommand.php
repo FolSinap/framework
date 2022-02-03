@@ -2,7 +2,6 @@
 
 namespace Fwt\Framework\Kernel\Console\Commands\Make;
 
-use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Console\Input;
 use Fwt\Framework\Kernel\Console\Output\Output;
 use Fwt\Framework\Kernel\FileLoader;

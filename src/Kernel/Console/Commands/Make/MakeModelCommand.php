@@ -4,7 +4,7 @@ namespace Fwt\Framework\Kernel\Console\Commands\Make;
 
 use Fwt\Framework\Kernel\App;
 use Fwt\Framework\Kernel\Console\Input;
-use Fwt\Framework\Kernel\Console\Output\MessageBuilder;
+use Fwt\Framework\Kernel\Console\TextBuilder;
 use Fwt\Framework\Kernel\Console\Output\Output;
 use Fwt\Framework\Kernel\Database\ORM\Relation\Relation;
 
@@ -70,7 +70,7 @@ class MakeModelCommand extends MakeCommand
 
     protected function renderUses(): string
     {
-        return MessageBuilder::getBuilder()
+        return TextBuilder::getBuilder()
             ->foreach($this->uses, function ($key, $use) {
                 return "use $use;\n";
             });
@@ -94,7 +94,7 @@ class MakeModelCommand extends MakeCommand
         $this->buildColumns($output);
 
         if (!empty($this->columns)) {
-            $definition = MessageBuilder::getBuilder()
+            $definition = TextBuilder::getBuilder()
                 ->nextLine()
                 ->tab()->writeln('protected static array $columns = [')
                 ->tab()->foreach($this->columns, function ($key, $column) {
@@ -137,7 +137,7 @@ class MakeModelCommand extends MakeCommand
             $name = $relation['name'];
             unset($relation['name']);
 
-            $definition .= MessageBuilder::getBuilder()
+            $definition .= TextBuilder::getBuilder()
                 ->tab(2)
                     ->writeln("'$name' => [")
                     ->tab()->foreach($relation, function ($key, $value) {
