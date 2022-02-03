@@ -74,6 +74,7 @@ class App
     protected function bootContainer(): void
     {
         $this->container = Container::getInstance();
+        $this->container[Container::class] = $this->container;
 
         $this->container[Request::class] = new Request();
         $resolver = $this->container[ObjectResolver::class] = new ObjectResolver();
