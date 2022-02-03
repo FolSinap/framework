@@ -3,14 +3,6 @@
 namespace Fwt\Framework\Kernel\Console;
 
 use Fwt\Framework\Kernel\Console\Commands\ICommand;
-use Fwt\Framework\Kernel\Console\Commands\CommandWrapper;
-use Fwt\Framework\Kernel\Console\Commands\HelpCommand;
-use Fwt\Framework\Kernel\Console\Commands\Make\MakeCommandCommand;
-use Fwt\Framework\Kernel\Console\Commands\Make\MakeMigrationCommand;
-use Fwt\Framework\Kernel\Console\Commands\Make\MakeModelCommand;
-use Fwt\Framework\Kernel\Console\Commands\Make\SessionTableCommand;
-use Fwt\Framework\Kernel\Console\Commands\MigrationCommand;
-use Fwt\Framework\Kernel\Console\Commands\RouterCommand;
 use Fwt\Framework\Kernel\Exceptions\Console\CommandNotFoundException;
 use Fwt\Framework\Kernel\Exceptions\InterfaceNotFoundException;
 use Fwt\Framework\Kernel\FileLoader;
@@ -26,16 +18,13 @@ class CommandRouter
     {
         $this->resolver = $resolver;
 
-        //todo: add debug-routes and container commands
-        $this->commands = [
-            HelpCommand::class,
-            MigrationCommand::class,
-            MakeMigrationCommand::class,
-            MakeModelCommand::class,
-            MakeCommandCommand::class,
-            SessionTableCommand::class,
-            RouterCommand::class,
-        ];
+        $loader = new FileLoader();
+        $loader
+            ->allowedExtensions(['php'])
+            ->ignoreHidden()
+            ->load(__DIR__ . '/Commands');
+
+        $this->commands = $loader->concreteClasses();
 
         $loader = $resolver->resolve(FileLoader::class);
         $loader->load(config('app.commands.dir'));

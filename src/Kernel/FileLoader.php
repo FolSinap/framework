@@ -4,10 +4,43 @@ namespace Fwt\Framework\Kernel;
 
 use Fwt\Framework\Kernel\Exceptions\FileSystem\FileReadException;
 use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
+use ReflectionClass;
 
 class FileLoader
 {
     protected array $files = [];
+    protected bool $ignoreHidden = false;
+    protected array $allowedExtensions = [];
+    protected array $forbiddenExtensions = [];
+    protected string $namePattern;
+
+    public function ignoreHidden(bool $ignoreHidden = true): self
+    {
+        $this->ignoreHidden = $ignoreHidden;
+
+        return $this;
+    }
+
+    public function allowedExtensions(array $extensions): self
+    {
+        $this->allowedExtensions = array_merge($this->allowedExtensions, $extensions);
+
+        return $this;
+    }
+
+    public function forbiddenExtensions(array $extensions): self
+    {
+        $this->forbiddenExtensions = array_merge($this->forbiddenExtensions, $extensions);
+
+        return $this;
+    }
+
+    public function setNamePattern(string $pattern): self
+    {
+        $this->namePattern = $pattern;
+
+        return $this;
+    }
 
     public function load(string $dir): void
     {
@@ -28,6 +61,10 @@ class FileLoader
             if (is_dir($fullPath)) {
                 $this->load($fullPath);
             } else {
+                if (!$this->validateFile($file)) {
+                    continue;
+                }
+
                 $this->files[$file] = $fullPath;
             }
         }
@@ -43,6 +80,33 @@ class FileLoader
         return array_keys($this->files);
     }
 
+    public function concreteClasses(): array
+    {
+        return $this->filterClasses($this->classNames(), true);
+    }
+
+    public function abstractClasses(): array
+    {
+        return $this->filterClasses($this->classNames(), false);
+    }
+
+    protected function filterClasses(array $classes, bool $concrete): array
+    {
+        $filtered = [];
+
+        foreach ($classes as $class) {
+            $reflection = new ReflectionClass($class);
+
+            if ($reflection->isAbstract() && !$concrete) {
+                $filtered[] = $class;
+            } elseif (!$reflection->isAbstract() && $concrete) {
+                $filtered[] = $class;
+            }
+        }
+
+        return $filtered;
+    }
+
     public function classNames(): array
     {
         $classes = [];
@@ -55,7 +119,9 @@ class FileLoader
                     throw new FileReadException($file);
                 }
 
-                $classes[] = $this->getClassName($source);
+                if (!is_null($class = $this->getClassName($source))) {
+                    $classes[] = $class;
+                }
             }
         }
 
@@ -83,7 +149,32 @@ class FileLoader
         }
     }
 
-    protected function getClassName($source): string
+    protected function validateFile(string $file): bool
+    {
+        if ($this->ignoreHidden && str_starts_with($file, '.')) {
+            return false;
+        }
+
+        if (isset($this->namePattern) && !preg_match($this->namePattern, $file)) {
+            return false;
+        }
+
+        foreach ($this->forbiddenExtensions as $extension) {
+            if (str_ends_with($file, $extension)) {
+                return false;
+            }
+        }
+
+        foreach ($this->allowedExtensions as $extension) {
+            if (!str_ends_with($file, $extension)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    protected function getClassName($source): ?string
     {
         if (!is_resource($source)) {
             throw new IllegalTypeException($source, ['resource']);
@@ -115,7 +206,7 @@ class FileLoader
                     }
                 }
 
-                if ($tokens[$i][0] === T_CLASS) {
+                if ($tokens[$i][0] === T_CLASS || $tokens[$i][0] === T_INTERFACE) {
                     for ($j=$i+1;$j<count($tokens);$j++) {
                         if ($tokens[$j] === '{') {
                             $class = $tokens[$i+2][1];
@@ -123,6 +214,10 @@ class FileLoader
                     }
                 }
             }
+        }
+
+        if ($namespace === '' || $class === '') {
+            return null;
         }
 
         return "$namespace\\$class";
