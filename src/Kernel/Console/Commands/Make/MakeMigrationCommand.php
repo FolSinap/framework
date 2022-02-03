@@ -29,11 +29,25 @@ class MakeMigrationCommand extends MakeCommand
     public function getRequiredParameters(): array
     {
         return [
-            'name' => ['Name of migration class.'],
+            'name' => 'Name of migration class.',
         ];
     }
 
-    public function make(Input $input, Output $output): void
+    protected function make(Input $input, Output $output): void
+    {
+        $name = $this->normalizeMigrationName($this->getParameters($input)['name']);
+
+        $this->stubReplacements = [
+            'className' => $name,
+            'namespace' => ltrim(config('app.migrations.namespace'), '\\'),
+        ];
+
+        $this->fileName = "$name.php";
+
+        $this->successful = 'New migration has been successfully created.';
+    }
+
+    protected function normalizeMigrationName(string $name): string
     {
         $this->loader->load($this->getBaseDir());
 
@@ -50,22 +64,12 @@ class MakeMigrationCommand extends MakeCommand
 
         $nextNumber = str_pad((max($numbers) + 1), 4, '0', STR_PAD_LEFT);
 
-        $name = $input->getParameters()[0];
-        $name = "m$nextNumber" . "_$name";
-
-        $this->stubReplacements = [
-            'className' => $name,
-            'namespace' => ltrim(App::$app->getConfig('app.migrations.namespace'), '\\'),
-        ];
-
-        $this->fileName = "$name.php";
-
-        $this->successful = 'New migration has been successfully created.';
+        return "m$nextNumber" . "_$name";
     }
 
     protected function getBaseDir(): string
     {
-        return App::$app->getConfig('app.migrations.dir');
+        return config('app.migrations.dir');
     }
 
     protected function getStubFile(): string

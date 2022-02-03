@@ -6,7 +6,7 @@ use Fwt\Framework\Kernel\Exceptions\IllegalValueException;
 
 class Where extends Expression
 {
-    protected const WHERE_EXPRESSIONS = ['!=', '<>', '=', '>', '>', '>=', '<=', 'LIKE'];
+    protected const WHERE_EXPRESSIONS = ['!=', '<>', '=', '>', '<', '>=', '<=', 'LIKE'];
 
     protected string $field;
     protected string $value;

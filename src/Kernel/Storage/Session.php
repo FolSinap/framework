@@ -8,6 +8,12 @@ class Session
 
     protected function __construct()
     {
+        $factory = new HandlersFactory(config('session'));
+
+        if (!is_null($handler = $factory->create())) {
+            session_set_save_handler($handler);
+        }
+
         if (!session_start()) {
             throw new \RuntimeException('Failed to start the session.');
         }

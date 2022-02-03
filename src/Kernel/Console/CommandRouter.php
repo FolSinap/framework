@@ -8,6 +8,7 @@ use Fwt\Framework\Kernel\Console\Commands\HelpCommand;
 use Fwt\Framework\Kernel\Console\Commands\Make\MakeCommandCommand;
 use Fwt\Framework\Kernel\Console\Commands\Make\MakeMigrationCommand;
 use Fwt\Framework\Kernel\Console\Commands\Make\MakeModelCommand;
+use Fwt\Framework\Kernel\Console\Commands\Make\SessionTableCommand;
 use Fwt\Framework\Kernel\Console\Commands\MigrationCommand;
 use Fwt\Framework\Kernel\Exceptions\Console\CommandNotFoundException;
 use Fwt\Framework\Kernel\Exceptions\InterfaceNotFoundException;
@@ -31,6 +32,7 @@ class CommandRouter
             MakeMigrationCommand::class,
             MakeModelCommand::class,
             MakeCommandCommand::class,
+            SessionTableCommand::class,
         ];
 
         $loader = $resolver->resolve(FileLoader::class);

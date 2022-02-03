@@ -3,7 +3,7 @@
 #block('content')
 <form action="#route('books_update', ['book' => book->id])" method="post">
     #csrf()
-    #method('patch')
+    #method('put')
     <div class="form-group">
         <label for="title">Title</label>
         <div class="form-text text-danger">#flash('errors.title')</div>

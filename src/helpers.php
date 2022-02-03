@@ -48,3 +48,10 @@ if (!function_exists('app')) {
         return App::$app;
     }
 }
+
+if (!function_exists('project_dir')) {
+    function project_dir(): string
+    {
+        return App::$app->getProjectDir();
+    }
+}
