@@ -2,7 +2,9 @@
 
 namespace Fwt\Framework\Kernel\Database;
 
+use Fwt\Framework\Kernel\Exceptions\Database\ConnectionException;
 use PDO;
+use PDOException;
 use PDOStatement;
 
 class Connection
@@ -15,18 +17,23 @@ class Connection
     public function __construct(array $config)
     {
         $db = $config['driver'];
-        $dbHost = $config['host'];
-        $dbName = $config['name'];
+        $drivers = $config['drivers'];
+        $dbHost = $drivers[$db]['host'];
+        $dbName = $drivers[$db]['name'];
 
         $this->dsn = "$db:dbname=$dbName;host=$dbHost";
-        $this->user = $config['user'];
-        $this->password = $config['password'];
+        $this->user = $drivers[$db]['user'];
+        $this->password = $drivers[$db]['password'];
     }
 
     public function establish(): self
     {
-        $this->pdo = new PDO($this->dsn, $this->user, $this->password);
-        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        try {
+            $this->pdo = new PDO($this->dsn, $this->user, $this->password);
+            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $exception) {
+            throw new ConnectionException($exception->getMessage(), 500, $exception);
+        }
 
         return $this;
     }

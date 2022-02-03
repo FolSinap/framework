@@ -9,8 +9,11 @@ class ColumnBuilder
     public const INT = 'INT';
     public const BIGINT = 'BIGINT';
     public const VARCHAR = 'VARCHAR';
+    public const MEDIUMTEXT = 'MEDIUMTEXT';
+    public const TIMESTAMP = 'TIMESTAMP';
     public const BIT = 'BIT';
-    public const TYPES = [self::INT, self::BIGINT, self::VARCHAR, self::BIT];
+    public const TYPES = [self::INT, self::BIGINT, self::VARCHAR, self::BIT, self::MEDIUMTEXT, self::TIMESTAMP];
+    public const CURRENT_TIMESTAMP = 'CURRENT_TIMESTAMP';
 
     protected TableBuilder $table;
     protected string $name;
@@ -29,10 +32,11 @@ class ColumnBuilder
     public function buildQuery(): string
     {
         return "$this->name $this->type"
-        . $this->buildLength()
-        . $this->buildNullable()
-        . $this->buildAutoIncrement()
-        . $this->buildDefault();
+            . $this->buildLength()
+            . $this->buildNullable()
+            . $this->buildAutoIncrement()
+            . $this->buildDefault()
+            . $this->buildOnUpdate();
     }
 
     public function references(string $table, string $column, string $index = null): ForeignKeyColumn
@@ -97,5 +101,10 @@ class ColumnBuilder
     protected function buildDefault(): string
     {
         return array_key_exists('default', $this->options) ? ' DEFAULT ' . $this->options['default'] : '';
+    }
+
+    protected function buildOnUpdate(): string
+    {
+        return array_key_exists('on_update', $this->options) ? ' ON UPDATE ' . $this->options['on_update'] : '';
     }
 }

@@ -212,6 +212,11 @@ abstract class Model
         return static::$tableNames[static::class];
     }
 
+    public static function setTableName(string $table)
+    {
+        static::$tableNames[static::class] = $table;
+    }
+
     public function prepareForExport()
     {
         $this->relations = [];
@@ -303,7 +308,9 @@ abstract class Model
         $fields = [];
 
         foreach (static::getColumns() as $column) {
-            $fields[$column] = $this->$column;
+            if ($this->$column !== null) {
+                $fields[$column] = $this->$column;
+            }
         }
 
         if (empty($fields)) {
