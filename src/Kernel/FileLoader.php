@@ -2,6 +2,7 @@
 
 namespace Fwt\Framework\Kernel;
 
+use Fwt\Framework\Kernel\Exceptions\FileSystem\FileLoaderException;
 use Fwt\Framework\Kernel\Exceptions\FileSystem\FileReadException;
 use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
 use ReflectionClass;
@@ -13,6 +14,17 @@ class FileLoader
     protected array $allowedExtensions = [];
     protected array $forbiddenExtensions = [];
     protected string $namePattern;
+
+    public function refresh(): self
+    {
+        $this->ignoreHidden = false;
+        $this->files = [];
+        $this->allowedExtensions = [];
+        $this->forbiddenExtensions = [];
+        unset($this->namePattern);
+
+        return $this;
+    }
 
     public function ignoreHidden(bool $ignoreHidden = true): self
     {
@@ -45,8 +57,7 @@ class FileLoader
     public function load(string $dir): void
     {
         if (!is_dir($dir)) {
-            //todo: questionable decision
-            return;
+            throw new FileLoaderException(sprintf('%s is not a directory.', $dir));
         }
 
         $files = scandir($dir);

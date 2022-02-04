@@ -19,17 +19,12 @@ class CommandRouter
         $this->resolver = $resolver;
 
         $loader = new FileLoader();
-        $loader
-            ->allowedExtensions(['php'])
-            ->ignoreHidden()
-            ->load(__DIR__ . '/Commands');
+        $loader->allowedExtensions(['php'])->ignoreHidden();
 
-        $this->commands = $loader->concreteClasses();
-
-        $loader = $resolver->resolve(FileLoader::class);
+        $loader->load(__DIR__ . '/Commands');
         $loader->load(config('app.commands.dir'));
 
-        $this->addCommands($loader->classNames());
+        $this->commands = $loader->concreteClasses();
     }
 
     public function map(string $name): ICommand
@@ -52,11 +47,6 @@ class CommandRouter
         $this->map = $this->createMap();
 
         return $this->map;
-    }
-
-    protected function addCommands(array $commands): void
-    {
-        $this->commands = array_merge($this->commands, $commands);
     }
 
     protected function createMap(): array
