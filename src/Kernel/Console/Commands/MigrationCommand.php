@@ -9,7 +9,6 @@ use FW\Kernel\Console\Output\Output;
 use FW\Kernel\Database\Database;
 use FW\Kernel\Database\ORM\Models\Migration;
 use FW\Kernel\Database\Migration as ExecutableMigration;
-use FW\Kernel\Database\QueryBuilder\Schema\SchemaBuilder;
 use FW\Kernel\FileLoader;
 use FW\Kernel\ObjectResolver;
 

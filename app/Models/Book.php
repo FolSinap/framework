@@ -18,5 +18,10 @@ class Book extends Model
         ],
     ];
 
+    protected static array $casts = [
+        'id' => 'int',
+        'author_id' => 'int',
+        'title' => 'string',
+    ];
     protected static array $columns = ['title', 'author_id', 'id'];
 }

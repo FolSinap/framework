@@ -2,6 +2,7 @@
 
 namespace FW\Kernel\Database\ORM\Models;
 
+use FW\Kernel\Database\ORM\Casting\Caster;
 use FW\Kernel\Database\ORM\ModelCollection;
 use FW\Kernel\Database\ORM\ModelRepository;
 use FW\Kernel\Database\ORM\Relation\Relation;
@@ -24,6 +25,7 @@ abstract class Model
 
     protected static array $tableNames;
     protected static array $columns = [];
+    protected static array $casts = [];
     protected array $fields = [];
     protected array $changed = [];
     /** @var Relation[] $relations */
@@ -444,6 +446,10 @@ abstract class Model
         if ($this->relationExists($name)) {
             $isChanged = $this->setRelation($name, $value);
         } else {
+            if (array_key_exists($name, static::$casts) && !is_null($value)) {
+                $value = (new Caster())->cast($value, static::$casts[$name]);
+            }
+
             $this->fields[$name] = $value;
         }
 
