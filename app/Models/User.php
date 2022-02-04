@@ -7,7 +7,7 @@ use FW\Kernel\Login\UserModel;
 
 class User extends UserModel
 {
-    protected const RELATIONS = [
+    public const RELATIONS = [
         'books' => [
             'class' => Book::class,
             'type' => Relation::ONE_TO_MANY,

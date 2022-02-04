@@ -10,6 +10,7 @@ class SelectBuilder extends Builder
     protected string $from;
     protected array $groupBy;
     protected int $limit;
+    protected string $leftJoin = '';
 
     public function __construct(string $from, array $columns = [])
     {
@@ -31,9 +32,18 @@ class SelectBuilder extends Builder
         return $this;
     }
 
+    public function leftJoin(string $table, string $on): self
+    {
+        $this->leftJoin = " LEFT JOIN $table ON $on";
+
+        return $this;
+    }
+
     public function getQuery(): string
     {
         $sql = 'SELECT ' . (empty($this->columns) ? '*' : implode(', ', $this->columns)) . " FROM $this->from";
+
+        $sql .= $this->leftJoin;
 
         $sql .= $this->buildWhere();
 

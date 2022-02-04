@@ -130,13 +130,48 @@ class ModelRepository
         $this->database->execute();
     }
 
-    public function allByClass(string $class): ModelCollection
+    public function allByClass(string $class, array $relations = []): ModelCollection
     {
         $this->checkClass($class);
 
-        $this->database->select($class::getTableName());
+        if (empty($relations)) {
+            $this->database->select($class::getTableName());
+        } else {
+            $this->loadRelations($class, $relations);
+            
+            $this->database->select($class::getTableName())->leftJoin();
+        }
 
         return new ModelCollection($this->database->fetchAsObject($class));
+    }
+
+    protected function loadRelations(string $class, array $relations)
+    {
+        $letters = 'abcdefghijklmnopqrstuvwxyz';
+        $letters = str_split($letters);
+
+        foreach ($relations as $relation) {
+            $relation = $class::RELATIONS[$relation];
+            $type = $relation['type'] ?? Relation\Relation::TO_ONE;
+
+            switch ($type) {
+                case Relation\Relation::TO_ONE:
+                    $related = $relation['class'];
+                    $ids = $related::getIdColumns();
+                    $this->database->select($class::getTableName(), [
+                        'books.id as b_id',
+                        'books.title as b_title',
+                        'books.author_id as b_author_id',
+                        'users.id as u_id',
+                        'users.email as u_email',
+                        'users.password as u_password',
+                    ])
+                        ->leftJoin($related::getTableName(),
+                            $class::getTableName() . '.' . $relation['field'] . ' = ' . $related::getTableName()
+                            . '.' . array_shift($ids));
+                    dd($this->database->fetchAssoc());
+            }
+        }
     }
 
     public function find(string $class, PrimaryKey $id): ?Model

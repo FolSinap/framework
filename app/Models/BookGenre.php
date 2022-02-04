@@ -8,7 +8,7 @@ use FW\Kernel\Database\ORM\Relation\Relation;
 class BookGenre extends Model
 {
     protected const ID_COLUMNS = ['book_id', 'genre_id'];
-	protected const RELATIONS = [
+	public const RELATIONS = [
 		'book' => [
 			'class' => Book::class,
 			'field' => 'book_id',

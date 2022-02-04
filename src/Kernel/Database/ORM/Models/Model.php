@@ -20,7 +20,7 @@ use LogicException;
 
 abstract class Model
 {
-    protected const RELATIONS = [];
+    public const RELATIONS = [];
     protected const ID_COLUMNS = ['id'];
 
     protected static array $tableNames;
@@ -39,8 +39,8 @@ abstract class Model
     public function __construct()
     {
         $this->relationFactory = $this->getFactory();
-        $this->initRelations();
         $this->initIdColumns();
+        $this->initRelations();
     }
 
     public static function getColumns(): array
@@ -65,9 +65,9 @@ abstract class Model
         return $model;
     }
 
-    public static function all(): ModelCollection
+    public static function all(array $relations = []): ModelCollection
     {
-        $models = self::getRepository()->allByClass(static::class);
+        $models = self::getRepository()->allByClass(static::class, $relations);
 
         self::setExistsAll($models);
 
