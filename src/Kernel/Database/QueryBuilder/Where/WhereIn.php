@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\QueryBuilder\Where;
+namespace FW\Kernel\Database\QueryBuilder\Where;
 
 class WhereIn extends Where
 {

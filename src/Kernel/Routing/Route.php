@@ -1,14 +1,14 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Routing;
+namespace FW\Kernel\Routing;
 
 use BadMethodCallException;
 use Closure;
-use Fwt\Framework\Kernel\App;
-use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
-use Fwt\Framework\Kernel\Exceptions\IllegalValueException;
-use Fwt\Framework\Kernel\Exceptions\Router\CannotGenerateWildcardException;
-use Fwt\Framework\Kernel\ObjectResolver;
+use FW\Kernel\App;
+use FW\Kernel\Exceptions\IllegalTypeException;
+use FW\Kernel\Exceptions\IllegalValueException;
+use FW\Kernel\Exceptions\Router\CannotGenerateWildcardException;
+use FW\Kernel\ObjectResolver;
 
 class Route
 {

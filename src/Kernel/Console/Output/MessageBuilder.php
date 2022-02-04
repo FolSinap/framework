@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Console\Output;
+namespace FW\Kernel\Console\Output;
 
-use Fwt\Framework\Kernel\Console\TextBuilder;
+use FW\Kernel\Console\TextBuilder;
 
 class MessageBuilder extends TextBuilder
 {

@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Csrf;
+namespace FW\Kernel\Csrf;
 
-use Fwt\Framework\Kernel\Storage\Session;
+use FW\Kernel\Storage\Session;
 
 class SynchronizerCsrfValidator extends CsrfValidator
 {

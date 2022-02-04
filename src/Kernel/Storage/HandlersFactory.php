@@ -1,13 +1,13 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Storage;
+namespace FW\Kernel\Storage;
 
-use Fwt\Framework\Kernel\Config\FileConfig;
-use Fwt\Framework\Kernel\Database\Database;
-use Fwt\Framework\Kernel\Exceptions\IllegalValueException;
-use Fwt\Framework\Kernel\Storage\Handlers\DatabaseSessionHandler;
-use Fwt\Framework\Kernel\Storage\Handlers\FileSessionHandler;
-use Fwt\Framework\Kernel\Storage\Handlers\RedisSessionHandler;
+use FW\Kernel\Config\FileConfig;
+use FW\Kernel\Database\Database;
+use FW\Kernel\Exceptions\IllegalValueException;
+use FW\Kernel\Storage\Handlers\DatabaseSessionHandler;
+use FW\Kernel\Storage\Handlers\FileSessionHandler;
+use FW\Kernel\Storage\Handlers\RedisSessionHandler;
 use SessionHandlerInterface;
 
 class HandlersFactory

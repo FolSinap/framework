@@ -1,10 +1,10 @@
 <?php
 
-namespace Fwt\Framework\Kernel\View\TemplateEngine\Directives;
+namespace FW\Kernel\View\TemplateEngine\Directives;
 
-use Fwt\Framework\Kernel\App;
-use Fwt\Framework\Kernel\Exceptions\IllegalValueException;
-use Fwt\Framework\Kernel\Login\Authentication;
+use FW\Kernel\App;
+use FW\Kernel\Exceptions\IllegalValueException;
+use FW\Kernel\Login\Authentication;
 
 class AuthDirective extends Directive
 {

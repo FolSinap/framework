@@ -2,8 +2,8 @@
 
 namespace App\Controllers\RequestValidators\Books;
 
-use Fwt\Framework\Kernel\Validator\RequestValidator;
-use Fwt\Framework\Kernel\Validator\Rules\TypeRule;
+use FW\Kernel\Validator\RequestValidator;
+use FW\Kernel\Validator\Rules\TypeRule;
 
 class CreateRequestValidator extends RequestValidator
 {

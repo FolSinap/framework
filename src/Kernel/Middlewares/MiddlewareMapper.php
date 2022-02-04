@@ -1,12 +1,11 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Middlewares;
+namespace FW\Kernel\Middlewares;
 
-use Fwt\Framework\Kernel\App;
-use Fwt\Framework\Kernel\Exceptions\InterfaceNotFoundException;
-use Fwt\Framework\Kernel\Exceptions\Middleware\MiddlewareNotFoundException;
-use Fwt\Framework\Kernel\FileLoader;
-use Fwt\Framework\Kernel\ObjectResolver;
+use FW\Kernel\Exceptions\InterfaceNotFoundException;
+use FW\Kernel\Exceptions\Middleware\MiddlewareNotFoundException;
+use FW\Kernel\FileLoader;
+use FW\Kernel\ObjectResolver;
 
 class MiddlewareMapper
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Validator\Rules;
+namespace FW\Kernel\Validator\Rules;
 
 class EmailRule implements IRule
 {

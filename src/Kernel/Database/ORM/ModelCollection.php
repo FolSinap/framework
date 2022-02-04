@@ -1,11 +1,11 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\ORM;
+namespace FW\Kernel\Database\ORM;
 
 use ArrayAccess;
 use Countable;
-use Fwt\Framework\Kernel\Database\ORM\Models\Model;
-use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
+use FW\Kernel\Database\ORM\Models\Model;
+use FW\Kernel\Exceptions\IllegalTypeException;
 use IteratorAggregate;
 use ArrayIterator;
 

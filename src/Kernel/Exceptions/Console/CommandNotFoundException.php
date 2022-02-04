@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Exceptions\Console;
+namespace FW\Kernel\Exceptions\Console;
 
 use OutOfBoundsException;
 use Throwable;

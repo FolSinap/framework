@@ -1,12 +1,12 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Console\Commands;
+namespace FW\Kernel\Console\Commands;
 
-use Fwt\Framework\Kernel\Console\Input;
-use Fwt\Framework\Kernel\Console\Output\MessageBuilder;
-use Fwt\Framework\Kernel\Console\Output\Output;
-use Fwt\Framework\Kernel\Routing\Route;
-use Fwt\Framework\Kernel\Routing\Router;
+use FW\Kernel\Console\Input;
+use FW\Kernel\Console\Output\MessageBuilder;
+use FW\Kernel\Console\Output\Output;
+use FW\Kernel\Routing\Route;
+use FW\Kernel\Routing\Router;
 
 class RouterCommand extends Command
 {

@@ -1,12 +1,12 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Console;
+namespace FW\Kernel\Console;
 
-use Fwt\Framework\Kernel\Console\Commands\ICommand;
-use Fwt\Framework\Kernel\Exceptions\Console\CommandNotFoundException;
-use Fwt\Framework\Kernel\Exceptions\InterfaceNotFoundException;
-use Fwt\Framework\Kernel\FileLoader;
-use Fwt\Framework\Kernel\ObjectResolver;
+use FW\Kernel\Console\Commands\ICommand;
+use FW\Kernel\Exceptions\Console\CommandNotFoundException;
+use FW\Kernel\Exceptions\InterfaceNotFoundException;
+use FW\Kernel\FileLoader;
+use FW\Kernel\ObjectResolver;
 
 class CommandRouter
 {

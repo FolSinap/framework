@@ -1,10 +1,10 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Login;
+namespace FW\Kernel\Login;
 
-use Fwt\Framework\Kernel\Database\ORM\Models\Model;
-use Fwt\Framework\Kernel\Exceptions\Login\LoginException;
-use Fwt\Framework\Kernel\Exceptions\RequiredArrayKeysException;
+use FW\Kernel\Database\ORM\Models\Model;
+use FW\Kernel\Exceptions\Login\LoginException;
+use FW\Kernel\Exceptions\RequiredArrayKeysException;
 
 abstract class UserModel extends Model
 {

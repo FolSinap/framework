@@ -1,8 +1,10 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Exceptions\Csrf;
+namespace FW\Kernel\Exceptions\Csrf;
 
-class InvalidCsrfTokenException extends \RuntimeException
+use RuntimeException;
+
+class InvalidCsrfTokenException extends RuntimeException
 {
     public function __construct()
     {

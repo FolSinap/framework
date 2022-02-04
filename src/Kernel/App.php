@@ -1,15 +1,15 @@
 <?php
 
-namespace Fwt\Framework\Kernel;
+namespace FW\Kernel;
 
 use Dotenv\Dotenv;
-use Fwt\Framework\Kernel\Database\Connection;
-use Fwt\Framework\Kernel\Database\Database;
-use Fwt\Framework\Kernel\Exceptions\Router\InvalidResponseValue;
-use Fwt\Framework\Kernel\Middlewares\MiddlewareMapper;
-use Fwt\Framework\Kernel\Response\Response;
-use Fwt\Framework\Kernel\Routing\Router;
-use Fwt\Framework\Kernel\Config\Config;
+use FW\Kernel\Database\Connection;
+use FW\Kernel\Database\Database;
+use FW\Kernel\Exceptions\Router\InvalidResponseValue;
+use FW\Kernel\Middlewares\MiddlewareMapper;
+use FW\Kernel\Response\Response;
+use FW\Kernel\Routing\Router;
+use FW\Kernel\Config\Config;
 
 class App
 {

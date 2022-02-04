@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\View\TemplateEngine\Directives\Invokable;
+namespace FW\Kernel\View\TemplateEngine\Directives\Invokable;
 
-use Fwt\Framework\Kernel\Routing\Router;
+use FW\Kernel\Routing\Router;
 
 class RouteDirective extends InvokableDirective
 {

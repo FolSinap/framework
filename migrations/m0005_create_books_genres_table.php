@@ -2,8 +2,8 @@
 
 namespace App\Migrations;
 
-use Fwt\Framework\Kernel\Database\Migration;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Columns\ForeignKeyColumn;
+use FW\Kernel\Database\Migration;
+use FW\Kernel\Database\QueryBuilder\Schema\Columns\ForeignKeyColumn;
 
 class m0005_create_books_genres_table extends Migration
 {

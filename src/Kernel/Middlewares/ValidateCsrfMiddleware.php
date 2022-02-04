@@ -1,12 +1,12 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Middlewares;
+namespace FW\Kernel\Middlewares;
 
-use Fwt\Framework\Kernel\Csrf\CsrfValidator;
-use Fwt\Framework\Kernel\Exceptions\Config\InvalidConfigTypeException;
-use Fwt\Framework\Kernel\Exceptions\Csrf\InvalidCsrfTokenException;
-use Fwt\Framework\Kernel\Request;
-use Fwt\Framework\Kernel\Routing\Route;
+use FW\Kernel\Csrf\CsrfValidator;
+use FW\Kernel\Exceptions\Config\InvalidConfigTypeException;
+use FW\Kernel\Exceptions\Csrf\InvalidCsrfTokenException;
+use FW\Kernel\Request;
+use FW\Kernel\Routing\Route;
 
 class ValidateCsrfMiddleware implements IMiddleware
 {

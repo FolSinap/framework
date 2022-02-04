@@ -1,11 +1,11 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Console;
+namespace FW\Kernel\Console;
 
-use Fwt\Framework\Kernel\Console\Commands\ICommand;
-use Fwt\Framework\Kernel\Console\Output\MessageBuilder;
-use Fwt\Framework\Kernel\Console\Output\Output;
-use Fwt\Framework\Kernel\Exceptions\Console\InvalidInputException;
+use FW\Kernel\Console\Commands\ICommand;
+use FW\Kernel\Console\Output\MessageBuilder;
+use FW\Kernel\Console\Output\Output;
+use FW\Kernel\Exceptions\Console\InvalidInputException;
 
 class CommandWrapper implements ICommand
 {

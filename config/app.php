@@ -20,7 +20,7 @@ return [
     'middlewares' => [
         'dir' => $projectDir . '/app/Middlewares',
         'default' => [
-            \Fwt\Framework\Kernel\Middlewares\ValidateCsrfMiddleware::class,
+            \FW\Kernel\Middlewares\ValidateCsrfMiddleware::class,
         ],
     ],
     'public' => [
@@ -35,6 +35,6 @@ return [
     ],
     'csrf' => [
         'enable' => true,
-        'validator' => \Fwt\Framework\Kernel\Csrf\CsrfValidator::SYNCHRONIZER_TOKENS_PATTERN,
+        'validator' => \FW\Kernel\Csrf\CsrfValidator::SYNCHRONIZER_TOKENS_PATTERN,
     ],
 ];

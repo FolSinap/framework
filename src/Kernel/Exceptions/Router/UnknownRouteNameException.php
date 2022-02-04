@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Exceptions\Router;
+namespace FW\Kernel\Exceptions\Router;
 
 use OutOfRangeException;
 use Throwable;

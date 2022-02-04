@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Exceptions;
+namespace FW\Kernel\Exceptions;
 
 class NotSupportedException extends \LogicException
 {

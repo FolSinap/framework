@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Fwt\Framework\Kernel\Database\ORM\Relation\Relation;
-use Fwt\Framework\Kernel\Login\UserModel;
+use FW\Kernel\Database\ORM\Relation\Relation;
+use FW\Kernel\Login\UserModel;
 
 class User extends UserModel
 {

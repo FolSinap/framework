@@ -1,12 +1,12 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Console;
+namespace FW\Kernel\Console;
 
-use Fwt\Framework\Kernel\App as BaseApp;
-use Fwt\Framework\Kernel\Console\Output\Output;
-use Fwt\Framework\Kernel\Exceptions\Console\CommandNotFoundException;
-use Fwt\Framework\Kernel\Exceptions\Console\InvalidInputException;
-use Fwt\Framework\Kernel\ObjectResolver;
+use FW\Kernel\App as BaseApp;
+use FW\Kernel\Console\Output\Output;
+use FW\Kernel\Exceptions\Console\CommandNotFoundException;
+use FW\Kernel\Exceptions\Console\InvalidInputException;
+use FW\Kernel\ObjectResolver;
 
 class App extends BaseApp
 {

@@ -2,7 +2,7 @@
     "name": "fwt/framework",
     "autoload": {
         "psr-4": {
-            "Fwt\\Framework\\": "src/",
+            "FW\\": "src/",
             "App\\": "app/",
             "App\\Migrations\\": "migrations/"
         },

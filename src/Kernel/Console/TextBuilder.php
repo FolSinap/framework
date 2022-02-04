@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Console;
+namespace FW\Kernel\Console;
 
-use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
+use FW\Kernel\Exceptions\IllegalTypeException;
 use ReflectionFunction;
 use Traversable;
 

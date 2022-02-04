@@ -1,10 +1,10 @@
 <?php
 
-namespace Fwt\Framework\Kernel;
+namespace FW\Kernel;
 
-use Fwt\Framework\Kernel\Exceptions\FileSystem\FileLoaderException;
-use Fwt\Framework\Kernel\Exceptions\FileSystem\FileReadException;
-use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
+use FW\Kernel\Exceptions\FileSystem\FileLoaderException;
+use FW\Kernel\Exceptions\FileSystem\FileReadException;
+use FW\Kernel\Exceptions\IllegalTypeException;
 use ReflectionClass;
 
 class FileLoader
@@ -220,7 +220,7 @@ class FileLoader
             }
 
             $buffer .= fread($source, 512);
-            $tokens = token_get_all($buffer);
+            $tokens = @token_get_all($buffer); //@ prevents warnings
 
             if (strpos($buffer, '{') === false) {
                 continue;

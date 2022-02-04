@@ -2,9 +2,9 @@
 
 use App\Controllers\BooksController;
 use App\Controllers\LoginController;
-use Fwt\Framework\Kernel\App;
-use Fwt\Framework\Kernel\View\View;
-use Fwt\Framework\Kernel\Response\Response;
+use FW\Kernel\App;
+use FW\Kernel\View\View;
+use FW\Kernel\Response\Response;
 
 $router = App::$app->getRouter();
 

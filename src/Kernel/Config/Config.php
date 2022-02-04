@@ -1,9 +1,9 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Config;
+namespace FW\Kernel\Config;
 
-use Fwt\Framework\Kernel\Container;
-use Fwt\Framework\Kernel\FileLoader;
+use FW\Kernel\Container;
+use FW\Kernel\FileLoader;
 
 class Config extends Container
 {

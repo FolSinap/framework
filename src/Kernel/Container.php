@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwt\Framework\Kernel;
+namespace FW\Kernel;
 
 use ArrayAccess;
 use Countable;

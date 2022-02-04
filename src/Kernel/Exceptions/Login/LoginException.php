@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Exceptions\Login;
+namespace FW\Kernel\Exceptions\Login;
 
 use RuntimeException;
 use Throwable;

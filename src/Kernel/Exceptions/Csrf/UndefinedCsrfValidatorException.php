@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Exceptions\Csrf;
+namespace FW\Kernel\Exceptions\Csrf;
 
 use LogicException;
 

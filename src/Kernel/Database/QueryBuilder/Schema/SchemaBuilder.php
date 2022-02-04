@@ -1,12 +1,12 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\QueryBuilder\Schema;
+namespace FW\Kernel\Database\QueryBuilder\Schema;
 
-use Fwt\Framework\Kernel\Database\QueryBuilder\IBuilder;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableAlterer;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableBuilder;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableDropper;
-use Fwt\Framework\Kernel\Database\SQL\Query;
+use FW\Kernel\Database\QueryBuilder\IBuilder;
+use FW\Kernel\Database\QueryBuilder\Schema\Tables\TableAlterer;
+use FW\Kernel\Database\QueryBuilder\Schema\Tables\TableBuilder;
+use FW\Kernel\Database\QueryBuilder\Schema\Tables\TableDropper;
+use FW\Kernel\Database\SQL\Query;
 
 class SchemaBuilder
 {

@@ -1,11 +1,11 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Routing;
+namespace FW\Kernel\Routing;
 
-use Fwt\Framework\Kernel\Exceptions\Router\UnknownRouteNameException;
-use Fwt\Framework\Kernel\Middlewares\MiddlewareMapper;
-use Fwt\Framework\Kernel\Pipeline;
-use Fwt\Framework\Kernel\Response\Response;
+use FW\Kernel\Exceptions\Router\UnknownRouteNameException;
+use FW\Kernel\Middlewares\MiddlewareMapper;
+use FW\Kernel\Pipeline;
+use FW\Kernel\Response\Response;
 
 class Router
 {

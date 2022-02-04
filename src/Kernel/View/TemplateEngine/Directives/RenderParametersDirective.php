@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\View\TemplateEngine\Directives;
+namespace FW\Kernel\View\TemplateEngine\Directives;
 
-use Fwt\Framework\Kernel\View\TemplateEngine\ExpressionParser;
+use FW\Kernel\View\TemplateEngine\ExpressionParser;
 
 class RenderParametersDirective implements IDirective
 {

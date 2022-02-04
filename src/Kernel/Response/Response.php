@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Response;
+namespace FW\Kernel\Response;
 
-use Fwt\Framework\Kernel\View\View;
+use FW\Kernel\View\View;
 
 class Response
 {

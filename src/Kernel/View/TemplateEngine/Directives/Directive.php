@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwt\Framework\Kernel\View\TemplateEngine\Directives;
+namespace FW\Kernel\View\TemplateEngine\Directives;
 
 abstract class Directive implements IDirective
 {

@@ -1,20 +1,20 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\ORM\Models;
+namespace FW\Kernel\Database\ORM\Models;
 
-use Fwt\Framework\Kernel\Database\ORM\ModelCollection;
-use Fwt\Framework\Kernel\Database\ORM\ModelRepository;
-use Fwt\Framework\Kernel\Database\ORM\Relation\Relation;
-use Fwt\Framework\Kernel\Database\ORM\Relation\ManyToManyRelation;
-use Fwt\Framework\Kernel\Database\ORM\Relation\OneToManyRelation;
-use Fwt\Framework\Kernel\Database\ORM\Relation\RelationFactory;
-use Fwt\Framework\Kernel\Database\ORM\Relation\ToOneRelation;
-use Fwt\Framework\Kernel\Database\ORM\WhereBuilderFacade;
-use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
-use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
-use Fwt\Framework\Kernel\Exceptions\ORM\ModelInitializationException;
-use Fwt\Framework\Kernel\Exceptions\ORM\PrimaryKeyException;
-use Fwt\Framework\Kernel\Exceptions\ORM\RelationDefinitionException;
+use FW\Kernel\Database\ORM\ModelCollection;
+use FW\Kernel\Database\ORM\ModelRepository;
+use FW\Kernel\Database\ORM\Relation\Relation;
+use FW\Kernel\Database\ORM\Relation\ManyToManyRelation;
+use FW\Kernel\Database\ORM\Relation\OneToManyRelation;
+use FW\Kernel\Database\ORM\Relation\RelationFactory;
+use FW\Kernel\Database\ORM\Relation\ToOneRelation;
+use FW\Kernel\Database\ORM\WhereBuilderFacade;
+use FW\Kernel\Exceptions\IllegalTypeException;
+use FW\Kernel\Exceptions\InvalidExtensionException;
+use FW\Kernel\Exceptions\ORM\ModelInitializationException;
+use FW\Kernel\Exceptions\ORM\PrimaryKeyException;
+use FW\Kernel\Exceptions\ORM\RelationDefinitionException;
 use LogicException;
 
 abstract class Model
