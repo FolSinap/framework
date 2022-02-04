@@ -1,11 +1,11 @@
 <?php
 
-namespace Fwt\Framework\Kernel\View\TemplateEngine\Directives;
+namespace FW\Kernel\View\TemplateEngine\Directives;
 
-use Fwt\Framework\Kernel\Exceptions\ExpressionParser\ForeachExpressionException;
-use Fwt\Framework\Kernel\View\TemplateEngine\ExpressionParser;
-use Fwt\Framework\Kernel\View\TemplateEngine\TemplateRenderer;
-use Fwt\Framework\Kernel\View\VariableContainer;
+use FW\Kernel\Exceptions\ExpressionParser\ForeachExpressionException;
+use FW\Kernel\View\TemplateEngine\ExpressionParser;
+use FW\Kernel\View\TemplateEngine\TemplateRenderer;
+use FW\Kernel\View\VariableContainer;
 
 class ForeachDirective extends Directive
 {
@@ -37,7 +37,7 @@ class ForeachDirective extends Directive
         $components = explode(' in ', $matches[1]);
 
         if (count($components) !== 2) {
-            throw ForeachExpressionException::mustContainIn();
+            throw new ForeachExpressionException("Foreach must contain one 'in' statement");
         }
 
         $keyValue = str_replace(' ', '', $components[0]);
@@ -49,14 +49,14 @@ class ForeachDirective extends Directive
             $keyTemplate = $keyValue[0];
             $valueTemplate = $keyValue[1];
         } else {
-            throw ForeachExpressionException::tooManyVarsInDefinition();
+            throw new ForeachExpressionException("Syntax error in foreach expression: expression should be 'key, value' or 'value'");
         }
 
         $arrayComponent = $components[1];
         $array = $this->parser->getVariable($arrayComponent);
 
         if (!is_iterable($array)) {
-            throw ForeachExpressionException::notIterable();
+            throw new ForeachExpressionException("Variable in foreach expression must be iterable");
         }
 
         $return = '';

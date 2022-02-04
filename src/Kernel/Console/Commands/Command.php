@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Console\Commands;
+namespace FW\Kernel\Console\Commands;
 
-use Fwt\Framework\Kernel\Console\Input;
+use FW\Kernel\Console\Input;
 
 abstract class Command implements ICommand
 {

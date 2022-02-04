@@ -1,11 +1,11 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Routing;
+namespace FW\Kernel\Routing;
 
-use Fwt\Framework\Kernel\Exceptions\Router\UnknownRouteNameException;
-use Fwt\Framework\Kernel\Middlewares\MiddlewareMapper;
-use Fwt\Framework\Kernel\Pipeline;
-use Fwt\Framework\Kernel\Response\Response;
+use FW\Kernel\Exceptions\Router\UnknownRouteNameException;
+use FW\Kernel\Middlewares\MiddlewareMapper;
+use FW\Kernel\Pipeline;
+use FW\Kernel\Response\Response;
 
 class Router
 {
@@ -97,7 +97,12 @@ class Router
         $this->namedRoutes[$name] = $route;
     }
 
-    protected function findRoute(string $url, string $verb): ?Route
+    public function routes(): array
+    {
+        return $this->routes;
+    }
+
+    public function findRoute(string $url, string $verb): ?Route
     {
         foreach ($this->routes as $route) {
             if ($route->match($url, $verb)) {
@@ -106,6 +111,19 @@ class Router
         }
 
         return null;
+    }
+
+    public function findRoutesByUrl(string $url): array
+    {
+        $routes = [];
+
+        foreach ($this->routes as $route) {
+            if ($route->matchUrl($url)) {
+                $routes[] = $route;
+            }
+        }
+
+        return $routes;
     }
 
     protected function addRoute(string $url, string $verb, $callback, string $name = null): Route

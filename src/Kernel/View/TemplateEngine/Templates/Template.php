@@ -1,14 +1,14 @@
 <?php
 
-namespace Fwt\Framework\Kernel\View\TemplateEngine\Templates;
+namespace FW\Kernel\View\TemplateEngine\Templates;
 
-use Fwt\Framework\Kernel\App;
-use Fwt\Framework\Kernel\Exceptions\View\InheritException;
-use Fwt\Framework\Kernel\Exceptions\View\TemplateNotFoundException;
-use Fwt\Framework\Kernel\Exceptions\View\UnknownArgumentException;
-use Fwt\Framework\Kernel\View\TemplateEngine\TemplateFactory;
-use Fwt\Framework\Kernel\View\TemplateEngine\TemplateRegexBuilder;
-use Fwt\Framework\Kernel\View\VariableContainer;
+use FW\Kernel\App;
+use FW\Kernel\Exceptions\View\InheritException;
+use FW\Kernel\Exceptions\View\TemplateNotFoundException;
+use FW\Kernel\Exceptions\View\UnknownArgumentException;
+use FW\Kernel\View\TemplateEngine\TemplateFactory;
+use FW\Kernel\View\TemplateEngine\TemplateRegexBuilder;
+use FW\Kernel\View\VariableContainer;
 
 class Template
 {

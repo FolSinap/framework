@@ -1,11 +1,11 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Console\Commands;
+namespace FW\Kernel\Console\Commands;
 
-use Fwt\Framework\Kernel\Console\CommandRouter;
-use Fwt\Framework\Kernel\Console\Input;
-use Fwt\Framework\Kernel\Console\Output\MessageBuilder;
-use Fwt\Framework\Kernel\Console\Output\Output;
+use FW\Kernel\Console\CommandRouter;
+use FW\Kernel\Console\Input;
+use FW\Kernel\Console\Output\MessageBuilder;
+use FW\Kernel\Console\Output\Output;
 
 class HelpCommand extends Command
 {

@@ -1,11 +1,11 @@
 <?php
 
-namespace Fwt\Framework\Kernel;
+namespace FW\Kernel;
 
-use Fwt\Framework\Kernel\Config\FileConfig;
-use Fwt\Framework\Kernel\Database\ORM\Models\Model;
-use Fwt\Framework\Kernel\Exceptions\Resolver\ObjectResolverException;
-use Fwt\Framework\Kernel\Exceptions\Resolver\UndefinedParameterException;
+use FW\Kernel\Config\FileConfig;
+use FW\Kernel\Database\ORM\Models\Model;
+use FW\Kernel\Exceptions\Resolver\ObjectResolverException;
+use FW\Kernel\Exceptions\Resolver\UndefinedParameterException;
 use ReflectionClass;
 use ReflectionException;
 

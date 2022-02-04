@@ -1,11 +1,11 @@
 <?php
 
-namespace Fwt\Framework\Kernel\View;
+namespace FW\Kernel\View;
 
-use Fwt\Framework\Kernel\App;
-use Fwt\Framework\Kernel\View\TemplateEngine\Templates\Template;
-use Fwt\Framework\Kernel\View\TemplateEngine\TemplateFactory;
-use Fwt\Framework\Kernel\View\TemplateEngine\TemplateRenderer;
+use FW\Kernel\App;
+use FW\Kernel\View\TemplateEngine\Templates\Template;
+use FW\Kernel\View\TemplateEngine\TemplateFactory;
+use FW\Kernel\View\TemplateEngine\TemplateRenderer;
 
 class View
 {

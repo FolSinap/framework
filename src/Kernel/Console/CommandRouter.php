@@ -1,19 +1,12 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Console;
+namespace FW\Kernel\Console;
 
-use Fwt\Framework\Kernel\Console\Commands\ICommand;
-use Fwt\Framework\Kernel\Console\Commands\CommandWrapper;
-use Fwt\Framework\Kernel\Console\Commands\HelpCommand;
-use Fwt\Framework\Kernel\Console\Commands\Make\MakeCommandCommand;
-use Fwt\Framework\Kernel\Console\Commands\Make\MakeMigrationCommand;
-use Fwt\Framework\Kernel\Console\Commands\Make\MakeModelCommand;
-use Fwt\Framework\Kernel\Console\Commands\Make\SessionTableCommand;
-use Fwt\Framework\Kernel\Console\Commands\MigrationCommand;
-use Fwt\Framework\Kernel\Exceptions\Console\CommandNotFoundException;
-use Fwt\Framework\Kernel\Exceptions\InterfaceNotFoundException;
-use Fwt\Framework\Kernel\FileLoader;
-use Fwt\Framework\Kernel\ObjectResolver;
+use FW\Kernel\Console\Commands\ICommand;
+use FW\Kernel\Exceptions\Console\CommandNotFoundException;
+use FW\Kernel\Exceptions\InterfaceNotFoundException;
+use FW\Kernel\FileLoader;
+use FW\Kernel\ObjectResolver;
 
 class CommandRouter
 {
@@ -25,20 +18,13 @@ class CommandRouter
     {
         $this->resolver = $resolver;
 
-        //todo: add debug-routes and container commands
-        $this->commands = [
-            HelpCommand::class,
-            MigrationCommand::class,
-            MakeMigrationCommand::class,
-            MakeModelCommand::class,
-            MakeCommandCommand::class,
-            SessionTableCommand::class,
-        ];
+        $loader = new FileLoader();
+        $loader->allowedExtensions(['php'])->ignoreHidden();
 
-        $loader = $resolver->resolve(FileLoader::class);
-        $loader->load(App::$app->getConfig('app.commands.dir'));
+        $loader->load(__DIR__ . '/Commands');
+        $loader->loadIfExists(config('app.commands.dir'));
 
-        $this->addCommands($loader->classNames());
+        $this->commands = $loader->concreteClasses();
     }
 
     public function map(string $name): ICommand
@@ -61,11 +47,6 @@ class CommandRouter
         $this->map = $this->createMap();
 
         return $this->map;
-    }
-
-    protected function addCommands(array $commands): void
-    {
-        $this->commands = array_merge($this->commands, $commands);
     }
 
     protected function createMap(): array

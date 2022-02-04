@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\View;
+namespace FW\Kernel\View;
 
-use Fwt\Framework\Kernel\Container;
+use FW\Kernel\Container;
 
 class VariableContainer extends Container
 {

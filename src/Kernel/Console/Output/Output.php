@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Console\Output;
+namespace FW\Kernel\Console\Output;
 
 class Output
 {

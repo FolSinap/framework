@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\QueryBuilder\Data;
+namespace FW\Kernel\Database\QueryBuilder\Data;
 
-use Fwt\Framework\Kernel\Database\SQL\Query;
+use FW\Kernel\Database\SQL\Query;
 
 class DataBuilder
 {

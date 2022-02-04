@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\QueryBuilder;
+namespace FW\Kernel\Database\QueryBuilder;
 
 interface IBuilder
 {

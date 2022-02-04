@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\View\TemplateEngine\Directives\Invokable;
+namespace FW\Kernel\View\TemplateEngine\Directives\Invokable;
 
-use Fwt\Framework\Kernel\Storage\Session;
+use FW\Kernel\Storage\Session;
 
 class FlashDirective extends InvokableDirective
 {

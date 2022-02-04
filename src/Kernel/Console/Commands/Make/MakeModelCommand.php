@@ -1,12 +1,11 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Console\Commands\Make;
+namespace FW\Kernel\Console\Commands\Make;
 
-use Fwt\Framework\Kernel\App;
-use Fwt\Framework\Kernel\Console\Input;
-use Fwt\Framework\Kernel\Console\Output\MessageBuilder;
-use Fwt\Framework\Kernel\Console\Output\Output;
-use Fwt\Framework\Kernel\Database\ORM\Relation\Relation;
+use FW\Kernel\Console\Input;
+use FW\Kernel\Console\TextBuilder;
+use FW\Kernel\Console\Output\Output;
+use FW\Kernel\Database\ORM\Relation\Relation;
 
 class MakeModelCommand extends MakeCommand
 {
@@ -16,7 +15,7 @@ class MakeModelCommand extends MakeCommand
 
     public function __construct()
     {
-        $this->namespace = ltrim(App::$app->getConfig('app.models.namespace'), '\\');
+        $this->namespace = ltrim(config('app.models.namespace'), '\\');
     }
 
     public function getName(): string
@@ -31,7 +30,7 @@ class MakeModelCommand extends MakeCommand
 
     protected function getBaseDir(): string
     {
-        return App::$app->getConfig('app.models.dir');
+        return config('app.models.dir');
     }
 
     public function getRequiredParameters(): array
@@ -70,7 +69,7 @@ class MakeModelCommand extends MakeCommand
 
     protected function renderUses(): string
     {
-        return MessageBuilder::getBuilder()
+        return TextBuilder::getBuilder()
             ->foreach($this->uses, function ($key, $use) {
                 return "use $use;\n";
             });
@@ -94,10 +93,10 @@ class MakeModelCommand extends MakeCommand
         $this->buildColumns($output);
 
         if (!empty($this->columns)) {
-            $definition = MessageBuilder::getBuilder()
+            $definition = TextBuilder::getBuilder()
                 ->nextLine()
                 ->tab()->writeln('protected static array $columns = [')
-                ->tab()->foreach($this->columns, function ($key, $column) {
+                ->tab()->foreach($this->columns, function ($column) {
                         return "'$column',\n";
                     })
                 ->dropTab()->writeln("];");
@@ -137,7 +136,7 @@ class MakeModelCommand extends MakeCommand
             $name = $relation['name'];
             unset($relation['name']);
 
-            $definition .= MessageBuilder::getBuilder()
+            $definition .= TextBuilder::getBuilder()
                 ->tab(2)
                     ->writeln("'$name' => [")
                     ->tab()->foreach($relation, function ($key, $value) {

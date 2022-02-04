@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\QueryBuilder\Data;
+namespace FW\Kernel\Database\QueryBuilder\Data;
 
-use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
+use FW\Kernel\Exceptions\IllegalTypeException;
 
 class InsertManyBuilder extends Builder
 {

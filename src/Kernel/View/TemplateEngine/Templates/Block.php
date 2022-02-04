@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwt\Framework\Kernel\View\TemplateEngine\Templates;
+namespace FW\Kernel\View\TemplateEngine\Templates;
 
 class Block
 {

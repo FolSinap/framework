@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database;
+namespace FW\Kernel\Database;
 
-use Fwt\Framework\Kernel\Exceptions\Database\ConnectionException;
+use FW\Kernel\Exceptions\Database\ConnectionException;
 use PDO;
 use PDOException;
 use PDOStatement;

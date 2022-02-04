@@ -1,10 +1,10 @@
 <?php
 
-namespace Fwt\Framework\Kernel\View\TemplateEngine\Directives;
+namespace FW\Kernel\View\TemplateEngine\Directives;
 
-use Fwt\Framework\Kernel\Exceptions\ExpressionParser\UndefinedKeyException;
-use Fwt\Framework\Kernel\Exceptions\View\UnknownArgumentException;
-use Fwt\Framework\Kernel\View\TemplateEngine\ExpressionParser;
+use FW\Kernel\Exceptions\ExpressionParser\UndefinedKeyException;
+use FW\Kernel\Exceptions\View\UnknownArgumentException;
+use FW\Kernel\View\TemplateEngine\ExpressionParser;
 
 class IfDirective extends Directive
 {

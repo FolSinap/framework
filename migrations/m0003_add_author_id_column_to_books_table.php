@@ -2,7 +2,7 @@
 
 namespace App\Migrations;
 
-use Fwt\Framework\Kernel\Database\Migration;
+use FW\Kernel\Database\Migration;
 
 class m0003_add_author_id_column_to_books_table extends Migration
 {

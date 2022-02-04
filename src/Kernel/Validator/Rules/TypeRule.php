@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Validator\Rules;
+namespace FW\Kernel\Validator\Rules;
 
-use Fwt\Framework\Kernel\Exceptions\IllegalValueException;
+use FW\Kernel\Exceptions\IllegalValueException;
 
 class TypeRule implements IRule
 {

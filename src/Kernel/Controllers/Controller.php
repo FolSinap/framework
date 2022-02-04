@@ -1,16 +1,16 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Controllers;
+namespace FW\Kernel\Controllers;
 
-use Fwt\Framework\Kernel\App;
-use Fwt\Framework\Kernel\Login\Authentication;
-use Fwt\Framework\Kernel\Login\UserModel;
-use Fwt\Framework\Kernel\ObjectResolver;
-use Fwt\Framework\Kernel\Response\Response;
-use Fwt\Framework\Kernel\Response\RedirectResponse;
-use Fwt\Framework\Kernel\Routing\Router;
-use Fwt\Framework\Kernel\Storage\Session;
-use Fwt\Framework\Kernel\View\View;
+use FW\Kernel\App;
+use FW\Kernel\Login\Authentication;
+use FW\Kernel\Login\UserModel;
+use FW\Kernel\ObjectResolver;
+use FW\Kernel\Response\Response;
+use FW\Kernel\Response\RedirectResponse;
+use FW\Kernel\Routing\Router;
+use FW\Kernel\Storage\Session;
+use FW\Kernel\View\View;
 
 abstract class Controller
 {

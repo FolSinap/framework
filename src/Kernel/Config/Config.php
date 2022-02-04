@@ -1,10 +1,9 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Config;
+namespace FW\Kernel\Config;
 
-use Fwt\Framework\Kernel\App;
-use Fwt\Framework\Kernel\Container;
-use Fwt\Framework\Kernel\FileLoader;
+use FW\Kernel\Container;
+use FW\Kernel\FileLoader;
 
 class Config extends Container
 {
@@ -25,7 +24,7 @@ class Config extends Container
         $loader = new FileLoader();
         $config = [];
 
-        $loader->load($dir);
+        $loader->allowedExtensions(['.php'])->ignoreHidden()->load($dir);
 
         foreach ($loader->baseNames() as $file) {
             $file = str_replace('.php', '', $file);
@@ -37,6 +36,6 @@ class Config extends Container
 
     public static function getFullPathToConfig(): string
     {
-        return App::$app->getProjectDir() . self::CONFIG_DIR;
+        return project_dir() . self::CONFIG_DIR;
     }
 }

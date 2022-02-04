@@ -1,9 +1,9 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Validator\Rules;
+namespace FW\Kernel\Validator\Rules;
 
-use Fwt\Framework\Kernel\App;
-use Fwt\Framework\Kernel\Database\Database;
+use FW\Kernel\App;
+use FW\Kernel\Database\Database;
 
 class UniqueRule implements IRule
 {

@@ -2,10 +2,10 @@
 
 namespace App\Controllers\RequestValidators;
 
-use Fwt\Framework\Kernel\Validator\RequestValidator;
-use Fwt\Framework\Kernel\Validator\Rules\EmailRule;
-use Fwt\Framework\Kernel\Validator\Rules\TypeRule;
-use Fwt\Framework\Kernel\Validator\Rules\UniqueRule;
+use FW\Kernel\Validator\RequestValidator;
+use FW\Kernel\Validator\Rules\EmailRule;
+use FW\Kernel\Validator\Rules\TypeRule;
+use FW\Kernel\Validator\Rules\UniqueRule;
 
 class RegisterRequestValidator extends RequestValidator
 {

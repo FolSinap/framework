@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Exceptions\Router;
+namespace FW\Kernel\Exceptions\Router;
 
-use Fwt\Framework\Kernel\Response\Response;
+use FW\Kernel\Response\Response;
 use LogicException;
 
 class InvalidResponseValue extends LogicException

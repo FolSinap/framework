@@ -1,10 +1,10 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database;
+namespace FW\Kernel\Database;
 
-use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableAlterer;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableBuilder;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableDropper;
+use FW\Kernel\Database\QueryBuilder\Schema\Tables\TableAlterer;
+use FW\Kernel\Database\QueryBuilder\Schema\Tables\TableBuilder;
+use FW\Kernel\Database\QueryBuilder\Schema\Tables\TableDropper;
 
 abstract class Migration
 {

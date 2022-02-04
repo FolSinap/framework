@@ -1,16 +1,16 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database;
+namespace FW\Kernel\Database;
 
-use Fwt\Framework\Kernel\Database\QueryBuilder\Data\DeleteBuilder;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Data\SelectBuilder;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Data\UpdateBuilder;
-use Fwt\Framework\Kernel\Database\QueryBuilder\QueryBuilder;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableAlterer;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableBuilder;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableDropper;
-use Fwt\Framework\Kernel\Database\SQL\Query;
-use Fwt\Framework\Kernel\Database\SQL\SqlLogger;
+use FW\Kernel\Database\QueryBuilder\Data\DeleteBuilder;
+use FW\Kernel\Database\QueryBuilder\Data\SelectBuilder;
+use FW\Kernel\Database\QueryBuilder\Data\UpdateBuilder;
+use FW\Kernel\Database\QueryBuilder\QueryBuilder;
+use FW\Kernel\Database\QueryBuilder\Schema\Tables\TableAlterer;
+use FW\Kernel\Database\QueryBuilder\Schema\Tables\TableBuilder;
+use FW\Kernel\Database\QueryBuilder\Schema\Tables\TableDropper;
+use FW\Kernel\Database\SQL\Query;
+use FW\Kernel\Database\SQL\SqlLogger;
 use PDO;
 use PDOStatement;
 

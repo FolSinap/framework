@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Fwt\Framework\Kernel\Database\ORM\Models\Model;
-use Fwt\Framework\Kernel\Database\ORM\Relation\Relation;
+use FW\Kernel\Database\ORM\Models\Model;
+use FW\Kernel\Database\ORM\Relation\Relation;
 
 class Genre extends Model
 {

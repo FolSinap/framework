@@ -1,9 +1,9 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Exceptions\ORM;
+namespace FW\Kernel\Exceptions\ORM;
 
 use DomainException;
-use Fwt\Framework\Kernel\Database\ORM\Models\Model;
+use FW\Kernel\Database\ORM\Models\Model;
 
 class UndefinedRelationException extends DomainException
 {

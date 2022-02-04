@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\SQL;
+namespace FW\Kernel\Database\SQL;
 
 class Query
 {

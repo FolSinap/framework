@@ -1,10 +1,10 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\ORM\Relation;
+namespace FW\Kernel\Database\ORM\Relation;
 
-use Fwt\Framework\Kernel\Database\ORM\Models\Model;
-use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
-use Fwt\Framework\Kernel\Exceptions\NotSupportedException;
+use FW\Kernel\Database\ORM\Models\Model;
+use FW\Kernel\Exceptions\InvalidExtensionException;
+use FW\Kernel\Exceptions\NotSupportedException;
 
 abstract class Relation
 {

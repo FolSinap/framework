@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\View\TemplateEngine;
+namespace FW\Kernel\View\TemplateEngine;
 
-use Fwt\Framework\Kernel\Exceptions\IllegalValueException;
+use FW\Kernel\Exceptions\IllegalValueException;
 
 class TemplateRegexBuilder
 {

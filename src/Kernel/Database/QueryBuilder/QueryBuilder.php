@@ -1,18 +1,18 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\QueryBuilder;
+namespace FW\Kernel\Database\QueryBuilder;
 
-use Fwt\Framework\Kernel\Database\QueryBuilder\Data\DataBuilder;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Data\DeleteBuilder;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Data\InsertBuilder;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Data\InsertManyBuilder;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Data\SelectBuilder;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Data\UpdateBuilder;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\SchemaBuilder;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableAlterer;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableBuilder;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableDropper;
-use Fwt\Framework\Kernel\Database\SQL\Query;
+use FW\Kernel\Database\QueryBuilder\Data\DataBuilder;
+use FW\Kernel\Database\QueryBuilder\Data\DeleteBuilder;
+use FW\Kernel\Database\QueryBuilder\Data\InsertBuilder;
+use FW\Kernel\Database\QueryBuilder\Data\InsertManyBuilder;
+use FW\Kernel\Database\QueryBuilder\Data\SelectBuilder;
+use FW\Kernel\Database\QueryBuilder\Data\UpdateBuilder;
+use FW\Kernel\Database\QueryBuilder\Schema\SchemaBuilder;
+use FW\Kernel\Database\QueryBuilder\Schema\Tables\TableAlterer;
+use FW\Kernel\Database\QueryBuilder\Schema\Tables\TableBuilder;
+use FW\Kernel\Database\QueryBuilder\Schema\Tables\TableDropper;
+use FW\Kernel\Database\SQL\Query;
 
 class QueryBuilder
 {

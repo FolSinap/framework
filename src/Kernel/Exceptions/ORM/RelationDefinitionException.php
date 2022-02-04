@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Exceptions\ORM;
+namespace FW\Kernel\Exceptions\ORM;
 
-use Fwt\Framework\Kernel\Database\ORM\Models\Model;
+use FW\Kernel\Database\ORM\Models\Model;
 use LogicException;
 
 class RelationDefinitionException extends LogicException

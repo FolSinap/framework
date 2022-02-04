@@ -1,14 +1,14 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\ORM\Relation;
+namespace FW\Kernel\Database\ORM\Relation;
 
-use Fwt\Framework\Kernel\App;
-use Fwt\Framework\Kernel\Database\Database;
-use Fwt\Framework\Kernel\Database\ORM\ModelCollection;
-use Fwt\Framework\Kernel\Database\ORM\ModelRepository;
-use Fwt\Framework\Kernel\Database\ORM\Models\Model;
-use Fwt\Framework\Kernel\Database\ORM\Models\AnonymousModel;
-use Fwt\Framework\Kernel\Exceptions\ORM\ModelInitializationException;
+use FW\Kernel\App;
+use FW\Kernel\Database\Database;
+use FW\Kernel\Database\ORM\ModelCollection;
+use FW\Kernel\Database\ORM\ModelRepository;
+use FW\Kernel\Database\ORM\Models\Model;
+use FW\Kernel\Database\ORM\Models\AnonymousModel;
+use FW\Kernel\Exceptions\ORM\ModelInitializationException;
 
 class ManyToManyRelation extends OneToManyRelation
 {

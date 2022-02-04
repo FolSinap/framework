@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Exceptions\Resolver;
+namespace FW\Kernel\Exceptions\Resolver;
 
 use LogicException;
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Validator;
+namespace FW\Kernel\Validator;
 
-use Fwt\Framework\Kernel\Request;
+use FW\Kernel\Request;
 
 abstract class RequestValidator extends Validator
 {

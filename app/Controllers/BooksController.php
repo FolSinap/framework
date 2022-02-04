@@ -5,9 +5,9 @@ namespace App\Controllers;
 use App\Controllers\RequestValidators\Books\CreateRequestValidator;
 use App\Models\Book;
 use App\Models\Genre;
-use Fwt\Framework\Kernel\Controllers\Controller;
-use Fwt\Framework\Kernel\Response\RedirectResponse;
-use Fwt\Framework\Kernel\Response\Response;
+use FW\Kernel\Controllers\Controller;
+use FW\Kernel\Response\RedirectResponse;
+use FW\Kernel\Response\Response;
 
 class BooksController extends Controller
 {

@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\View\TemplateEngine\Directives;
+namespace FW\Kernel\View\TemplateEngine\Directives;
 
-use Fwt\Framework\Kernel\View\TemplateEngine\TemplateRegexBuilder;
+use FW\Kernel\View\TemplateEngine\TemplateRegexBuilder;
 
 class DirectiveRegexBuilder extends TemplateRegexBuilder
 {

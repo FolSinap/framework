@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Exceptions\Database;
+namespace FW\Kernel\Exceptions\Database;
 
 use LogicException;
 use Throwable;

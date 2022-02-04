@@ -1,10 +1,9 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Exceptions\Config;
+namespace FW\Kernel\Exceptions\Config;
 
-use Fwt\Framework\Kernel\Exceptions\IllegalTypeException;
+use FW\Kernel\Exceptions\IllegalTypeException;
 
 class InvalidConfigTypeException extends IllegalTypeException
 {
-
 }

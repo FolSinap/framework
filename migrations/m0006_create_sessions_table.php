@@ -2,7 +2,7 @@
 
 namespace App\Migrations;
 
-use Fwt\Framework\Kernel\Database\Migration;
+use FW\Kernel\Database\Migration;
 
 class m0006_create_sessions_table extends Migration
 {

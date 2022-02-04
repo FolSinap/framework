@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Config;
+namespace FW\Kernel\Config;
 
 trait Configurable
 {

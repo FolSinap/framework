@@ -1,11 +1,10 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Console\Commands\Make;
+namespace FW\Kernel\Console\Commands\Make;
 
-use Fwt\Framework\Kernel\App;
-use Fwt\Framework\Kernel\Console\Input;
-use Fwt\Framework\Kernel\Console\Output\Output;
-use Fwt\Framework\Kernel\FileLoader;
+use FW\Kernel\Console\Input;
+use FW\Kernel\Console\Output\Output;
+use FW\Kernel\FileLoader;
 
 class MakeMigrationCommand extends MakeCommand
 {
