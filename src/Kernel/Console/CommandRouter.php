@@ -22,7 +22,7 @@ class CommandRouter
         $loader->allowedExtensions(['php'])->ignoreHidden();
 
         $loader->load(__DIR__ . '/Commands');
-        $loader->load(config('app.commands.dir'));
+        $loader->loadIfExists(config('app.commands.dir'));
 
         $this->commands = $loader->concreteClasses();
     }

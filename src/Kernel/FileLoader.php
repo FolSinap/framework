@@ -13,6 +13,7 @@ class FileLoader
     protected bool $ignoreHidden = false;
     protected array $allowedExtensions = [];
     protected array $forbiddenExtensions = [];
+    protected array $forbiddenNames = [];
     protected string $namePattern;
 
     public function refresh(): self
@@ -21,7 +22,15 @@ class FileLoader
         $this->files = [];
         $this->allowedExtensions = [];
         $this->forbiddenExtensions = [];
+        $this->forbiddenNames = [];
         unset($this->namePattern);
+
+        return $this;
+    }
+
+    public function except(array $names): self
+    {
+        $this->forbiddenNames = $names;
 
         return $this;
     }
@@ -52,6 +61,13 @@ class FileLoader
         $this->namePattern = $pattern;
 
         return $this;
+    }
+
+    public function loadIfExists(string $dir): void
+    {
+        if (is_dir($dir)) {
+            $this->load($dir);
+        }
     }
 
     public function load(string $dir): void
@@ -162,6 +178,10 @@ class FileLoader
 
     protected function validateFile(string $file): bool
     {
+        if (in_array($file, $this->forbiddenNames)) {
+            return false;
+        }
+
         if ($this->ignoreHidden && str_starts_with($file, '.')) {
             return false;
         }

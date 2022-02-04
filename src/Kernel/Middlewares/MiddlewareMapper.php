@@ -18,15 +18,13 @@ class MiddlewareMapper
     {
         $this->resolver = $resolver;
 
-        $this->middlewares = [
-            AuthMiddleware::class,
-            ValidateCsrfMiddleware::class,
-        ];
+        $loader = new FileLoader();
+        $loader->allowedExtensions(['.php'])->ignoreHidden()->except([basename(__FILE__)]);
 
-        $loader = $resolver->resolve(FileLoader::class);
-        $loader->load(App::$app->getConfig('app.middlewares.dir'));
+        $loader->load(__DIR__);
+        $loader->loadIfExists(config('app.middlewares.dir'));
 
-        $this->addMiddlewares($loader->classNames());
+        $this->middlewares = $loader->concreteClasses();
     }
 
     public function mapMany(array $names): array
@@ -60,11 +58,6 @@ class MiddlewareMapper
         $this->map = $this->createMap();
 
         return $this->map;
-    }
-
-    protected function addMiddlewares(array $middlewares): void
-    {
-        $this->middlewares = array_merge($this->middlewares, $middlewares);
     }
 
     protected function createMap(): array
