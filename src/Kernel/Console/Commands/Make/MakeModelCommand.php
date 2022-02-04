@@ -2,7 +2,6 @@
 
 namespace FW\Kernel\Console\Commands\Make;
 
-use FW\Kernel\App;
 use FW\Kernel\Console\Input;
 use FW\Kernel\Console\TextBuilder;
 use FW\Kernel\Console\Output\Output;
@@ -16,7 +15,7 @@ class MakeModelCommand extends MakeCommand
 
     public function __construct()
     {
-        $this->namespace = ltrim(App::$app->getConfig('app.models.namespace'), '\\');
+        $this->namespace = ltrim(config('app.models.namespace'), '\\');
     }
 
     public function getName(): string
@@ -31,7 +30,7 @@ class MakeModelCommand extends MakeCommand
 
     protected function getBaseDir(): string
     {
-        return App::$app->getConfig('app.models.dir');
+        return config('app.models.dir');
     }
 
     public function getRequiredParameters(): array
@@ -97,7 +96,7 @@ class MakeModelCommand extends MakeCommand
             $definition = TextBuilder::getBuilder()
                 ->nextLine()
                 ->tab()->writeln('protected static array $columns = [')
-                ->tab()->foreach($this->columns, function ($key, $column) {
+                ->tab()->foreach($this->columns, function ($column) {
                         return "'$column',\n";
                     })
                 ->dropTab()->writeln("];");
