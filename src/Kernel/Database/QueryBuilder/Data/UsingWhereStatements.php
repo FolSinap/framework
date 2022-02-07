@@ -10,8 +10,9 @@ trait UsingWhereStatements
 
     public function where(string $field, string $value, string $expression = '='): self
     {
-        $this->whereBuilder = WhereBuilder::where($field, ":$field", $expression);
-        $this->params[$field] = $value;
+        $param = str_replace('.', '_', $field);
+        $this->whereBuilder = WhereBuilder::where($field, ":$param", $expression);
+        $this->params[$param] = $value;
 
         return $this;
     }
@@ -75,16 +76,18 @@ trait UsingWhereStatements
 
     public function andWhere(string $field, string $value, string $expression = '='): self
     {
-        $this->whereBuilder->andWhere($field, ":$field", $expression);
-        $this->params[$field] = $value;
+        $param = str_replace('.', '_', $field);
+        $this->whereBuilder->andWhere($field, ":$param", $expression);
+        $this->params[$param] = $value;
 
         return $this;
     }
 
     public function orWhere(string $field, string $value, string $expression = '='): self
     {
-        $this->whereBuilder->orWhere($field, ":$field", $expression);
-        $this->params[$field] = $value;
+        $param = str_replace('.', '_', $field);
+        $this->whereBuilder->orWhere($field, ":$param", $expression);
+        $this->params[$param] = $value;
 
         return $this;
     }

@@ -8,6 +8,7 @@ use FW\Kernel\Database\ORM\Models\Model;
 use FW\Kernel\Database\ORM\Models\PrimaryKey;
 use FW\Kernel\Database\ORM\Relation\OneToManyRelation;
 use FW\Kernel\Database\ORM\Relation\ToOneRelation;
+use FW\Kernel\Database\QueryBuilder\Data\SelectBuilder;
 use FW\Kernel\Database\QueryBuilder\Where\Expression;
 use FW\Kernel\Exceptions\InvalidExtensionException;
 use FW\Kernel\Exceptions\ORM\ModelInitializationException;
@@ -139,7 +140,7 @@ class ModelRepository
         $this->checkClass($class);
 
         if (!empty($relations)) {
-            return $this->loadRelations($class, $relations);
+            return $this->allWithRelations($class, $relations);
         }
 
         $this->database->select($class::getTableName());
@@ -147,84 +148,79 @@ class ModelRepository
         return new ModelCollection($this->database->fetchAsObject($class));
     }
 
-    protected function loadRelations(string $class, array $relations): ModelCollection
+    public function find(string $class, PrimaryKey $id, array $relations = []): ?Model
     {
-        $joins = [];
-        $cols = $this->generateAliases($class);
+        $this->checkClass($class);
 
-        foreach ($relations as $relation) {
-            /** @var Model $class */
-            $relation = $class::RELATIONS[$relation];
-            $type = $relation['type'] ?? Relation\Relation::TO_ONE;
-
-            switch ($type) {
-                case Relation\Relation::TO_ONE:
-                    $related = $relation['class'];
-                    $ids = $related::getIdColumns();
-                    $id = array_shift($ids);
-                    $join['table'] = $related::getTableName();
-                    $join['on'] = $class::getTableName() . '.' . $relation['field'] . ' = ' . $related::getTableName() . '.' . $id;
-
-                    $cols = array_merge($cols, $this->generateAliases($related));
-                    $joins[] = $join;
-
-                    break;
-                case Relation\Relation::ONE_TO_MANY:
-                    $related = $relation['class'];
-                    $ids = $class::getIdColumns();
-                    $id = array_shift($ids);
-                    $join['table'] = $related::getTableName();
-                    $join['on'] = $class::getTableName() . '.' . $id . ' = ' . $related::getTableName() . '.' . $relation['field'];
-
-                    $cols = array_merge($cols, $this->generateAliases($related));
-                    $joins[] = $join;
-
-                    break;
-                case Relation\Relation::MANY_TO_MANY:
-                    //todo: generate default pivot
-                    $pivot = $relation['pivot'] ?? 'def';
-
-                    $related = $relation['class'];
-                    $field = $relation['field'];
-                    $definedBy = $relation['defined_by'];
-
-                    $ids = $class::getIdColumns();
-                    $id = array_shift($ids);
-
-                    $join['table'] = $pivot;
-                    $join['on'] = $class::getTableName() . '.' . $id . ' = ' . $pivot . '.' . $definedBy;
-
-                    $joins[] = $join;
-
-                    $ids = $related::getIdColumns();
-                    $id = array_shift($ids);
-
-                    $join['table'] = $related::getTableName();
-                    $join['on'] = $related::getTableName() . '.' . $id . ' = ' . $pivot . '.' . $field;
-
-                    $joins[] = $join;
-
-                    $cols = array_merge($cols, $this->generateAliases($related));
-            }
+        if (!empty($relations)) {
+            return $this->findWithRelations($class, $id, $relations);
         }
 
-        $select = $this->database->select($class::getTableName(), array_column($cols, 'query'));
+        $this->database->select($class::getTableName())->andWhereAll($id->getValues());
 
-        foreach ($joins as $join) {
-            $select->leftJoin($join['table'], $join['on']);
+        $object = new ModelCollection($this->database->fetchAsObject($class));
+
+        return $object->isEmpty() ? null : $object[0];
+    }
+
+    public function insert(Model $model): void
+    {
+        if ($model->exists()) {
+            return;
         }
+
+        $data = $model->getForInsertion();
+        $id = $this->database->insert($data, $model::getTableName());
+
+        if (!$model::hasCompositeKey()) {
+            $model->setPrimary($id);
+        }
+    }
+
+    protected function checkClass(string $class): void
+    {
+        if (!is_subclass_of($class, Model::class)) {
+            throw new InvalidExtensionException($class, Model::class);
+        }
+    }
+
+    protected function populateModel(Model $model): ?Model
+    {
+        return $this->database->populateObject($model);
+    }
+
+    protected function findWithRelations(string $class, PrimaryKey $id, array $relations = []): ?Model
+    {
+        /** @var SelectBuilder $select */
+        [$select, $cols] = $this->loadRelations($class, $relations);
+
+        $ids = $id->getValues();
+
+        foreach ($ids as $column => $value) {
+            unset($ids[$column]);
+            $ids[$class::getTableName() . '.' . $column] = $value;
+        }
+
+        $select->andWhereAll($ids);
 
         $normalized = $this->combineModels($this->database->fetchAssoc(), $cols);
+        $model = $this->connectRelatedModels($class, $normalized, $relations);
 
+        return empty($model) ? null : array_first($model);
+    }
+
+    protected function connectRelatedModels(string $mainClass, array $normalized, array $relations): array
+    {
+        //todo: also connect related models with main and set exists = true
         $fetched = [];
 
         foreach ($normalized as $result) {
-            $main = $result[$class];
+            $main = $result[$mainClass];
 
-            if (array_key_exists(implode('', $main->primary()), $fetched)) {
-                $main = $fetched[implode('', $main->primary())];
+            if (array_key_exists(array_first($main->primary()), $fetched)) {
+                $main = $fetched[array_first($main->primary())];
             } else {
-                $fetched[implode('', $main->primary())] = $main;
+                $fetched[array_first($main->primary())] = $main;
             }
 
             foreach ($relations as $relation) {
@@ -246,7 +242,94 @@ class ModelRepository
             }
         }
 
-        return new ModelCollection($fetched);
+        return $fetched;
+    }
+
+    protected function allWithRelations(string $class, array $relations): ModelCollection
+    {
+        $cols = $this->loadRelations($class, $relations)[1];
+
+        $normalized = $this->combineModels($this->database->fetchAssoc(), $cols);
+
+        return new ModelCollection($this->connectRelatedModels($class, $normalized, $relations));
+    }
+
+    /**
+     * @param class-string<Model> $class
+     * @param string[] $relations
+     * @return array 0 index - SelectBuilder, 1 index - column aliases
+     */
+    protected function loadRelations(string $class, array $relations): array
+    {
+        $joins = [];
+        $cols = $this->generateAliases($class);
+
+        foreach ($relations as $relation) {
+            /** @var Model $class */
+            $relation = $class::RELATIONS[$relation];
+            $type = $relation['type'] ?? Relation\Relation::TO_ONE;
+
+            switch ($type) {
+                case Relation\Relation::TO_ONE:
+                    $related = $relation['class'];
+                    $id = array_first($related::getIdColumns());
+                    $join['table'] = $related::getTableName();
+                    $join['on'] = $class::getTableName() . '.' . $relation['field'] . ' = ' . $related::getTableName() . '.' . $id;
+
+                    $cols = array_merge($cols, $this->generateAliases($related));
+                    $joins[] = $join;
+
+                    break;
+                case Relation\Relation::ONE_TO_MANY:
+                    $related = $relation['class'];
+                    $id = array_first($class::getIdColumns());
+                    $join['table'] = $related::getTableName();
+                    $join['on'] = $class::getTableName() . '.' . $id . ' = ' . $related::getTableName() . '.' . $relation['field'];
+
+                    $cols = array_merge($cols, $this->generateAliases($related));
+                    $joins[] = $join;
+
+                    break;
+                case Relation\Relation::MANY_TO_MANY:
+                    $related = $relation['class'];
+                    $field = $relation['field'];
+                    $definedBy = $relation['defined_by'];
+
+                    if (array_key_exists('pivot', $relation)) {
+                        $pivot = $relation['pivot'];
+                    } else {
+                        $tables = [$class::getTableName(), $related::getTableName()];
+
+                        sort($tables);
+
+                        $pivot = implode('_', $tables);
+                    }
+
+                    $id = array_first($class::getIdColumns());
+
+                    $join['table'] = $pivot;
+                    $join['on'] = $class::getTableName() . '.' . $id . ' = ' . $pivot . '.' . $definedBy;
+
+                    $joins[] = $join;
+
+                    $id = array_first($class::getIdColumns());
+
+                    $join['table'] = $related::getTableName();
+                    $join['on'] = $related::getTableName() . '.' . $id . ' = ' . $pivot . '.' . $field;
+
+                    $joins[] = $join;
+
+                    $cols = array_merge($cols, $this->generateAliases($related));
+            }
+        }
+
+        $select = $this->database->select($class::getTableName(), array_column($cols, 'query'));
+
+        foreach ($joins as $join) {
+            $select->leftJoin($join['table'], $join['on']);
+        }
+
+        return [$select, $cols];
     }
 
     protected function combineModels(array $fetched, array $properties): array
@@ -303,42 +386,5 @@ class ModelRepository
         }
 
         return $aliases;
-    }
-
-    public function find(string $class, PrimaryKey $id): ?Model
-    {
-        $this->checkClass($class);
-
-        $this->database->select($class::getTableName())->andWhereAll($id->getValues());
-
-        $object = new ModelCollection($this->database->fetchAsObject($class));
-
-        return $object->isEmpty() ? null : $object[0];
-    }
-
-    public function insert(Model $model): void
-    {
-        if ($model->exists()) {
-            return;
-        }
-
-        $data = $model->getForInsertion();
-        $id = $this->database->insert($data, $model::getTableName());
-
-        if (!$model::hasCompositeKey()) {
-            $model->setPrimary($id);
-        }
-    }
-
-    protected function checkClass(string $class): void
-    {
-        if (!is_subclass_of($class, Model::class)) {
-            throw new InvalidExtensionException($class, Model::class);
-        }
-    }
-
-    protected function populateModel(Model $model): ?Model
-    {
-        return $this->database->populateObject($model);
     }
 }

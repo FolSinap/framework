@@ -53,11 +53,11 @@ abstract class Model
         return self::$columns[static::class];
     }
 
-    public static function find($id): ?self
+    public static function find($id, array $relations = []): ?self
     {
         $id = new PrimaryKey(self::primaryKeyToAssoc($id));
 
-        $model = self::getRepository()->find(static::class, $id);
+        $model = self::getRepository()->find(static::class, $id, $relations);
 
         if ($model) {
             $model->setExists();
