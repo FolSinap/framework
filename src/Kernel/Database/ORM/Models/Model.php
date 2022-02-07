@@ -25,6 +25,7 @@ abstract class Model
 
     protected static array $tableNames;
     protected static array $columns = [];
+    protected static array $loadedRelations = [];
     protected static array $casts = [];
     protected array $fields = [];
     protected array $changed = [];
@@ -45,11 +46,11 @@ abstract class Model
 
     public static function getColumns(): array
     {
-        if (empty(static::$columns)) {
-            static::$columns = self::getRepository()->getTableScheme(static::class);
+        if (empty(self::$columns) || !array_key_exists(static::class, self::$columns)) {
+            self::$columns[static::class] = self::getRepository()->getTableScheme(static::class);
         }
 
-        return static::$columns;
+        return self::$columns[static::class];
     }
 
     public static function find($id): ?self
@@ -69,6 +70,7 @@ abstract class Model
     {
         $models = self::getRepository()->allByClass(static::class, $relations);
 
+        self::addLoadedRelations($relations);
         self::setExistsAll($models);
 
         return $models;
@@ -274,8 +276,19 @@ abstract class Model
 
     public function __get(string $name)
     {
-        if (array_key_exists($name, $this->relations)) {
+        if (array_key_exists($name, $this->relations) && !in_array($name, static::loadedRelations())) {
             $relation = $this->relations[$name]->get();
+            $this->silentSet($name, $relation);
+            static::addLoadedRelations([$name]);
+        }
+
+        return $this->fields[$name] ?? null;
+    }
+
+    public function getLazy(string $name)
+    {
+        if (!array_key_exists($name, $this->fields) && array_key_exists($name, $this->relations)) {
+            $relation = $this->relations[$name]->getDry();
             $this->silentSet($name, $relation);
         }
 
@@ -527,6 +540,24 @@ abstract class Model
 
             $this->{$relation->getConnectField()} = array_pop($primary);
         }
+    }
+
+    private static function addLoadedRelations(array $relations): void
+    {
+        if (array_key_exists(static::class, self::$loadedRelations)) {
+            self::$loadedRelations[static::class] = array_merge(self::$loadedRelations[static::class], $relations);
+        } else {
+            self::$loadedRelations[static::class] = $relations;
+        }
+    }
+
+    private static function loadedRelations(): array
+    {
+        if (!array_key_exists(static::class, self::$loadedRelations)) {
+            self::$loadedRelations[static::class] = [];
+        }
+
+        return self::$loadedRelations[static::class];
     }
 
     private function initIdColumns(): self

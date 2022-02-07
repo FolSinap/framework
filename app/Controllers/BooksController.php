@@ -7,33 +7,14 @@ use App\Models\Book;
 use App\Models\Genre;
 use FW\Kernel\Controllers\Controller;
 use FW\Kernel\Database\Database;
-use FW\Kernel\Database\QueryBuilder\QueryBuilder;
-use FW\Kernel\Database\SQL\SqlLogger;
 use FW\Kernel\Response\RedirectResponse;
 use FW\Kernel\Response\Response;
-use PDO;
 
 class BooksController extends Controller
 {
     public function index(Database $database): Response
     {
-//        ;
-//        dd($database->executeNative('SELECT books.id as b_id,
-//       users.id as u_id,
-//       users.email as u_email,
-//       users.password as u_password,
-//       books.title as b_title,
-//       books.author_id as b_author_id
-//FROM books LEFT JOIN users ON users.id = books.author_id')
-//            ->fetchAll( PDO::FETCH_ASSOC));
-
-        SqlLogger::on();
-
-        Book::all(['author', 'genres']);
-
-        dd(SqlLogger::getLogger());
-
-        $books = Book::all();
+        $books = Book::all(['author', 'genres']);
         $user = $this->getUser();
 
         return $this->render('books/index.php', compact('books', 'user'));

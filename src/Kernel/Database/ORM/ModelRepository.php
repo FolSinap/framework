@@ -3,8 +3,12 @@
 namespace FW\Kernel\Database\ORM;
 
 use FW\Kernel\Database\Database;
+use FW\Kernel\Database\ORM\Models\AnonymousModel;
 use FW\Kernel\Database\ORM\Models\Model;
 use FW\Kernel\Database\ORM\Models\PrimaryKey;
+use FW\Kernel\Database\ORM\Relation\OneToManyRelation;
+use FW\Kernel\Database\ORM\Relation\ToOneRelation;
+use FW\Kernel\Database\QueryBuilder\Where\Expression;
 use FW\Kernel\Exceptions\InvalidExtensionException;
 use FW\Kernel\Exceptions\ORM\ModelInitializationException;
 
@@ -134,23 +138,22 @@ class ModelRepository
     {
         $this->checkClass($class);
 
-        if (empty($relations)) {
-            $this->database->select($class::getTableName());
-        } else {
-            $this->loadRelations($class, $relations);
-            
-            $this->database->select($class::getTableName())->leftJoin();
+        if (!empty($relations)) {
+            return $this->loadRelations($class, $relations);
         }
+
+        $this->database->select($class::getTableName());
 
         return new ModelCollection($this->database->fetchAsObject($class));
     }
 
-    protected function loadRelations(string $class, array $relations)
+    protected function loadRelations(string $class, array $relations): ModelCollection
     {
-        $letters = 'abcdefghijklmnopqrstuvwxyz';
-        $letters = str_split($letters);
+        $joins = [];
+        $cols = $this->generateAliases($class);
 
         foreach ($relations as $relation) {
+            /** @var Model $class */
             $relation = $class::RELATIONS[$relation];
             $type = $relation['type'] ?? Relation\Relation::TO_ONE;
 
@@ -158,20 +161,148 @@ class ModelRepository
                 case Relation\Relation::TO_ONE:
                     $related = $relation['class'];
                     $ids = $related::getIdColumns();
-                    $this->database->select($class::getTableName(), [
-                        'books.id as b_id',
-                        'books.title as b_title',
-                        'books.author_id as b_author_id',
-                        'users.id as u_id',
-                        'users.email as u_email',
-                        'users.password as u_password',
-                    ])
-                        ->leftJoin($related::getTableName(),
-                            $class::getTableName() . '.' . $relation['field'] . ' = ' . $related::getTableName()
-                            . '.' . array_shift($ids));
-                    dd($this->database->fetchAssoc());
+                    $id = array_shift($ids);
+                    $join['table'] = $related::getTableName();
+                    $join['on'] = $class::getTableName() . '.' . $relation['field'] . ' = ' . $related::getTableName() . '.' . $id;
+
+                    $cols = array_merge($cols, $this->generateAliases($related));
+                    $joins[] = $join;
+
+                    break;
+                case Relation\Relation::ONE_TO_MANY:
+                    $related = $relation['class'];
+                    $ids = $class::getIdColumns();
+                    $id = array_shift($ids);
+                    $join['table'] = $related::getTableName();
+                    $join['on'] = $class::getTableName() . '.' . $id . ' = ' . $related::getTableName() . '.' . $relation['field'];
+
+                    $cols = array_merge($cols, $this->generateAliases($related));
+                    $joins[] = $join;
+
+                    break;
+                case Relation\Relation::MANY_TO_MANY:
+                    //todo: generate default pivot
+                    $pivot = $relation['pivot'] ?? 'def';
+
+                    $related = $relation['class'];
+                    $field = $relation['field'];
+                    $definedBy = $relation['defined_by'];
+
+                    $ids = $class::getIdColumns();
+                    $id = array_shift($ids);
+
+                    $join['table'] = $pivot;
+                    $join['on'] = $class::getTableName() . '.' . $id . ' = ' . $pivot . '.' . $definedBy;
+
+                    $joins[] = $join;
+
+                    $ids = $related::getIdColumns();
+                    $id = array_shift($ids);
+
+                    $join['table'] = $related::getTableName();
+                    $join['on'] = $related::getTableName() . '.' . $id . ' = ' . $pivot . '.' . $field;
+
+                    $joins[] = $join;
+
+                    $cols = array_merge($cols, $this->generateAliases($related));
             }
         }
+
+        $select = $this->database->select($class::getTableName(), array_column($cols, 'query'));
+
+        foreach ($joins as $join) {
+            $select->leftJoin($join['table'], $join['on']);
+        }
+
+        $normalized = $this->combineModels($this->database->fetchAssoc(), $cols);
+
+        $fetched = [];
+
+        foreach ($normalized as $result) {
+            $main = $result[$class];
+
+            if (array_key_exists(implode('', $main->primary()), $fetched)) {
+                $main = $fetched[implode('', $main->primary())];
+            } else {
+                $fetched[implode('', $main->primary())] = $main;
+            }
+
+            foreach ($relations as $relation) {
+                $relationObject = $main->getRelation($relation);
+                $related = $result[$relationObject->getRelated()];
+
+                switch (true) {
+                    case $relationObject instanceof ToOneRelation:
+                        $main->__set($relation, $related);
+
+                        break;
+                    default:
+                        if ($related instanceof Model) {
+                            $main->getLazy($relation)->add($related);
+                        }
+
+                        break;
+                }
+            }
+        }
+
+        return new ModelCollection($fetched);
+    }
+
+    protected function combineModels(array $fetched, array $properties): array
+    {
+        $data = [];
+
+        foreach ($fetched as $result) {
+            foreach ($result as $alias => $value) {
+                foreach ($properties as $property) {
+                    if ($alias === $property['alias']) {
+                        $model[$property['model']][$property['column']] = $value;
+                    }
+                }
+            }
+
+            $data[] = $model;
+        }
+
+        foreach ($data as $key => $entry) {
+            foreach ($entry as $class => $properties) {
+                $properties = array_filter($properties, function ($property) {
+                    return !is_null($property);
+                });
+
+                if (empty($properties)) {
+                    $data[$key][$class] = null;
+                } else {
+                    $data[$key][$class] = $class::createDry($properties);
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    protected function generateAliases(string $model, string ...$models): array
+    {
+        $models = func_get_args();
+        $aliases = [];
+
+        foreach ($models as $model) {
+            $this->checkClass($model);
+            $table = $model::getTableName();
+
+            foreach ($model::getColumns() as $column) {
+                $alias['table'] = $table;
+                $alias['column'] = $column;
+                $alias['query'] = "{$table}.{$column} as {$table}_{$column}";
+                $alias['alias'] = "{$table}_{$column}";
+                $alias['model'] = $model;
+
+                $aliases[] = $alias;
+            }
+        }
+
+        return $aliases;
     }
 
     public function find(string $class, PrimaryKey $id): ?Model

@@ -23,5 +23,9 @@ class Book extends Model
         'author_id' => 'int',
         'title' => 'string',
     ];
-    protected static array $columns = ['title', 'author_id', 'id'];
+
+    public static function getColumns(): array
+    {
+        return ['title', 'author_id', 'id'];
+    }
 }

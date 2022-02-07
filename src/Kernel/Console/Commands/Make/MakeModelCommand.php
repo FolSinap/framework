@@ -95,11 +95,14 @@ class MakeModelCommand extends MakeCommand
         if (!empty($this->columns)) {
             $definition = TextBuilder::getBuilder()
                 ->nextLine()
-                ->tab()->writeln('protected static array $columns = [')
+                ->tab()->writeln('public static function getColumns(): array')
+                ->writeln('{')
+                ->tab()->writeln('return [')
                 ->tab()->foreach($this->columns, function ($column) {
                         return "'$column',\n";
                     })
-                ->dropTab()->writeln("];");
+                ->dropTab()->writeln("];")
+                ->dropTab()->writeln('}');
         }
 
         return $definition ?? '';

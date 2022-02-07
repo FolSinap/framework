@@ -21,10 +21,13 @@ class BookGenre extends Model
 		],
 	];
 
-	protected static array $columns = [
-		'book_id',
-		'genre_id',
-	];
+	public static function getColumns(): array
+    {
+        return [
+            'book_id',
+            'genre_id',
+        ];
+    }
 
 	public static function getTableName(): string
     {
