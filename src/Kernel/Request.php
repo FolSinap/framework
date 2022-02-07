@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel;
+namespace FW\Kernel;
 
-use Fwt\Framework\Kernel\Routing\Route;
+use FW\Kernel\Routing\Route;
 
 class Request
 {

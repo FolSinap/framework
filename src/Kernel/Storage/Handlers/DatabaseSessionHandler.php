@@ -1,9 +1,9 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Storage\Handlers;
+namespace FW\Kernel\Storage\Handlers;
 
-use Fwt\Framework\Kernel\Database\Database;
-use Fwt\Framework\Kernel\Database\ORM\Models\AnonymousModel;
+use FW\Kernel\Database\Database;
+use FW\Kernel\Database\ORM\Models\AnonymousModel;
 use SessionHandlerInterface;
 
 class DatabaseSessionHandler implements SessionHandlerInterface

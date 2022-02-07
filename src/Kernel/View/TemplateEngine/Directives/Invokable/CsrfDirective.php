@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\View\TemplateEngine\Directives\Invokable;
+namespace FW\Kernel\View\TemplateEngine\Directives\Invokable;
 
-use Fwt\Framework\Kernel\Csrf\CsrfValidator as CsrfValidator;
+use FW\Kernel\Csrf\CsrfValidator as CsrfValidator;
 
 class CsrfDirective extends InvokableDirective
 {

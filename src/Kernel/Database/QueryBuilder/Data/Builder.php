@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\QueryBuilder\Data;
+namespace FW\Kernel\Database\QueryBuilder\Data;
 
 abstract class Builder
 {

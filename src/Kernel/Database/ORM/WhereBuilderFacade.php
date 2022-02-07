@@ -1,11 +1,11 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\ORM;
+namespace FW\Kernel\Database\ORM;
 
-use Fwt\Framework\Kernel\Database\Database;
-use Fwt\Framework\Kernel\Database\ORM\Models\Model;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Data\SelectBuilder;
-use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
+use FW\Kernel\Database\Database;
+use FW\Kernel\Database\ORM\Models\Model;
+use FW\Kernel\Database\QueryBuilder\Data\SelectBuilder;
+use FW\Kernel\Exceptions\InvalidExtensionException;
 use ReflectionProperty;
 
 class WhereBuilderFacade

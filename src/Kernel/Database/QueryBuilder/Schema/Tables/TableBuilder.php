@@ -1,10 +1,10 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables;
+namespace FW\Kernel\Database\QueryBuilder\Schema\Tables;
 
-use Fwt\Framework\Kernel\Database\QueryBuilder\IBuilder;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Columns\ColumnBuilder;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Columns\ForeignKeyColumn;
+use FW\Kernel\Database\QueryBuilder\IBuilder;
+use FW\Kernel\Database\QueryBuilder\Schema\Columns\ColumnBuilder;
+use FW\Kernel\Database\QueryBuilder\Schema\Columns\ForeignKeyColumn;
 
 class TableBuilder implements IBuilder
 {

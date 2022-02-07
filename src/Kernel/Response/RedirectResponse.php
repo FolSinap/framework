@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Response;
+namespace FW\Kernel\Response;
 
 class RedirectResponse extends Response
 {

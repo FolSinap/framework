@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Storage\Handlers;
+namespace FW\Kernel\Storage\Handlers;
 
-use Fwt\Framework\Kernel\Database\Redis\Redis;
+use FW\Kernel\Database\Redis\Redis;
 use SessionHandlerInterface;
 
 class RedisSessionHandler implements SessionHandlerInterface

@@ -1,9 +1,9 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Middlewares;
+namespace FW\Kernel\Middlewares;
 
-use Fwt\Framework\Kernel\Request;
-use Fwt\Framework\Kernel\Response\Response;
+use FW\Kernel\Request;
+use FW\Kernel\Response\Response;
 
 interface IMiddleware
 {

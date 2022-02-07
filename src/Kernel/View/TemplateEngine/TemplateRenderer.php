@@ -1,22 +1,22 @@
 <?php
 
-namespace Fwt\Framework\Kernel\View\TemplateEngine;
+namespace FW\Kernel\View\TemplateEngine;
 
-use Fwt\Framework\Kernel\Exceptions\InterfaceNotFoundException;
-use Fwt\Framework\Kernel\ObjectResolver;
-use Fwt\Framework\Kernel\View\TemplateEngine\Directives\AnonDirective;
-use Fwt\Framework\Kernel\View\TemplateEngine\Directives\AuthDirective;
-use Fwt\Framework\Kernel\View\TemplateEngine\Directives\IDirective;
-use Fwt\Framework\Kernel\View\TemplateEngine\Directives\ForeachDirective;
-use Fwt\Framework\Kernel\View\TemplateEngine\Directives\Invokable\CsrfDirective;
-use Fwt\Framework\Kernel\View\TemplateEngine\Directives\Invokable\FlashDirective;
-use Fwt\Framework\Kernel\View\TemplateEngine\Directives\Invokable\MethodDirective;
-use Fwt\Framework\Kernel\View\TemplateEngine\Directives\Invokable\RouteDirective;
-use Fwt\Framework\Kernel\View\TemplateEngine\Directives\IfDirective;
-use Fwt\Framework\Kernel\View\TemplateEngine\Directives\IncludeDirective;
-use Fwt\Framework\Kernel\View\TemplateEngine\Directives\RenderParametersDirective;
-use Fwt\Framework\Kernel\View\TemplateEngine\Directives\RenderParametersWithoutEscapeDirective;
-use Fwt\Framework\Kernel\View\TemplateEngine\Templates\Template;
+use FW\Kernel\Exceptions\InterfaceNotFoundException;
+use FW\Kernel\ObjectResolver;
+use FW\Kernel\View\TemplateEngine\Directives\AnonDirective;
+use FW\Kernel\View\TemplateEngine\Directives\AuthDirective;
+use FW\Kernel\View\TemplateEngine\Directives\IDirective;
+use FW\Kernel\View\TemplateEngine\Directives\ForeachDirective;
+use FW\Kernel\View\TemplateEngine\Directives\Invokable\CsrfDirective;
+use FW\Kernel\View\TemplateEngine\Directives\Invokable\FlashDirective;
+use FW\Kernel\View\TemplateEngine\Directives\Invokable\MethodDirective;
+use FW\Kernel\View\TemplateEngine\Directives\Invokable\RouteDirective;
+use FW\Kernel\View\TemplateEngine\Directives\IfDirective;
+use FW\Kernel\View\TemplateEngine\Directives\IncludeDirective;
+use FW\Kernel\View\TemplateEngine\Directives\RenderParametersDirective;
+use FW\Kernel\View\TemplateEngine\Directives\RenderParametersWithoutEscapeDirective;
+use FW\Kernel\View\TemplateEngine\Templates\Template;
 
 class TemplateRenderer
 {

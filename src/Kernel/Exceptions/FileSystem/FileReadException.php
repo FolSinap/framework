@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Exceptions\FileSystem;
+namespace FW\Kernel\Exceptions\FileSystem;
 
 use LogicException;
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Exceptions\Router;
+namespace FW\Kernel\Exceptions\Router;
 
-use Fwt\Framework\Kernel\Exceptions\RequiredValueIsNotFoundException;
+use FW\Kernel\Exceptions\RequiredValueIsNotFoundException;
 
 class CannotGenerateWildcardException extends RequiredValueIsNotFoundException
 {

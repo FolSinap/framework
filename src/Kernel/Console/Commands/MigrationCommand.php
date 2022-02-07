@@ -1,17 +1,16 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Console\Commands;
+namespace FW\Kernel\Console\Commands;
 
 use Exception;
-use Fwt\Framework\Kernel\Console\App;
-use Fwt\Framework\Kernel\Console\Input;
-use Fwt\Framework\Kernel\Console\Output\Output;
-use Fwt\Framework\Kernel\Database\Database;
-use Fwt\Framework\Kernel\Database\ORM\Models\Migration;
-use Fwt\Framework\Kernel\Database\Migration as ExecutableMigration;
-use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\SchemaBuilder;
-use Fwt\Framework\Kernel\FileLoader;
-use Fwt\Framework\Kernel\ObjectResolver;
+use FW\Kernel\Console\App;
+use FW\Kernel\Console\Input;
+use FW\Kernel\Console\Output\Output;
+use FW\Kernel\Database\Database;
+use FW\Kernel\Database\ORM\Models\Migration;
+use FW\Kernel\Database\Migration as ExecutableMigration;
+use FW\Kernel\FileLoader;
+use FW\Kernel\ObjectResolver;
 
 class MigrationCommand extends Command
 {

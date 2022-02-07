@@ -1,9 +1,9 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Console;
+namespace FW\Kernel\Console;
 
-use Fwt\Framework\Kernel\Container;
-use Fwt\Framework\Kernel\Exceptions\Console\InvalidInputException;
+use FW\Kernel\Container;
+use FW\Kernel\Exceptions\Console\InvalidInputException;
 
 class Input extends Container
 {

@@ -1,9 +1,9 @@
 <?php
 
-namespace Fwt\Framework\Kernel\View\TemplateEngine\Directives\Invokable;
+namespace FW\Kernel\View\TemplateEngine\Directives\Invokable;
 
-use Fwt\Framework\Kernel\Exceptions\IllegalValueException;
-use Fwt\Framework\Kernel\Routing\Route;
+use FW\Kernel\Exceptions\IllegalValueException;
+use FW\Kernel\Routing\Route;
 
 class MethodDirective extends InvokableDirective
 {

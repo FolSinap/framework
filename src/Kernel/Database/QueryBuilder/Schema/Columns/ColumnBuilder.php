@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Columns;
+namespace FW\Kernel\Database\QueryBuilder\Schema\Columns;
 
-use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableBuilder;
+use FW\Kernel\Database\QueryBuilder\Schema\Tables\TableBuilder;
 
 class ColumnBuilder
 {

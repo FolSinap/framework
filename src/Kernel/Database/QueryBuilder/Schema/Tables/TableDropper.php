@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables;
+namespace FW\Kernel\Database\QueryBuilder\Schema\Tables;
 
-use Fwt\Framework\Kernel\Database\QueryBuilder\IBuilder;
+use FW\Kernel\Database\QueryBuilder\IBuilder;
 
 class TableDropper implements IBuilder
 {

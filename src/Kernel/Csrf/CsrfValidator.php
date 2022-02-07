@@ -1,11 +1,11 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Csrf;
+namespace FW\Kernel\Csrf;
 
-use Fwt\Framework\Kernel\Exceptions\Csrf\UndefinedCsrfValidatorException;
-use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
-use Fwt\Framework\Kernel\Exceptions\Resolver\ObjectResolverException;
-use Fwt\Framework\Kernel\ObjectResolver;
+use FW\Kernel\Exceptions\Csrf\UndefinedCsrfValidatorException;
+use FW\Kernel\Exceptions\InvalidExtensionException;
+use FW\Kernel\Exceptions\Resolver\ObjectResolverException;
+use FW\Kernel\ObjectResolver;
 
 abstract class CsrfValidator
 {

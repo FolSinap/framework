@@ -1,9 +1,9 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Validator;
+namespace FW\Kernel\Validator;
 
-use Fwt\Framework\Kernel\Storage\Session;
-use Fwt\Framework\Kernel\Validator\Rules\IRule;
+use FW\Kernel\Storage\Session;
+use FW\Kernel\Validator\Rules\IRule;
 
 class Validator
 {

@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\QueryBuilder\Data;
+namespace FW\Kernel\Database\QueryBuilder\Data;
 
-use Fwt\Framework\Kernel\Database\QueryBuilder\Where\WhereBuilder;
+use FW\Kernel\Database\QueryBuilder\Where\WhereBuilder;
 
 trait UsingWhereStatements
 {

@@ -1,9 +1,9 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\Redis;
+namespace FW\Kernel\Database\Redis;
 
-use Fwt\Framework\Kernel\Exceptions\Config\ValueIsNotConfiguredException;
-use Fwt\Framework\Kernel\Exceptions\Database\ConnectionException;
+use FW\Kernel\Exceptions\Config\ValueIsNotConfiguredException;
+use FW\Kernel\Exceptions\Database\ConnectionException;
 use Redis as Connection;
 use RedisException;
 

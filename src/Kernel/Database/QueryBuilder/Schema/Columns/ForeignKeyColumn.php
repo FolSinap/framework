@@ -1,9 +1,9 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Columns;
+namespace FW\Kernel\Database\QueryBuilder\Schema\Columns;
 
-use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables\TableBuilder;
-use Fwt\Framework\Kernel\Exceptions\IllegalValueException;
+use FW\Kernel\Database\QueryBuilder\Schema\Tables\TableBuilder;
+use FW\Kernel\Exceptions\IllegalValueException;
 
 class ForeignKeyColumn extends ColumnBuilder
 {

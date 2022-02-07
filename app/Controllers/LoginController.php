@@ -4,11 +4,11 @@ namespace App\Controllers;
 
 use App\Controllers\RequestValidators\RegisterRequestValidator;
 use App\Models\User;
-use Fwt\Framework\Kernel\Controllers\Controller;
-use Fwt\Framework\Kernel\Login\Authentication;
-use Fwt\Framework\Kernel\Request;
-use Fwt\Framework\Kernel\Response\RedirectResponse;
-use Fwt\Framework\Kernel\Response\Response;
+use FW\Kernel\Controllers\Controller;
+use FW\Kernel\Login\Authentication;
+use FW\Kernel\Request;
+use FW\Kernel\Response\RedirectResponse;
+use FW\Kernel\Response\Response;
 
 class LoginController extends Controller
 {

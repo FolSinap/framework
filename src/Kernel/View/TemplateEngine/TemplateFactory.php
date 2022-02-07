@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\View\TemplateEngine;
+namespace FW\Kernel\View\TemplateEngine;
 
-use Fwt\Framework\Kernel\View\TemplateEngine\Templates\Template;
+use FW\Kernel\View\TemplateEngine\Templates\Template;
 
 class TemplateFactory
 {

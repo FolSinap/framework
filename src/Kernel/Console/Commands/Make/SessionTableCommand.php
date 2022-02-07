@@ -1,9 +1,9 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Console\Commands\Make;
+namespace FW\Kernel\Console\Commands\Make;
 
-use Fwt\Framework\Kernel\Console\Input;
-use Fwt\Framework\Kernel\Console\Output\Output;
+use FW\Kernel\Console\Input;
+use FW\Kernel\Console\Output\Output;
 
 class SessionTableCommand extends MakeMigrationCommand
 {

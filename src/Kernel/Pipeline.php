@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel;
+namespace FW\Kernel;
 
-use Fwt\Framework\Kernel\Response\Response;
+use FW\Kernel\Response\Response;
 
 class Pipeline
 {

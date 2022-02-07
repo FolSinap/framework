@@ -2,7 +2,7 @@
     "name": "fwt/framework",
     "autoload": {
         "psr-4": {
-            "Fwt\\Framework\\": "src/",
+            "FW\\": "src/",
             "App\\": "app/",
             "App\\Migrations\\": "migrations/"
         },
@@ -21,6 +21,8 @@
       "ext-pdo": "*",
         "vlucas/phpdotenv": "^5.4",
       "ext-openssl": "*",
-      "ext-redis": "*"
+      "ext-redis": "*",
+      "ext-json": "*",
+        "nesbot/carbon": "^2.56"
     }
 }

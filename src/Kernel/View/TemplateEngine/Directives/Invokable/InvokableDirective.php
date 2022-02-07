@@ -1,11 +1,11 @@
 <?php
 
 
-namespace Fwt\Framework\Kernel\View\TemplateEngine\Directives\Invokable;
+namespace FW\Kernel\View\TemplateEngine\Directives\Invokable;
 
-use Fwt\Framework\Kernel\View\TemplateEngine\Directives\Directive;
-use Fwt\Framework\Kernel\View\TemplateEngine\Directives\DirectiveRegexBuilder;
-use Fwt\Framework\Kernel\View\TemplateEngine\ExpressionParser;
+use FW\Kernel\View\TemplateEngine\Directives\Directive;
+use FW\Kernel\View\TemplateEngine\Directives\DirectiveRegexBuilder;
+use FW\Kernel\View\TemplateEngine\ExpressionParser;
 
 abstract class InvokableDirective extends Directive
 {

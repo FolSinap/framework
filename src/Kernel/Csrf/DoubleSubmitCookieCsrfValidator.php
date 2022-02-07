@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Csrf;
+namespace FW\Kernel\Csrf;
 
-use Fwt\Framework\Kernel\Storage\Cookie;
+use FW\Kernel\Storage\Cookie;
 
 class DoubleSubmitCookieCsrfValidator extends CsrfValidator
 {

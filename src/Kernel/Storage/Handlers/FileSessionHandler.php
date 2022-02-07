@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Storage\Handlers;
+namespace FW\Kernel\Storage\Handlers;
 
-use Fwt\Framework\Kernel\FileLoader;
+use FW\Kernel\FileLoader;
 use SessionHandlerInterface;
 
 class FileSessionHandler implements SessionHandlerInterface

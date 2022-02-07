@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\ORM\Models;
+namespace FW\Kernel\Database\ORM\Models;
 
-use Fwt\Framework\Kernel\Exceptions\RequiredArrayKeysException;
+use FW\Kernel\Exceptions\RequiredArrayKeysException;
 
 class PrimaryKey
 {

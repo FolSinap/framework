@@ -1,10 +1,10 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Csrf;
+namespace FW\Kernel\Csrf;
 
-use Fwt\Framework\Kernel\Exceptions\IllegalValueException;
-use Fwt\Framework\Kernel\Login\Authentication;
-use Fwt\Framework\Kernel\ObjectResolver;
+use FW\Kernel\Exceptions\IllegalValueException;
+use FW\Kernel\Login\Authentication;
+use FW\Kernel\ObjectResolver;
 
 class EncryptedTokenCsrfValidator extends CsrfValidator
 {

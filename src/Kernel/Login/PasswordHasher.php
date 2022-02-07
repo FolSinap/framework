@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Login;
+namespace FW\Kernel\Login;
 
 class PasswordHasher
 {

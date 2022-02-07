@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Tables;
+namespace FW\Kernel\Database\QueryBuilder\Schema\Tables;
 
-use Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Columns\ColumnAlterer;
+use FW\Kernel\Database\QueryBuilder\Schema\Columns\ColumnAlterer;
 
 class TableAlterer extends TableBuilder
 {

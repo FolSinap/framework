@@ -1,12 +1,12 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\ORM\Relation;
+namespace FW\Kernel\Database\ORM\Relation;
 
-use Fwt\Framework\Kernel\Database\ORM\ModelCollection;
-use Fwt\Framework\Kernel\Database\ORM\ModelRepository;
-use Fwt\Framework\Kernel\Database\ORM\Models\Model;
-use Fwt\Framework\Kernel\Exceptions\NotSupportedException;
-use Fwt\Framework\Kernel\Exceptions\ORM\UndefinedRelationException;
+use FW\Kernel\Database\ORM\ModelCollection;
+use FW\Kernel\Database\ORM\ModelRepository;
+use FW\Kernel\Database\ORM\Models\Model;
+use FW\Kernel\Exceptions\NotSupportedException;
+use FW\Kernel\Exceptions\ORM\UndefinedRelationException;
 
 class OneToManyRelation extends Relation
 {

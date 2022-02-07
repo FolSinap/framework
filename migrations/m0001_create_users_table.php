@@ -2,7 +2,7 @@
 
 namespace App\Migrations;
 
-use Fwt\Framework\Kernel\Database\Migration;
+use FW\Kernel\Database\Migration;
 
 class m0001_create_users_table extends Migration
 {

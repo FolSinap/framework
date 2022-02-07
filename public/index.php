@@ -1,6 +1,6 @@
 <?php
 
-use Fwt\Framework\Kernel\App;
+use FW\Kernel\App;
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 

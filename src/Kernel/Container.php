@@ -1,11 +1,14 @@
 <?php
 
-namespace Fwt\Framework\Kernel;
+namespace FW\Kernel;
 
 use ArrayAccess;
+use Countable;
+use IteratorAggregate;
+use ArrayIterator;
 
 //todo: implement psr-11
-class Container implements ArrayAccess
+class Container implements ArrayAccess, IteratorAggregate, Countable
 {
     protected array $data;
     protected static array $instances;
@@ -76,5 +79,15 @@ class Container implements ArrayAccess
     public function __wakeup()
     {
         throw new \Exception("Cannot unserialize a singleton.");
+    }
+
+    public function getIterator(): ArrayIterator
+    {
+        return new ArrayIterator($this->data);
+    }
+
+    public function count(): int
+    {
+        return count($this->data);
     }
 }

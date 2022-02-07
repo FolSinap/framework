@@ -1,11 +1,11 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Login;
+namespace FW\Kernel\Login;
 
-use Fwt\Framework\Kernel\Config\FileConfig;
-use Fwt\Framework\Kernel\Exceptions\Config\ValueIsNotConfiguredException;
-use Fwt\Framework\Kernel\Exceptions\InvalidExtensionException;
-use Fwt\Framework\Kernel\Storage\Session;
+use FW\Kernel\Config\FileConfig;
+use FW\Kernel\Exceptions\Config\ValueIsNotConfiguredException;
+use FW\Kernel\Exceptions\InvalidExtensionException;
+use FW\Kernel\Storage\Session;
 
 class Authentication
 {

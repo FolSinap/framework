@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Fwt\Framework\Kernel\Database\ORM\Models\Model;
-use Fwt\Framework\Kernel\Database\ORM\Relation\Relation;
+use FW\Kernel\Database\ORM\Models\Model;
+use FW\Kernel\Database\ORM\Relation\Relation;
 
 class Book extends Model
 {
@@ -18,5 +18,10 @@ class Book extends Model
         ],
     ];
 
+    protected static array $casts = [
+        'id' => 'int',
+        'author_id' => 'int',
+        'title' => 'string',
+    ];
     protected static array $columns = ['title', 'author_id', 'id'];
 }

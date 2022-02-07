@@ -1,14 +1,14 @@
 <?php
 
-namespace Fwt\Framework\Kernel\View\TemplateEngine;
+namespace FW\Kernel\View\TemplateEngine;
 
 use BadFunctionCallException;
-use Fwt\Framework\Kernel\Database\ORM\Models\Model;
-use Fwt\Framework\Kernel\Exceptions\ExpressionParser\ParsingException;
-use Fwt\Framework\Kernel\Exceptions\ExpressionParser\UndefinedKeyException;
-use Fwt\Framework\Kernel\Exceptions\ExpressionParser\VariableParsingException;
-use Fwt\Framework\Kernel\Exceptions\View\UnknownArgumentException;
-use Fwt\Framework\Kernel\View\VariableContainer;
+use FW\Kernel\Database\ORM\Models\Model;
+use FW\Kernel\Exceptions\ExpressionParser\ParsingException;
+use FW\Kernel\Exceptions\ExpressionParser\UndefinedKeyException;
+use FW\Kernel\Exceptions\ExpressionParser\VariableParsingException;
+use FW\Kernel\Exceptions\View\UnknownArgumentException;
+use FW\Kernel\View\VariableContainer;
 
 class ExpressionParser
 {

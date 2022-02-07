@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-use Fwt\Framework\Kernel\Console\App;
+use FW\Kernel\Console\App;
 
 require_once __DIR__ . '/vendor/autoload.php';
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Database\QueryBuilder\Schema\Columns;
+namespace FW\Kernel\Database\QueryBuilder\Schema\Columns;
 
 class ColumnAlterer extends ColumnBuilder
 {

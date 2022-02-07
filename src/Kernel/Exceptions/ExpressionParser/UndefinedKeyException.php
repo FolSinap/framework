@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Exceptions\ExpressionParser;
+namespace FW\Kernel\Exceptions\ExpressionParser;
 
 use RangeException;
 use Throwable;

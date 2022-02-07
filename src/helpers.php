@@ -1,6 +1,6 @@
 <?php
 
-use Fwt\Framework\Kernel\App;
+use FW\Kernel\App;
 
 if (!function_exists('get_string_between')) {
     function get_string_between(string $string, string $start, string $end): string

@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwt\Framework\Kernel\Exceptions\View;
+namespace FW\Kernel\Exceptions\View;
 
-use Fwt\Framework\Kernel\View\TemplateEngine\Templates\Template;
+use FW\Kernel\View\TemplateEngine\Templates\Template;
 use LogicException;
 use Throwable;
 
