@@ -51,7 +51,7 @@ class DatabaseSessionHandler implements SessionHandlerInterface
     {
         $session = AnonymousModel::find($id);
 
-        if (strtotime($session->updated_at) < (time() - $this->lifetime)) {
+        if (is_null($session) || strtotime($session->updated_at) < (time() - $this->lifetime)) {
             return '';
         }
 

@@ -227,17 +227,10 @@ class ModelRepository
                 $relationObject = $main->getRelation($relation);
                 $related = $result[$relationObject->getRelated()];
 
-                switch (true) {
-                    case $relationObject instanceof ToOneRelation:
-                        $main->__set($relation, $related);
-
-                        break;
-                    default:
-                        if ($related instanceof Model) {
-                            $main->getLazy($relation)->add($related);
-                        }
-
-                        break;
+                if ($relationObject instanceof ToOneRelation) {
+                    $main->__set($relation, $related);
+                } elseif ($related instanceof Model) {
+                    $main->getLazy($relation)->add($related);
                 }
             }
         }
