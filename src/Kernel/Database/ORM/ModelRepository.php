@@ -3,23 +3,22 @@
 namespace FW\Kernel\Database\ORM;
 
 use FW\Kernel\Database\Database;
-use FW\Kernel\Database\ORM\Models\AnonymousModel;
 use FW\Kernel\Database\ORM\Models\Model;
 use FW\Kernel\Database\ORM\Models\PrimaryKey;
-use FW\Kernel\Database\ORM\Relation\OneToManyRelation;
 use FW\Kernel\Database\ORM\Relation\ToOneRelation;
 use FW\Kernel\Database\QueryBuilder\Data\SelectBuilder;
-use FW\Kernel\Database\QueryBuilder\Where\Expression;
 use FW\Kernel\Exceptions\InvalidExtensionException;
 use FW\Kernel\Exceptions\ORM\ModelInitializationException;
 
 class ModelRepository
 {
     protected Database $database;
+    protected UnitOfWork $unitOfWork;
 
     public function __construct()
     {
         $this->database = container(Database::class);
+        $this->unitOfWork = UnitOfWork::getInstance();
     }
 
     public function getTableScheme(string $class): array
@@ -29,9 +28,9 @@ class ModelRepository
         return $this->database->describe($class::getTableName());
     }
 
-    public function deleteMany(ModelCollection $models): void
+    public function deleteMany(array|ModelCollection $models): void
     {
-        if ($models->isEmpty()) {
+        if (empty($models)) {
             return;
         }
 
@@ -52,9 +51,10 @@ class ModelRepository
         }
 
         $this->database->execute();
+        $this->unitOfWork->registerDeleted($models);
     }
 
-    public function insertMany(ModelCollection $models): void
+    public function insertMany(array|ModelCollection $models): void
     {
         $data = [];
 
@@ -65,9 +65,11 @@ class ModelRepository
         foreach (array_keys($data) as $class) {
             $this->database->insertMany($data[$class], $class::getTableName());
         }
+
+        $this->unitOfWork->registerClean($models);
     }
 
-    public function updateMany(ModelCollection $models, array $values)
+    public function updateMany(array|ModelCollection $models, array $values)
     {
         $data = [];
 
@@ -82,6 +84,7 @@ class ModelRepository
         }
 
         $this->database->execute();
+        $this->unitOfWork->registerClean($models);
     }
 
     public function where(string $class, string $field, string $value, string $expression = '='): WhereBuilderFacade
@@ -109,6 +112,7 @@ class ModelRepository
         $this->database->delete($model::getTableName())->andWhereAll($id);
 
         $this->database->execute();
+        $this->unitOfWork->remove($model);
     }
 
     public function update(Model $model, array $data = []): void
@@ -145,12 +149,19 @@ class ModelRepository
 
         $this->database->select($class::getTableName());
 
-        return new ModelCollection($this->database->fetchAsObject($class));
+        $this->unitOfWork->registerClean($models = new ModelCollection($this->database->fetchAsObject($class)));
+
+        return $models;
     }
 
     public function find(string $class, PrimaryKey $id, array $relations = []): ?Model
     {
         $this->checkClass($class);
+        $model = $this->unitOfWork->find($class, $id);
+
+        if ($model) {
+            return $model;
+        }
 
         if (!empty($relations)) {
             return $this->findWithRelations($class, $id, $relations);
@@ -158,9 +169,12 @@ class ModelRepository
 
         $this->database->select($class::getTableName())->andWhereAll($id->getValues());
 
-        $object = new ModelCollection($this->database->fetchAsObject($class));
+        $model = new ModelCollection($this->database->fetchAsObject($class));
+        $model = $model->isEmpty() ? null : $model[0];
 
-        return $object->isEmpty() ? null : $object[0];
+        $this->unitOfWork->registerClean($model);
+
+        return $model;
     }
 
     public function insert(Model $model): void
@@ -175,6 +189,8 @@ class ModelRepository
         if (!$model::hasCompositeKey()) {
             $model->setPrimary($id);
         }
+
+        $this->unitOfWork->registerClean($model);
     }
 
     protected function checkClass(string $class): void

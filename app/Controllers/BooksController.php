@@ -7,6 +7,11 @@ use App\Models\Book;
 use App\Models\Genre;
 use FW\Kernel\Controllers\Controller;
 use FW\Kernel\Database\Database;
+use FW\Kernel\Database\ORM\IdentityMap;
+use FW\Kernel\Database\ORM\ModelRepository;
+use FW\Kernel\Database\ORM\Models\PrimaryKey;
+use FW\Kernel\Database\ORM\UnitOfWork;
+use FW\Kernel\Database\SQL\SqlLogger;
 use FW\Kernel\Response\RedirectResponse;
 use FW\Kernel\Response\Response;
 
@@ -14,6 +19,31 @@ class BooksController extends Controller
 {
     public function index(Database $database): Response
     {
+        SqlLogger::on();
+        $uow = UnitOfWork::getInstance();
+        $rep = new ModelRepository();
+        $book = Book::find(16);
+        $rep->delete($book);
+        dd($book);
+//        $uow->registerNew(Book::find(1));
+        $uow->commit();
+        dd($uow);
+//        IdentityMap::getInstance()->add(Book::createDry(['title' => 'asd']));
+//        IdentityMap::getInstance()->add(Book::createDry(['title' => 'aфывsd']));
+//        dd($map = IdentityMap::getInstance());
+        $repository = new ModelRepository();
+//        $map->add($book = new Book());
+//        $map->add(Book::createDry(['id'=>1]));
+//        $key = new PrimaryKey(['id'=>1]);
+//        dd($map->find(Book::class ,['id'=>1]), $map, $key);
+        dump(Book::find(4), Book::whereIn('id', [4,5,1])->fetch());
+        dd(IdentityMap::getInstance());
+        dd(SqlLogger::getLogger());
+        dump($map);
+        $map->delete($book);
+        dump($map);
+        $map->clear();
+        dd($map);
         $books = Book::all(['author', 'genres']);
         $user = $this->getUser();
 

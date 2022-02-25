@@ -10,6 +10,7 @@ use FW\Kernel\Database\ORM\Relation\ManyToManyRelation;
 use FW\Kernel\Database\ORM\Relation\OneToManyRelation;
 use FW\Kernel\Database\ORM\Relation\RelationFactory;
 use FW\Kernel\Database\ORM\Relation\ToOneRelation;
+use FW\Kernel\Database\ORM\UnitOfWork;
 use FW\Kernel\Database\ORM\WhereBuilderFacade;
 use FW\Kernel\Exceptions\IllegalTypeException;
 use FW\Kernel\Exceptions\InvalidExtensionException;
@@ -102,16 +103,20 @@ abstract class Model
             $model->silentSet($property, $value);
         }
 
+        UnitOfWork::getInstance()->registerNew($model);
+
         return $model;
     }
 
     public static function create(array $data): self
     {
-        $object = static::createDry($data);
+        $model = static::createDry($data);
 
-        $object->insert();
+        $model->insert();
 
-        return $object;
+        UnitOfWork::getInstance()->registerClean($model);
+
+        return $model;
     }
 
     public function fetch(): self
@@ -173,6 +178,11 @@ abstract class Model
     public function primary(): array
     {
         return $this->primary->getValues();
+    }
+
+    public function getPrimaryKey(): PrimaryKey
+    {
+        return $this->primary;
     }
 
     public static function getIdColumns(): array
@@ -323,9 +333,9 @@ abstract class Model
         $fields = [];
 
         foreach (static::getColumns() as $column) {
-            if ($this->$column !== null) {
+//            if ($this->$column !== null) {
                 $fields[$column] = $this->$column;
-            }
+//            }
         }
 
         if (empty($fields)) {

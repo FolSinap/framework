@@ -18,6 +18,11 @@ class PrimaryKey
         return $this->values;
     }
 
+    public function isUnknown(): bool
+    {
+        return in_array(null, $this->values);
+    }
+
     public function isComposite(): bool
     {
         if (count($this->values) > 1) {
