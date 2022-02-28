@@ -53,7 +53,13 @@ class IdentityMap
     {
         if ($this->models->hasKey($model::class)) {
             if ($model->getPrimaryKey()->isUnknown()) {
-                $this->models[$model::class]['unknown'][spl_object_id($model)] = $model;
+                if (!$this->models[$model::class]->hasKey(spl_object_id($model))) {
+                    $map = new Map();
+                    $map[spl_object_id($model)] = $model;
+                    $this->models[$model::class]['unknown'] = $map;
+                } else {
+                    $this->models[$model::class]['unknown'][spl_object_id($model)] = $model;
+                }
             } else {
                 $this->models[$model::class][$model->getPrimaryKey()->getValues()] = $model;
             }

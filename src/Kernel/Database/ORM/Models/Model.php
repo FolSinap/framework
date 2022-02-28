@@ -81,7 +81,10 @@ abstract class Model
     {
         $ids = self::primaryKeyToAssoc($id);
 
-        return static::createDry($ids)->initIdColumns()->setExists()->setIsChanged();
+        $model = static::createDry($ids)->initIdColumns()->setExists()->setIsChanged();
+        UnitOfWork::getInstance()->registerClean($model);
+
+        return $model;
     }
 
     public static function fromIds(array $ids): ModelCollection
@@ -235,7 +238,7 @@ abstract class Model
     {
         $this->relations = [];
         $this->relationFactory = null;
-        $this->primary = null;
+//        $this->primary = null;
     }
 
     public function insert(): void
@@ -281,7 +284,17 @@ abstract class Model
 
     public static function __set_state($fields): self
     {
-        return static::createDry($fields);
+        $model = new static();
+
+        $model->fields = $fields['fields'];
+        $model->changed = $fields['changed'];
+        $model->relations = $fields['relations'];
+        $model->exists = $fields['exists'];
+        $model->isChanged = $fields['isChanged'];
+        $model->primary = $fields['primary'];
+        $model->relationFactory = $fields['relationFactory'];
+
+        return $model;
     }
 
     public function __get(string $name)
@@ -313,6 +326,10 @@ abstract class Model
 
         if (in_array($name, $fields)) {
             $this->changed[] = $name;
+        }
+
+        if ($isChanged) {
+            UnitOfWork::getInstance()->registerDirty($this);
         }
 
         $this->setIsChanged($isChanged);
@@ -462,7 +479,7 @@ abstract class Model
         return $keys;
     }
 
-    private function setFieldValue(string $name, $value): bool
+    private function setFieldValue(string $name, mixed $value): bool
     {
         $isChanged = $this->exists();
 

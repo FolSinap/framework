@@ -5,6 +5,7 @@ namespace FW\Kernel\Database\ORM;
 use Ds\Map;
 use FW\Kernel\Database\ORM\Models\Model;
 use FW\Kernel\Database\ORM\Models\PrimaryKey;
+use FW\Kernel\Exceptions\IllegalValueException;
 
 class UnitOfWork
 {
@@ -45,14 +46,8 @@ class UnitOfWork
         $this->addToIdentityMap($models);
 
         foreach ($models as $model) {
-            if ($model->getPrimaryKey()->isUnknown()) {
-                $id = spl_object_id($model);
-                $this->new['unknown'] = [$id => $model];
-            } else {
-                $this->new->put($model->getPrimaryKey()->getValues(), $model);
-            }
-
-            $this->deleteFromList($model);
+            $this->add($model, 'new');
+            $this->deleteFromList($model, 'clean');
         }
     }
 
@@ -63,14 +58,8 @@ class UnitOfWork
         $this->addToIdentityMap($models);
 
         foreach ($models as $model) {
-            if ($model->getPrimaryKey()->isUnknown()) {
-                $id = spl_object_id($model);
-                $this->dirty['unknown'] = [$id => $model];
-            } else {
-                $this->dirty->put($model->getPrimaryKey()->getValues(), $model);
-            }
-
-            $this->deleteFromList($model);
+            $this->add($model, 'dirty');
+            $this->deleteFromList($model, 'clean');
         }
     }
 
@@ -81,15 +70,7 @@ class UnitOfWork
         $this->addToIdentityMap($models);
 
         foreach ($models as $model) {
-            if ($model->getPrimaryKey()->isUnknown()) {
-                $id = spl_object_id($model);
-                $this->clean['unknown'] = [$id => $model];
-
-                return;
-            }
-
-            $this->clean->put($model->getPrimaryKey()->getValues(), $model);
-
+            $this->add($model, 'clean');
             $this->deleteFromList($model, 'new');
             $this->deleteFromList($model, 'dirty');
             $this->deleteFromList($model, 'deleted');
@@ -101,14 +82,8 @@ class UnitOfWork
         $models = $models instanceof Model ? new ModelCollection([$models]) : $models;
 
         foreach ($models as $model) {
-            if ($model->getPrimaryKey()->isUnknown()) {
-                $id = spl_object_id($model);
-                $this->deleted['unknown'] = [$id => $model];
-            } else {
-                $this->deleted->put($model->getPrimaryKey()->getValues(), $model);
-            }
-
-            $this->deleteFromList($model);
+            $this->add($model, 'deleted');
+            $this->deleteFromList($model, 'clean');
         }
     }
 
@@ -118,7 +93,7 @@ class UnitOfWork
 
         foreach ($models as $model) {
             $this->identityMap->delete($model);
-            $this->deleteFromList($model);
+            $this->deleteFromList($model, 'clean');
             $this->deleteFromList($model, 'new');
             $this->deleteFromList($model, 'dirty');
             $this->deleteFromList($model, 'deleted');
@@ -132,6 +107,31 @@ class UnitOfWork
         $this->commitDeleted();
     }
 
+    protected function add(Model $model, string $listName): void
+    {
+        IllegalValueException::checkValue($listName, ['new', 'dirty', 'clean', 'deleted']);
+
+        if ($this->{$listName}->hasKey($model::class)) {
+            $map = $this->{$listName}[$model::class];
+        } else {
+            $map = new Map();
+        }
+
+        if ($model->getPrimaryKey()->isUnknown()) {
+            $id = spl_object_id($model);
+
+            if ($map->hasKey('unknown')) {
+                $map['unknown'][$id] = $model;
+            } else {
+                $map['unknown'] = [$id => $model];
+            }
+        } else {
+            $map[$model->getPrimaryKey()->getValues()] = $model;
+        }
+
+        $this->{$listName}[$model::class] = $map;
+    }
+
     protected function addToIdentityMap(ModelCollection|array $models): void
     {
         foreach ($models as $model) {
@@ -141,15 +141,31 @@ class UnitOfWork
         }
     }
 
-    protected function deleteFromList(Model $model, string $list = 'clean'): void
+    protected function deleteFromList(Model $model, string $listName): void
     {
-        if ($this->{$list}->hasKey('unknown')) {
-            unset($this->{$list}['unknown'][spl_object_id($model)]);
+        IllegalValueException::checkValue($listName, ['new', 'dirty', 'clean', 'deleted']);
+
+        if (!$this->{$listName}->hasKey($model::class)) {
+            return;
         }
 
-        if ($this->{$list}->hasKey($model->getPrimaryKey()->getValues())) {
-            $this->{$list}->remove($model->getPrimaryKey()->getValues());
+        $map = $this->{$listName}->get($model::class);
+
+        if ($map->hasKey('unknown')) {
+            unset($map['unknown'][spl_object_id($model)]);
         }
+
+        if ($map->hasKey($model->getPrimaryKey()->getValues())) {
+            $map->remove($model->getPrimaryKey()->getValues());
+        }
+
+        if ($map->isEmpty()) {
+            $this->{$listName}->remove($model::class);
+
+            return;
+        }
+
+        $this->{$listName}[$model::class] = $map;
     }
 
     protected function insertNew(): void
@@ -160,11 +176,13 @@ class UnitOfWork
 
         $new = [];
 
-        foreach ($this->new as $model) {
-            if ($model instanceof Model) {
-                $new[] = $model;
-            } elseif (is_array($model)) {
-                array_push($new, ...$model);
+        foreach ($this->new as $classMap) {
+            foreach ($classMap as $model) {
+                if ($model instanceof Model) {
+                    $new[] = $model;
+                } elseif (is_array($model)) {
+                    array_push($new, ...$model);
+                }
             }
         }
 
@@ -185,11 +203,13 @@ class UnitOfWork
 
         $dirty = [];
 
-        foreach ($this->dirty as $model) {
-            if ($model instanceof Model) {
-                $dirty[] = $model;
-            } elseif (is_array($model)) {
-                array_push($dirty, ...$model);
+        foreach ($this->dirty as $classMap) {
+            foreach ($classMap as $model) {
+                if ($model instanceof Model) {
+                    $dirty[] = $model;
+                } elseif (is_array($model)) {
+                    array_push($dirty, ...$model);
+                }
             }
         }
 
@@ -209,11 +229,13 @@ class UnitOfWork
 
         $deleted = [];
 
-        foreach ($this->deleted as $model) {
-            if ($model instanceof Model) {
-                $deleted[] = $model;
-            } elseif (is_array($model)) {
-                array_push($deleted, ...$model);
+        foreach ($this->deleted as $classMap) {
+            foreach ($classMap as $model) {
+                if ($model instanceof Model) {
+                    $deleted[] = $model;
+                } elseif (is_array($model)) {
+                    array_push($deleted, ...$model);
+                }
             }
         }
 
