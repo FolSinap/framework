@@ -12,6 +12,12 @@ class User extends UserModel
             'class' => Book::class,
             'type' => Relation::ONE_TO_MANY,
             'field' => 'author_id',
+            'inversed_by' => 'author',
         ],
     ];
+
+    public static function getColumns(): array
+    {
+        return ['id', 'email', 'password'];
+    }
 }

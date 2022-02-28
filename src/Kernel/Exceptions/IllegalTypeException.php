@@ -10,6 +10,11 @@ class IllegalTypeException extends DomainException
     public function __construct($value, array $types, $code = 500, Throwable $previous = null)
     {
         $type = gettype($value);
+
+        if ($type === 'object') {
+            $type = $value::class;
+        }
+
         $types = implode(', ', $types);
 
         $message = "Type must be one of: $types. \nGot $type instead.";

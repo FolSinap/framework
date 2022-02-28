@@ -8,7 +8,7 @@ use FW\Kernel\Database\ORM\Relation\Relation;
 class Book extends Model
 {
     public const RELATIONS = [
-        'author' => ['class' => User::class, 'field' => 'author_id'],
+        'author' => ['class' => User::class, 'field' => 'author_id', 'inversed_by' => 'books'],
         'genres' => [
             'class' => Genre::class,
             'field' => 'genre_id',

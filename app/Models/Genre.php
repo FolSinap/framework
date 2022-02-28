@@ -16,4 +16,9 @@ class Genre extends Model
             'defined_by' => 'genre_id',
         ],
     ];
+
+    public static function getColumns(): array
+    {
+        return ['id', 'name'];
+    }
 }

@@ -5,10 +5,14 @@ namespace FW\Kernel\Database\ORM;
 use FW\Kernel\Database\Database;
 use FW\Kernel\Database\ORM\Models\Model;
 use FW\Kernel\Database\ORM\Models\PrimaryKey;
+use FW\Kernel\Database\ORM\Relation\ManyToManyRelation;
+use FW\Kernel\Database\ORM\Relation\OneToManyRelation;
 use FW\Kernel\Database\ORM\Relation\ToOneRelation;
 use FW\Kernel\Database\QueryBuilder\Data\SelectBuilder;
+use FW\Kernel\Exceptions\IllegalTypeException;
 use FW\Kernel\Exceptions\InvalidExtensionException;
 use FW\Kernel\Exceptions\ORM\ModelInitializationException;
+use ReflectionProperty;
 
 class ModelRepository
 {
@@ -243,10 +247,36 @@ class ModelRepository
                 $relationObject = $main->getRelation($relation);
                 $related = $result[$relationObject->getRelated()];
 
+                if (!is_null($related)) {
+                    $this->setExists($related);
+                }
+
                 if ($relationObject instanceof ToOneRelation) {
                     $main->__set($relation, $related);
                 } elseif ($related instanceof Model) {
                     $main->getLazy($relation)->add($related);
+                }
+
+                $inversed = $relationObject->getInversedBy();
+
+                if ($inversed && $related) {
+                    $relationObject = $related->getRelation($inversed);
+
+                    switch ($relationObject::class) {
+                        case ToOneRelation::class:
+                            $related->{$inversed} = $main;
+
+                            break;
+                        case OneToManyRelation::class:
+                        case ManyToManyRelation::class:
+                            $related->getLazy($inversed)->add($main);
+
+                            break;
+                        default:
+                            throw new IllegalTypeException($relationObject,
+                                [ToOneRelation::class, OneToManyRelation::class, ManyToManyRelation::class]
+                            );
+                    }
                 }
             }
         }
@@ -395,5 +425,12 @@ class ModelRepository
         }
 
         return $aliases;
+    }
+
+    private function setExists(Model $model): void
+    {
+        $reflection = new ReflectionProperty(Model::class, 'exists');
+        $reflection->setAccessible(true);
+        $reflection->setValue($model, true);
     }
 }

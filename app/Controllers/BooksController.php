@@ -13,6 +13,7 @@ class BooksController extends Controller
 {
     public function index(): Response
     {
+//        dd(Book::all(['author', 'genres']));
         $books = Book::all(['author', 'genres']);
         $user = $this->getUser();
 

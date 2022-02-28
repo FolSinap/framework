@@ -10,9 +10,9 @@ use FW\Kernel\Exceptions\ORM\UndefinedRelationException;
 
 class OneToManyRelation extends Relation
 {
-    public function __construct(Model $from, string $related, string $field)
+    public function __construct(Model $from, string $related, string $field, ?string $inversedBy = null)
     {
-        parent::__construct($from, $related, $field);
+        parent::__construct($from, $related, $field, $inversedBy);
 
         if ($from::hasCompositeKey()) {
             throw new NotSupportedException('to-many relation types don\'t support composite keys.');
