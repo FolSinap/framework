@@ -132,7 +132,7 @@ class MakeModelCommand extends MakeCommand
         $relations = $this->buildRelation($output);
 
         if (!empty($relations)) {
-            $definition = "\n\tprotected const RELATIONS = [\n";
+            $definition = "\n\tpublic const RELATIONS = [\n";
         }
 
         foreach ($relations as $relation) {
@@ -195,6 +195,10 @@ class MakeModelCommand extends MakeCommand
                     }
 
                     break;
+            }
+
+            if (($inversedBy = $output->input('Set inversed field [Enter to skip]: ')) !== '') {
+                $relation['inversed_by'] = $inversedBy;
             }
 
             $relations[] = $relation;
