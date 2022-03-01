@@ -27,7 +27,9 @@ class ModelCollection implements ArrayAccess, IteratorAggregate, Countable
 
     public function add(Model $model): self
     {
-        $this->data[] = $model;
+        if (!in_array($model, $this->data)) {
+            $this->data[] = $model;
+        }
 
         return $this;
     }

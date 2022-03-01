@@ -388,6 +388,7 @@ class ModelRepository
         }
 
         foreach ($data as $key => $entry) {
+            /** @var Model $class */
             foreach ($entry as $class => $properties) {
                 $properties = array_filter($properties, function ($property) {
                     return !is_null($property);
@@ -396,7 +397,15 @@ class ModelRepository
                 if (empty($properties)) {
                     $data[$key][$class] = null;
                 } else {
-                    $data[$key][$class] = $class::createDry($properties);
+                    $ids = $class::getIdColumns();
+                    $ids = array_intersect_key($properties, array_flip($ids));
+                    $model = $this->unitOfWork->find($class, $ids);
+
+                    if (is_null($model)) {
+                        $data[$key][$class] = $class::createDry($properties);
+                    } else {
+                        $data[$key][$class] = $model;
+                    }
                 }
             }
         }
