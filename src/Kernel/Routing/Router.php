@@ -54,6 +54,16 @@ class Router
         $pipeline = new Pipeline();
 
         if ($route = $this->findRoute($url, $verb)) {
+            if (!$route->checkGuards()) {
+                $response = Response::unauthorized();
+
+                $pipeline->addPipe(function () use ($response) {
+                    return $response;
+                });
+
+                return $pipeline;
+            }
+
             $middlewares = container(MiddlewareMapper::class)
                 ->mapMany(array_merge(config('app.middlewares.default', []), $route->getMiddlewares()));
 

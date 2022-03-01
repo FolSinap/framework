@@ -33,6 +33,10 @@ return [
         'dir' => $projectDir . '/app/Commands',
         'namespace' => '\\App\\Commands',
     ],
+    'guards' => [
+        'dir' => $projectDir . '/app/Guards',
+        'namespace' => '\\App\\Guards',
+    ],
     'csrf' => [
         'enable' => true,
         'validator' => \FW\Kernel\Csrf\CsrfValidator::SYNCHRONIZER_TOKENS_PATTERN,

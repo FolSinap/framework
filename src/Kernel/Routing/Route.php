@@ -4,10 +4,12 @@ namespace FW\Kernel\Routing;
 
 use BadMethodCallException;
 use Closure;
-use FW\Kernel\App;
+use FW\Kernel\Exceptions\Guards\GuardDefinitionException;
 use FW\Kernel\Exceptions\IllegalTypeException;
 use FW\Kernel\Exceptions\IllegalValueException;
 use FW\Kernel\Exceptions\Router\CannotGenerateWildcardException;
+use FW\Kernel\Guards\Guard;
+use FW\Kernel\Guards\GuardMapper;
 use FW\Kernel\ObjectResolver;
 
 class Route
@@ -26,6 +28,7 @@ class Route
     protected array $verbs;
     protected array $middlewares = [];
     protected array $wildcards = [];
+    protected array $guards = [];
     protected ObjectResolver $resolver;
     protected $callback;
 
@@ -33,7 +36,24 @@ class Route
     {
         $this->url = $url;
         $this->callback = $callback;
-        $this->resolver = App::$app->getContainer()->get(ObjectResolver::class);
+        $this->resolver = container(ObjectResolver::class);
+    }
+
+    public function guard(string ...$guards): self
+    {
+        foreach ($guards as $guard) {
+            if (!str_contains($guard, ':')) {
+                throw new GuardDefinitionException("Wrong definition - '$guard'. Guard definition must contain : character.");
+            } elseif (substr_count($guard, ':') > 1) {
+                throw new GuardDefinitionException("Wrong definition - '$guard'. Too many : characters.");
+            }
+
+            [$guardName, $method] = explode(':', $guard);
+
+            $this->guards[] = compact('guardName', 'method');
+        }
+
+        return $this;
     }
 
     public function generateUrl(array $wildcards = []): string
@@ -58,6 +78,23 @@ class Route
     public function match(string $url, string $verb): bool
     {
         return $this->matchVerb($verb) && $this->matchUrl($url);
+    }
+
+    public function checkGuards(): bool
+    {
+        foreach ($this->guards as $guard) {
+            $guardName = $guard['guardName'];
+            $method = $guard['method'];
+            $guard = $this->resolveGuard($guardName);
+
+            $args = $this->resolver->resolveDependencies($guard::class, $method, $this->wildcards);
+
+            if (!$guard->$method(...$args)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public function resolveCallback(): Closure
@@ -179,5 +216,13 @@ class Route
     protected function parseUrl(string $url): array
     {
         return explode('/', $url);
+    }
+
+    protected function resolveGuard(string $guardName): Guard
+    {
+        /** @var GuardMapper $mapper */
+        $mapper = container(ObjectResolver::class)->resolve(GuardMapper::class);
+
+        return $mapper->map($guardName);
     }
 }

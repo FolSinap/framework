@@ -6,7 +6,7 @@ use FW\Kernel\App;
 use FW\Kernel\View\View;
 use FW\Kernel\Response\Response;
 
-$router = App::$app->getRouter();
+$router = app()->getRouter();
 
 $router->get('/', function () {
     return Response::create(View::create('index.php'));
@@ -15,7 +15,10 @@ $router->get('/', function () {
 $router->get('/books', [BooksController::class, 'index'])->name('books_index');
 $router->get('/books/create', [BooksController::class, 'create'])->name('books_create')->middleware('authenticate');
 $router->post('/books/create', [BooksController::class, 'store'])->name('books_store')->middleware('authenticate');
-$router->get('/books/edit/{book}', [BooksController::class, 'edit'])->name('books_edit')->middleware('authenticate');
+$router->get('/books/edit/{book}', [BooksController::class, 'edit'])
+    ->name('books_edit')
+    ->middleware('authenticate')
+    ->guard('books:manage');
 $router->put('/books/edit/{book}', [BooksController::class, 'update'])->name('books_update')->middleware('authenticate');
 $router->delete('/books/delete/{book}', [BooksController::class, 'delete'])->name('books_delete')->middleware('authenticate');
 
