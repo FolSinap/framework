@@ -25,7 +25,16 @@ class ModelCollection implements ArrayAccess, IteratorAggregate, Countable
         $this->data = $data;
     }
 
-    public function add(self $models): self
+    public function add(Model $model): self
+    {
+        if (!in_array($model, $this->data)) {
+            $this->data[] = $model;
+        }
+
+        return $this;
+    }
+
+    public function addMany(self $models): self
     {
         array_push($this->data, ...$models->toArray());
 

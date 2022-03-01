@@ -10,6 +10,7 @@ use FW\Kernel\Database\ORM\Relation\ManyToManyRelation;
 use FW\Kernel\Database\ORM\Relation\OneToManyRelation;
 use FW\Kernel\Database\ORM\Relation\RelationFactory;
 use FW\Kernel\Database\ORM\Relation\ToOneRelation;
+use FW\Kernel\Database\ORM\UnitOfWork;
 use FW\Kernel\Database\ORM\WhereBuilderFacade;
 use FW\Kernel\Exceptions\IllegalTypeException;
 use FW\Kernel\Exceptions\InvalidExtensionException;
@@ -20,11 +21,12 @@ use LogicException;
 
 abstract class Model
 {
-    protected const RELATIONS = [];
+    public const RELATIONS = [];
     protected const ID_COLUMNS = ['id'];
 
     protected static array $tableNames;
     protected static array $columns = [];
+    protected static array $loadedRelations = [];
     protected static array $casts = [];
     protected array $fields = [];
     protected array $changed = [];
@@ -39,24 +41,24 @@ abstract class Model
     public function __construct()
     {
         $this->relationFactory = $this->getFactory();
-        $this->initRelations();
         $this->initIdColumns();
+        $this->initRelations();
     }
 
     public static function getColumns(): array
     {
-        if (empty(static::$columns)) {
-            static::$columns = self::getRepository()->getTableScheme(static::class);
+        if (empty(self::$columns) || !array_key_exists(static::class, self::$columns)) {
+            self::$columns[static::class] = self::getRepository()->getTableScheme(static::class);
         }
 
-        return static::$columns;
+        return self::$columns[static::class];
     }
 
-    public static function find($id): ?self
+    public static function find($id, array $relations = []): ?self
     {
         $id = new PrimaryKey(self::primaryKeyToAssoc($id));
 
-        $model = self::getRepository()->find(static::class, $id);
+        $model = self::getRepository()->find(static::class, $id, $relations);
 
         if ($model) {
             $model->setExists();
@@ -65,10 +67,11 @@ abstract class Model
         return $model;
     }
 
-    public static function all(): ModelCollection
+    public static function all(array $relations = []): ModelCollection
     {
-        $models = self::getRepository()->allByClass(static::class);
+        $models = self::getRepository()->allByClass(static::class, $relations);
 
+        self::addLoadedRelations($relations);
         self::setExistsAll($models);
 
         return $models;
@@ -78,7 +81,10 @@ abstract class Model
     {
         $ids = self::primaryKeyToAssoc($id);
 
-        return static::createDry($ids)->initIdColumns()->setExists()->setIsChanged();
+        $model = static::createDry($ids)->initIdColumns()->setExists()->setIsChanged();
+        UnitOfWork::getInstance()->registerClean($model);
+
+        return $model;
     }
 
     public static function fromIds(array $ids): ModelCollection
@@ -100,16 +106,20 @@ abstract class Model
             $model->silentSet($property, $value);
         }
 
+        UnitOfWork::getInstance()->registerNew($model);
+
         return $model;
     }
 
     public static function create(array $data): self
     {
-        $object = static::createDry($data);
+        $model = static::createDry($data);
 
-        $object->insert();
+        $model->insert();
 
-        return $object;
+        UnitOfWork::getInstance()->registerClean($model);
+
+        return $model;
     }
 
     public function fetch(): self
@@ -173,6 +183,11 @@ abstract class Model
         return $this->primary->getValues();
     }
 
+    public function getPrimaryKey(): PrimaryKey
+    {
+        return $this->primary;
+    }
+
     public static function getIdColumns(): array
     {
         return static::ID_COLUMNS;
@@ -223,7 +238,7 @@ abstract class Model
     {
         $this->relations = [];
         $this->relationFactory = null;
-        $this->primary = null;
+//        $this->primary = null;
     }
 
     public function insert(): void
@@ -269,13 +284,34 @@ abstract class Model
 
     public static function __set_state($fields): self
     {
-        return static::createDry($fields);
+        $model = new static();
+
+        $model->fields = $fields['fields'];
+        $model->changed = $fields['changed'];
+        $model->relations = $fields['relations'];
+        $model->exists = $fields['exists'];
+        $model->isChanged = $fields['isChanged'];
+        $model->primary = $fields['primary'];
+        $model->relationFactory = $fields['relationFactory'];
+
+        return $model;
     }
 
     public function __get(string $name)
     {
-        if (array_key_exists($name, $this->relations)) {
+        if (array_key_exists($name, $this->relations) && !in_array($name, static::loadedRelations())) {
             $relation = $this->relations[$name]->get();
+            $this->silentSet($name, $relation);
+            static::addLoadedRelations([$name]);
+        }
+
+        return $this->fields[$name] ?? null;
+    }
+
+    public function getLazy(string $name)
+    {
+        if (!array_key_exists($name, $this->fields) && array_key_exists($name, $this->relations)) {
+            $relation = $this->relations[$name]->getDry();
             $this->silentSet($name, $relation);
         }
 
@@ -290,6 +326,10 @@ abstract class Model
 
         if (in_array($name, $fields)) {
             $this->changed[] = $name;
+        }
+
+        if ($isChanged) {
+            UnitOfWork::getInstance()->registerDirty($this);
         }
 
         $this->setIsChanged($isChanged);
@@ -310,9 +350,9 @@ abstract class Model
         $fields = [];
 
         foreach (static::getColumns() as $column) {
-            if ($this->$column !== null) {
+//            if ($this->$column !== null) {
                 $fields[$column] = $this->$column;
-            }
+//            }
         }
 
         if (empty($fields)) {
@@ -439,7 +479,7 @@ abstract class Model
         return $keys;
     }
 
-    private function setFieldValue(string $name, $value): bool
+    private function setFieldValue(string $name, mixed $value): bool
     {
         $isChanged = $this->exists();
 
@@ -527,6 +567,24 @@ abstract class Model
 
             $this->{$relation->getConnectField()} = array_pop($primary);
         }
+    }
+
+    private static function addLoadedRelations(array $relations): void
+    {
+        if (array_key_exists(static::class, self::$loadedRelations)) {
+            self::$loadedRelations[static::class] = array_merge(self::$loadedRelations[static::class], $relations);
+        } else {
+            self::$loadedRelations[static::class] = $relations;
+        }
+    }
+
+    private static function loadedRelations(): array
+    {
+        if (!array_key_exists(static::class, self::$loadedRelations)) {
+            self::$loadedRelations[static::class] = [];
+        }
+
+        return self::$loadedRelations[static::class];
     }
 
     private function initIdColumns(): self

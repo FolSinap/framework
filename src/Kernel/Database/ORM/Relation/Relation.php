@@ -16,9 +16,10 @@ abstract class Relation
     protected Model $from;
     protected string $related;
     protected string $through;
+    protected ?string $inversedBy;
     protected $dry;
 
-    public function __construct(Model $from, string $related, string $field)
+    public function __construct(Model $from, string $related, string $field, ?string $inversedBy = null)
     {
         if (!is_subclass_of($related, Model::class)) {
             throw new InvalidExtensionException($related, Model::class);
@@ -31,9 +32,15 @@ abstract class Relation
         $this->from = $from;
         $this->related = $related;
         $this->through = $field;
+        $this->inversedBy = $inversedBy;
     }
 
     abstract public function get();
+
+    public function getInversedBy(): ?string
+    {
+        return $this->inversedBy;
+    }
 
     public function isRelated(Model $model): bool
     {

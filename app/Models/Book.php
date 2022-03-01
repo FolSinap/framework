@@ -7,8 +7,8 @@ use FW\Kernel\Database\ORM\Relation\Relation;
 
 class Book extends Model
 {
-    protected const RELATIONS = [
-        'author' => ['class' => User::class, 'field' => 'author_id'],
+    public const RELATIONS = [
+        'author' => ['class' => User::class, 'field' => 'author_id', 'inversed_by' => 'books'],
         'genres' => [
             'class' => Genre::class,
             'field' => 'genre_id',
@@ -23,5 +23,9 @@ class Book extends Model
         'author_id' => 'int',
         'title' => 'string',
     ];
-    protected static array $columns = ['title', 'author_id', 'id'];
+
+    public static function getColumns(): array
+    {
+        return ['title', 'author_id', 'id'];
+    }
 }

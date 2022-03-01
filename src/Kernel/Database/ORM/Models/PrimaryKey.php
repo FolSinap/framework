@@ -18,6 +18,11 @@ class PrimaryKey
         return $this->values;
     }
 
+    public function isUnknown(): bool
+    {
+        return in_array(null, $this->values);
+    }
+
     public function isComposite(): bool
     {
         if (count($this->values) > 1) {
@@ -46,5 +51,10 @@ class PrimaryKey
     public function getColumns(): array
     {
         return array_keys($this->values);
+    }
+
+    public static function __set_state(array $array): object
+    {
+        return new self($array['values']);
     }
 }

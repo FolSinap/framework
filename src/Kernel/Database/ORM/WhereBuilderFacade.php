@@ -28,8 +28,18 @@ class WhereBuilderFacade
     public function fetch(): ModelCollection
     {
         $models = new ModelCollection($this->database->fetchAsObject($this->class));
+        $map = IdentityMap::getInstance();
+
+        foreach ($models as $key => $model) {
+            if ($map->isManaged($model)) {
+                $models[$key] = $map->find($model::class, $model->getPrimaryKey());
+
+                unset($model);
+            }
+        }
 
         $this->setExists($models);
+        UnitOfWork::getInstance()->registerClean($models);
 
         return $models;
     }
