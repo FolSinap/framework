@@ -14,6 +14,6 @@ class BooksGuard extends Guard
 
     public function manage(Book $book): bool
     {
-        return $this->getUser()->id === $book->author_id;
+        return $this->getUser()?->id === $book->author_id;
     }
 }

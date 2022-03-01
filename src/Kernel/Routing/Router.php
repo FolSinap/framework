@@ -5,6 +5,7 @@ namespace FW\Kernel\Routing;
 use FW\Kernel\Exceptions\Router\UnknownRouteNameException;
 use FW\Kernel\Middlewares\MiddlewareMapper;
 use FW\Kernel\Pipeline;
+use FW\Kernel\Request;
 use FW\Kernel\Response\Response;
 
 class Router
@@ -49,11 +50,16 @@ class Router
         return $this->addRoute($url, Route::DELETE, $callback, $name);
     }
 
-    public function resolve(string $url, string $verb): Pipeline
+    public function getRoute(Request $request): ?Route
+    {
+        return $this->findRoute($request->getPath(), $request->getMethod());
+    }
+
+    public function resolve(Request $request): Pipeline
     {
         $pipeline = new Pipeline();
 
-        if ($route = $this->findRoute($url, $verb)) {
+        if ($route = $this->getRoute($request)) {
             if (!$route->checkGuards()) {
                 $response = Response::unauthorized();
 

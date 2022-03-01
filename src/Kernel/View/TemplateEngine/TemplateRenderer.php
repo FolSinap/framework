@@ -6,6 +6,7 @@ use FW\Kernel\Exceptions\InterfaceNotFoundException;
 use FW\Kernel\ObjectResolver;
 use FW\Kernel\View\TemplateEngine\Directives\AnonDirective;
 use FW\Kernel\View\TemplateEngine\Directives\AuthDirective;
+use FW\Kernel\View\TemplateEngine\Directives\GuardDirective;
 use FW\Kernel\View\TemplateEngine\Directives\IDirective;
 use FW\Kernel\View\TemplateEngine\Directives\ForeachDirective;
 use FW\Kernel\View\TemplateEngine\Directives\Invokable\CsrfDirective;
@@ -28,6 +29,7 @@ class TemplateRenderer
         AnonDirective::class,
         ForeachDirective::class,
         IfDirective::class,
+        GuardDirective::class,
         RouteDirective::class,
         MethodDirective::class,
         RenderParametersDirective::class,
