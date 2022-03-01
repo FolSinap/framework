@@ -25,7 +25,7 @@ class ExpressionParser
         $this->container = $container;
     }
 
-    public function processExpression(string $expression)
+    public function processExpression(string $expression): mixed
     {
         $expression = trim($expression, ' ');
 
@@ -54,20 +54,20 @@ class ExpressionParser
                         $variable->prepareForExport();
                     }
 
-                    $expressions[$key] = var_export($variable, true);
+                    $expressions[$key] = $variable;
                 } elseif (in_array($expression, self::IF_OPERATORS)) {
                     switch ($expression) {
                         case '??':
-                            $expressions[$key] = var_export(eval('return ' . $expressions[$key - 1] . ';'), true)
+                            $expressions[$key] = eval('return ' . $expressions[$key - 1] . ';')
                                 ?? $this->getVariable($expressions[$key + 1]);
 
                             unset($expressions[$key - 1], $expressions[$key + 1]);
 
                             break;
                         case '?':
-                            $expressions[$key] = eval('return ' . $expressions[$key - 1] . ';')
-                                ? var_export($this->getVariable($expressions[$key + 1]), true)
-                                : var_export($this->getVariable($expressions[$key + 3]), true);
+                            $expressions[$key] = $expressions[$key - 1]
+                                ? $this->getVariable($expressions[$key + 1])
+                                : $this->getVariable($expressions[$key + 3]);
 
                             unset($expressions[$key - 1],
                                 $expressions[$key + 1],
@@ -80,11 +80,18 @@ class ExpressionParser
                 }
             }
 
-            return eval('return ' . implode(' ', $expressions) . ';');
+            $storageArray = [];
+
+            foreach ($expressions as $key => $expression) {
+                //todo: operators are already processed. Is it necessary to use 'if' here?
+                $storageArray[] = $this->isOperator($expression) ? $expression : '$expressions[' . $key . ']';
+            }
+
+            return eval('return ' . implode(' ', $storageArray) . ';');
         }
     }
 
-    public function getVariable(string $variable)
+    public function getVariable(string $variable): mixed
     {
         switch (true) {
             case $this->isStringVar($variable):

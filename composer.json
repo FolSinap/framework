@@ -23,6 +23,7 @@
       "ext-openssl": "*",
       "ext-redis": "*",
       "ext-json": "*",
-        "nesbot/carbon": "^2.56"
+        "nesbot/carbon": "^2.56",
+      "ext-ds": "*"
     }
 }

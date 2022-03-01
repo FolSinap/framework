@@ -222,19 +222,13 @@ class FileLoader
             $buffer .= fread($source, 512);
             $tokens = @token_get_all($buffer); //@ prevents warnings
 
-            if (strpos($buffer, '{') === false) {
+            if (!str_contains($buffer, '{')) {
                 continue;
             }
 
             for (;$i<count($tokens);$i++) {
                 if ($tokens[$i][0] === T_NAMESPACE) {
-                    for ($j=$i+1;$j<count($tokens); $j++) {
-                        if ($tokens[$j][0] === T_STRING) {
-                            $namespace .= '\\'.$tokens[$j][1];
-                        } else if ($tokens[$j] === '{' || $tokens[$j] === ';') {
-                            break;
-                        }
-                    }
+                    $namespace = $tokens[$i + 2][0] === T_NAME_QUALIFIED ? $tokens[$i + 2][1] : '';
                 }
 
                 if ($tokens[$i][0] === T_CLASS || $tokens[$i][0] === T_INTERFACE) {

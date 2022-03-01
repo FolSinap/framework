@@ -7,7 +7,7 @@ use FW\Kernel\Database\ORM\Relation\Relation;
 
 class Genre extends Model
 {
-    protected const RELATIONS = [
+    public const RELATIONS = [
         'books' => [
             'class' => Book::class,
             'field' => 'book_id',
@@ -16,4 +16,9 @@ class Genre extends Model
             'defined_by' => 'genre_id',
         ],
     ];
+
+    public static function getColumns(): array
+    {
+        return ['id', 'name'];
+    }
 }

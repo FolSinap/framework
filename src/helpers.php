@@ -55,3 +55,17 @@ if (!function_exists('project_dir')) {
         return App::$app->getProjectDir();
     }
 }
+
+if (!function_exists('array_first')) {
+    function array_first(array $array)
+    {
+        return $array[array_key_first($array)] ?? null;
+    }
+}
+
+if (!function_exists('array_last')) {
+    function array_last(array $array)
+    {
+        return $array[array_key_last($array)] ?? null;
+    }
+}

@@ -13,7 +13,7 @@ class BooksController extends Controller
 {
     public function index(): Response
     {
-        $books = Book::all();
+        $books = Book::all(['author', 'genres']);
         $user = $this->getUser();
 
         return $this->render('books/index.php', compact('books', 'user'));

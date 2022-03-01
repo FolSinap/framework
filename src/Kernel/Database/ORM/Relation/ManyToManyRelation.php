@@ -15,9 +15,15 @@ class ManyToManyRelation extends OneToManyRelation
     protected string $pivot;
     protected string $definedBy;
 
-    public function __construct(Model $from, string $related, string $field, string $definedBy, string $pivot = null)
-    {
-        parent::__construct($from, $related, $field);
+    public function __construct(
+        Model $from,
+        string $related,
+        string $field,
+        string $definedBy,
+        string $pivot = null,
+        ?string $inversedBy = null
+    ) {
+        parent::__construct($from, $related, $field, $inversedBy);
 
         $this->pivot = $pivot ?? $this->defaultPivot();
         $this->definedBy = $definedBy;

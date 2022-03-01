@@ -8,7 +8,7 @@ use FW\Kernel\Database\ORM\Relation\Relation;
 class BookGenre extends Model
 {
     protected const ID_COLUMNS = ['book_id', 'genre_id'];
-	protected const RELATIONS = [
+	public const RELATIONS = [
 		'book' => [
 			'class' => Book::class,
 			'field' => 'book_id',
@@ -21,10 +21,13 @@ class BookGenre extends Model
 		],
 	];
 
-	protected static array $columns = [
-		'book_id',
-		'genre_id',
-	];
+	public static function getColumns(): array
+    {
+        return [
+            'book_id',
+            'genre_id',
+        ];
+    }
 
 	public static function getTableName(): string
     {

@@ -20,12 +20,13 @@ class RelationFactory
                     $config['class'],
                     $config['field'],
                     $config['defined_by'],
-                    $config['pivot'] ?? null
+                    $config['pivot'] ?? null,
+                    $config['inversed_by'] ?? null
                 );
             case Relation::ONE_TO_MANY:
-                return new OneToManyRelation($model, $config['class'], $config['field']);
+                return new OneToManyRelation($model, $config['class'], $config['field'], $config['inversed_by'] ?? null);
             default:
-                return new ToOneRelation($model, $config['class'], $config['field']);
+                return new ToOneRelation($model, $config['class'], $config['field'], $config['inversed_by'] ?? null);
         }
     }
 }
