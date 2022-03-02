@@ -36,7 +36,7 @@ class MakeModelCommand extends MakeCommand
     public function getRequiredParameters(): array
     {
         return [
-            'name' => ['Name of Model class.'],
+            'name' => 'Name of Model class.',
         ];
     }
 

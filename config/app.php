@@ -1,6 +1,6 @@
 <?php
 
-$projectDir = app()->getProjectDir();
+$projectDir = project_dir();
 
 return [
     'app' => [
