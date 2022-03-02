@@ -1,0 +1,9 @@
+<?php
+
+namespace {{|namespace|}};
+
+use FW\Kernel\Guards\Guard;
+
+class {{|className|}} extends Guard
+{{{|getNameFunc|}}
+}

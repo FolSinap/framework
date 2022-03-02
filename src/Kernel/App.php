@@ -31,7 +31,7 @@ class App
 
     public function run(): void
     {
-        $pipeline = $this->getRouter()->resolve($this->getRequest()->getPath(), $this->getRequest()->getMethod());
+        $pipeline = $this->getRouter()->resolve($this->getRequest());
 
         $response = $pipeline->send($this->getRequest())->go();
 

@@ -18,7 +18,7 @@ abstract class MakeCommand extends Command
 
     abstract protected function make(Input $input, Output $output): void;
 
-    public function execute(Input $input, Output $output): void
+    final public function execute(Input $input, Output $output): void
     {
         $this->make($input, $output);
         $this->checkProperties();

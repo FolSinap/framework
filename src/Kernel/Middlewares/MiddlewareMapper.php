@@ -9,14 +9,12 @@ use FW\Kernel\ObjectResolver;
 
 class MiddlewareMapper
 {
-    protected ObjectResolver $resolver;
     protected array $middlewares;
     protected array $map;
 
-    public function __construct(ObjectResolver $resolver)
-    {
-        $this->resolver = $resolver;
-
+    public function __construct(
+        protected ObjectResolver $resolver
+    ) {
         $loader = new FileLoader();
         $loader->allowedExtensions(['.php'])->ignoreHidden()->except([basename(__FILE__)]);
 
@@ -71,7 +69,7 @@ class MiddlewareMapper
             $middleware = $this->resolver->resolve($middleware);
 
             $middlewares[$middleware->getName()] = $middleware;
-            $middlewares[get_class($middleware)] = $middleware;
+            $middlewares[$middleware::class] = $middleware;
         }
 
         return $middlewares;
