@@ -117,6 +117,11 @@ class Route
         return Closure::fromCallable($callback);
     }
 
+    public function getGuards(): array
+    {
+        return $this->guards;
+    }
+
     public function getMiddlewares(): array
     {
         return $this->middlewares;
