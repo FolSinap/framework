@@ -1,21 +1,18 @@
 <?php
 
-namespace FW\Kernel\Storage;
+namespace FW\Kernel\Storage\Cache\Redis;
 
-use FW\Kernel\Storage\Cache\DriverFactory;
+use FW\Kernel\Database\Redis\Redis;
 use FW\Kernel\Storage\Cache\ICacheDriver;
 use Psr\Cache\CacheItemInterface;
-use Psr\Cache\CacheItemPoolInterface;
 
-class Cache implements CacheItemPoolInterface
+class CacheItemPool implements ICacheDriver
 {
-    protected ICacheDriver $driver;
+    protected array $deferred = [];
 
-    public function __construct()
-    {
-        $factory = new DriverFactory(config('cache'));
-
-        $this->driver = $factory->create();
+    public function __construct(
+        protected Redis $connection
+    ) {
     }
 
     /**
@@ -23,7 +20,7 @@ class Cache implements CacheItemPoolInterface
      */
     public function getItem(string $key): CacheItemInterface
     {
-        return $this->driver->getItem($key);
+        return new CacheItem($key, $this->connection);
     }
 
     /**
@@ -31,7 +28,13 @@ class Cache implements CacheItemPoolInterface
      */
     public function getItems(array $keys = []): iterable
     {
-        return $this->driver->getItems($keys);
+        $items = [];
+
+        foreach ($keys as $key) {
+            $items[] = $this->getItem($key);
+        }
+
+        return $items;
     }
 
     /**
@@ -39,7 +42,7 @@ class Cache implements CacheItemPoolInterface
      */
     public function hasItem(string $key): bool
     {
-        return $this->driver->hasItem($key);
+        return (new CacheItem($key, $this->connection))->isHit();
     }
 
     /**
@@ -47,7 +50,9 @@ class Cache implements CacheItemPoolInterface
      */
     public function clear(): bool
     {
-        return $this->driver->clear();
+        $this->deferred = [];
+
+        return true;
     }
 
     /**
@@ -55,7 +60,9 @@ class Cache implements CacheItemPoolInterface
      */
     public function deleteItem(string $key): bool
     {
-        return $this->driver->deleteItem($key);
+        $this->connection->delete($key);
+
+        return true;
     }
 
     /**
@@ -63,7 +70,9 @@ class Cache implements CacheItemPoolInterface
      */
     public function deleteItems(array $keys): bool
     {
-        return $this->driver->deleteItems($keys);
+        $this->connection->delete(...$keys);
+
+        return true;
     }
 
     /**
@@ -71,7 +80,9 @@ class Cache implements CacheItemPoolInterface
      */
     public function save(CacheItemInterface $item): bool
     {
-        return $this->driver->save($item);
+        $this->connection->set($item->getKey(), $item->get(), $item->getExpirationSeconds());
+
+        return true;
     }
 
     /**
@@ -79,7 +90,9 @@ class Cache implements CacheItemPoolInterface
      */
     public function saveDeferred(CacheItemInterface $item): bool
     {
-        return $this->driver->saveDeferred($item);
+        $this->deferred[] = $item;
+
+        return true;
     }
 
     /**
@@ -87,6 +100,10 @@ class Cache implements CacheItemPoolInterface
      */
     public function commit(): bool
     {
-        return $this->driver->commit();
+        foreach ($this->deferred as $item) {
+            $this->save($item);
+        }
+
+        return true;
     }
 }

@@ -24,6 +24,7 @@
       "ext-redis": "*",
       "ext-json": "*",
         "nesbot/carbon": "^2.56",
-      "ext-ds": "*"
+      "ext-ds": "*",
+        "psr/cache": "^3.0"
     }
 }

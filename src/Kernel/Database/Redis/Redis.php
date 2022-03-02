@@ -27,25 +27,34 @@ class Redis
         try {
             $this->connection = new Connection();
             $this->connection->connect($host, $port);
-        } catch (RedisException $exception) {
+        } catch (RedisException) {
             throw new ConnectionException(sprintf("Wasn't able to connect to Redis. Are you sure data is valid?"
                 . " host - %s, port - %s", $host, $port));
         }
     }
 
-    public function get(string $key)
+    public function has(string $key): bool
+    {
+        return $this->connection->exists($key);
+    }
+
+    public function get(string $key): mixed
     {
         $value = $this->connection->get($key);
 
         return $value !== false ? $value : null;
     }
 
-    public function set(string $key, $value, $timeout = null)
+    public function set(string $key, mixed $value, int $timeout = null): void
     {
-        $this->connection->set($key, $value, $timeout);
+        if (!is_null($timeout)) {
+            $this->connection->setex($key, $timeout, $value);
+        } else {
+            $this->connection->set($key, $value, $timeout);
+        }
     }
 
-    public function delete($key1, ...$otherKeys)
+    public function delete($key1, ...$otherKeys): void
     {
         $this->connection->del($key1, ...$otherKeys);
     }

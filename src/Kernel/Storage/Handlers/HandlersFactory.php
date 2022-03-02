@@ -18,11 +18,9 @@ class HandlersFactory
         self::DATABASE => DatabaseSessionHandler::class,
     ];
 
-    protected FileConfig $config;
-
-    public function __construct(FileConfig $config)
-    {
-        $this->config = $config;
+    public function __construct(
+        protected FileConfig $config
+    ) {
     }
 
     public function create(): ?SessionHandlerInterface
