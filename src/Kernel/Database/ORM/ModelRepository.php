@@ -231,7 +231,6 @@ class ModelRepository
 
     protected function connectRelatedModels(string $mainClass, array $normalized, array $relations): array
     {
-        //todo: also connect related models with main and set exists = true
         $fetched = [];
 
         foreach ($normalized as $result) {
