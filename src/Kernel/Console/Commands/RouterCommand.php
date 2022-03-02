@@ -56,14 +56,14 @@ class RouterCommand extends Command
             return;
         }
 
-        $percentage = [20, 10, 10, 15, 35];
+        $percentage = [15, 10, 10, 15, 15, 25];
 
         $output->print(
             MessageBuilder::getBuilder()
                 ->drawLine()
                 ->middle('Routes')
                 ->drawLine()
-                ->separate($percentage, ['Url', 'Name', 'Verbs', 'Middleware', 'Callback'])
+                ->separate($percentage, ['Url', 'Name', 'Verbs', 'Middleware', 'Guards', 'Callback'])
                 ->nextLine()
                 ->drawLine('#')
                 ->skipLines()
@@ -77,11 +77,16 @@ class RouterCommand extends Command
                         $callback = 'User defined callback';
                     }
 
+                    $guards = array_map(function (array $guard) {
+                        return $guard['guardName'] . ':' . $guard['method'];
+                    }, $route->getGuards());
+
                     $content = [
                         $route->getUrl(),
                         $route->getName() ?? 'NOT DEFINED',
                         implode(', ', $route->getVerbs()),
                         implode(', ', $route->getMiddlewares()),
+                        implode(', ', $guards),
                         $callback,
                     ];
 

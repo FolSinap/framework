@@ -1,6 +1,6 @@
 <?php
 
-$projectDir = app()->getProjectDir();
+$projectDir = project_dir();
 
 return [
     'app' => [
@@ -32,6 +32,10 @@ return [
     'commands' => [
         'dir' => $projectDir . '/app/Commands',
         'namespace' => '\\App\\Commands',
+    ],
+    'guards' => [
+        'dir' => $projectDir . '/app/Guards',
+        'namespace' => '\\App\\Guards',
     ],
     'csrf' => [
         'enable' => true,

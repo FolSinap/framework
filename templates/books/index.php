@@ -24,13 +24,19 @@
                 <td>{{book->author ? book->author->email : ''}}</td>
                 <td>#foreach(genre in book->genres) {{genre->name}} #endforeach</td>
                 #auth()
-                <td><a href="#route('books_edit', ['book' => {{book->id}}])">Edit</a></td>
                 <td>
-                    <form action="#route('books_delete', ['book' => {{book->id}}])" method="post">
-                        #csrf()
-                        #method('delete')
-                        <button type="submit" class="btn btn-danger">Delete</button>
-                    </form>
+                    #guard('books:manage', book)
+                        <a href="#route('books_edit', ['book' => {{book->id}}])">Edit</a>
+                    #endguard
+                </td>
+                <td>
+                    #guard('books:manage', book)
+                        <form action="#route('books_delete', ['book' => {{book->id}}])" method="post">
+                            #csrf()
+                            #method('delete')
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    #endguard
                 </td>
                 #endauth
             </tr>
