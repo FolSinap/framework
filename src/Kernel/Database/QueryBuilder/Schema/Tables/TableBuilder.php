@@ -150,7 +150,7 @@ class TableBuilder implements IBuilder
         }
 
         foreach ($this->uniques as $column => $index) {
-            $sql .= " UNIQUE KEY $index ($column),";
+            $sql .= " UNIQUE KEY $index (`$column`),";
         }
 
         foreach ($this->foreignKeys as $column) {
@@ -183,6 +183,6 @@ class TableBuilder implements IBuilder
 
     protected function createColumn(string $name, string $type, array $options = []): ColumnBuilder
     {
-        return new ColumnBuilder($this, "`$name`", $type, $options);
+        return new ColumnBuilder($this, $name, $type, $options);
     }
 }

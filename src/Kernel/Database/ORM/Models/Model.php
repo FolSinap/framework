@@ -54,7 +54,7 @@ abstract class Model
         return self::$columns[static::class];
     }
 
-    public static function find($id, array $relations = []): ?self
+    public static function find($id, array $relations = []): ?static
     {
         $id = new PrimaryKey(self::primaryKeyToAssoc($id));
 
@@ -77,7 +77,7 @@ abstract class Model
         return $models;
     }
 
-    public static function fromId($id): self
+    public static function fromId($id): static
     {
         $ids = self::primaryKeyToAssoc($id);
 
@@ -98,7 +98,7 @@ abstract class Model
         return $collection;
     }
 
-    public static function createDry(array $data): self
+    public static function createDry(array $data): static
     {
         $model = new static();
 
@@ -111,7 +111,7 @@ abstract class Model
         return $model;
     }
 
-    public static function create(array $data): self
+    public static function create(array $data): static
     {
         $model = static::createDry($data);
 
@@ -122,7 +122,7 @@ abstract class Model
         return $model;
     }
 
-    public function fetch(): self
+    public function fetch(): static
     {
         if (!$this->primary()) {
             throw ModelInitializationException::idIsNotSet($this);
@@ -131,7 +131,7 @@ abstract class Model
         return static::find($this->primary());
     }
 
-    public function synchronize(): self
+    public function synchronize(): static
     {
         if (!$this->exists()) {
             $this->insert();
@@ -165,7 +165,7 @@ abstract class Model
         $this->setExists()->setIsChanged(false);
     }
 
-    public function setPrimary($id): self
+    public function setPrimary($id): static
     {
         $key = new PrimaryKey(self::primaryKeyToAssoc($id));
 
@@ -282,7 +282,7 @@ abstract class Model
         return array_key_exists($name, $this->relations);
     }
 
-    public static function __set_state($fields): self
+    public static function __set_state($fields): static
     {
         $model = new static();
 
@@ -377,7 +377,7 @@ abstract class Model
         return $this->isChanged;
     }
 
-    private function setExists(bool $exists = true): self
+    private function setExists(bool $exists = true): static
     {
         if (!$exists) {
             $this->isChanged = false;
@@ -399,7 +399,7 @@ abstract class Model
         }
     }
 
-    private function setIsChanged(bool $isChanged = true): self
+    private function setIsChanged(bool $isChanged = true): static
     {
         if (!$this->exists && $isChanged) {
             throw new LogicException('Couldn\'t set isChanged = true, while model does not exist.');
@@ -587,7 +587,7 @@ abstract class Model
         return self::$loadedRelations[static::class];
     }
 
-    private function initIdColumns(): self
+    private function initIdColumns(): static
     {
         if (empty(static::ID_COLUMNS)) {
             throw new LogicException('Model must have at least one primary key column');

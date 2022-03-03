@@ -32,7 +32,7 @@ class ColumnBuilder
 
     public function buildQuery(): string
     {
-        return "$this->name $this->type"
+        return "`$this->name` $this->type"
             . $this->buildLength()
             . $this->buildNullable()
             . $this->buildAutoIncrement()

@@ -29,7 +29,7 @@ if (!function_exists('env')) {
 }
 
 if (!function_exists('container')) {
-    function container(string $name, $default = null)
+    function container(string $name, mixed $default = null)
     {
         return App::$app->getContainer()->get($name) ?? $default;
     }
