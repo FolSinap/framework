@@ -1,0 +1,25 @@
+<?php
+
+namespace {{|namespace|}};
+
+use FW\Kernel\Database\Migration;
+
+class {{|className|}} extends Migration
+{
+    public function up(): void
+    {
+        $table = $this->create('cache');
+
+        $table->string('id');
+        $table->string('key');
+        $table->longText('payload');
+        $table->timestamp('expires_at')->nullable();
+        $table->updatedAt();
+        $table->primaryKeys(['id']);
+    }
+
+    public function down(): void
+    {
+        $this->drop('cache');
+    }
+}

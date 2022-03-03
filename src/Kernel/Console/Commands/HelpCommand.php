@@ -63,11 +63,12 @@ class HelpCommand extends Command
                         $spaces = 20 - strlen($name);
 
                         return MessageBuilder::getBuilder()
+                            ->space()
                             ->startGreen()->type($name)->closeColor()
                             ->space($spaces)
                             ->startBlue()->type($command->getDescription())->closeColor()
                             ->nextLine();
-                    })->nextLine();
+                    });
             })
             ->getMessage();
 

@@ -61,9 +61,33 @@ class TableBuilder implements IBuilder
         return $column;
     }
 
+    public function tinyText(string $name): ColumnBuilder
+    {
+        $column = $this->createColumn($name, ColumnBuilder::TINYTEXT);
+        $this->columns[] = $column;
+
+        return $column;
+    }
+
+    public function text(string $name): ColumnBuilder
+    {
+        $column = $this->createColumn($name, ColumnBuilder::TEXT);
+        $this->columns[] = $column;
+
+        return $column;
+    }
+
     public function mediumText(string $name): ColumnBuilder
     {
         $column = $this->createColumn($name, ColumnBuilder::MEDIUMTEXT);
+        $this->columns[] = $column;
+
+        return $column;
+    }
+
+    public function longText(string $name): ColumnBuilder
+    {
+        $column = $this->createColumn($name, ColumnBuilder::LONGTEXT);
         $this->columns[] = $column;
 
         return $column;
@@ -75,12 +99,12 @@ class TableBuilder implements IBuilder
         $this->updatedAt();
     }
 
-    public function createdAt($name = 'created_at'): ColumnBuilder
+    public function createdAt(string $name = 'created_at'): ColumnBuilder
     {
         return $this->timestamp($name, true);
     }
 
-    public function updatedAt($name = 'updated_at'): ColumnBuilder
+    public function updatedAt(string $name = 'updated_at'): ColumnBuilder
     {
         return $this->timestamp($name, true, true);
     }
@@ -159,6 +183,6 @@ class TableBuilder implements IBuilder
 
     protected function createColumn(string $name, string $type, array $options = []): ColumnBuilder
     {
-        return new ColumnBuilder($this, $name, $type, $options);
+        return new ColumnBuilder($this, "`$name`", $type, $options);
     }
 }
