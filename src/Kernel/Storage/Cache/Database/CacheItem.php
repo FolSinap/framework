@@ -3,6 +3,7 @@
 namespace FW\Kernel\Storage\Cache\Database;
 
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Psr\Cache\CacheItemInterface;
 use DateTimeInterface;
 use DateInterval;
@@ -10,10 +11,16 @@ use DateInterval;
 class CacheItem implements CacheItemInterface
 {
     protected ?Cache $model;
+    protected ?CarbonInterface $expiresAt = null;
 
     public function __construct(
         protected string $key
     ) {
+    }
+
+    public function getCacheModel(): ?Cache
+    {
+        return $this->model;
     }
 
     /**
@@ -33,6 +40,8 @@ class CacheItem implements CacheItemInterface
             $this->model = Cache::find($this->key);
         }
 
+        $this->deleteModelIfExpired();
+
         return $this->model?->payload;
     }
 
@@ -44,6 +53,8 @@ class CacheItem implements CacheItemInterface
         if (!isset($this->model)) {
             $this->get();
         }
+
+        $this->deleteModelIfExpired();
 
         return !is_null($this->model);
     }
@@ -58,7 +69,13 @@ class CacheItem implements CacheItemInterface
         }
 
         if (is_null($this->model)) {
-            $this->model = Cache::createDry(['id' => $this->key, 'payload' => $value]);
+            $this->model = Cache::createDry([
+                'id' => $this->key,
+                'payload' => $value,
+                'expires_at' => $this->expiresAt,
+            ]);
+        } else {
+            $this->model->payload = $value;
         }
 
         return $this;
@@ -73,12 +90,18 @@ class CacheItem implements CacheItemInterface
             $this->get();
         }
 
+        $expiration = is_null($expiration) ? null : Carbon::createFromInterface($expiration);
+
         if (is_null($this->model)) {
             $this->model = Cache::createDry([
                 'id' => $this->key,
-                'expires_at' => is_null($expiration) ? null : Carbon::createFromInterface($expiration),
+                'expires_at' => $expiration,
             ]);
+        } else {
+            $this->model->expires_at = $expiration;
         }
+
+        $this->expiresAt = $expiration;
 
         return $this;
     }
@@ -95,5 +118,24 @@ class CacheItem implements CacheItemInterface
         };
 
         return $this->expiresAt($expiration);
+    }
+
+    protected function deleteModelIfExpired(): void
+    {
+        if ($this->isExpired()) {
+            $this->model->delete();
+            $this->model = null;
+        }
+    }
+
+    protected function isExpired(): bool
+    {
+        $isExpired = false;
+
+        if (!is_null($this->model?->expires_at)) {
+            $isExpired = $this->model->expires_at < Carbon::now();
+        }
+
+        return $isExpired;
     }
 }

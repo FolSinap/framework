@@ -122,6 +122,19 @@ abstract class Model
         return $model;
     }
 
+    public static function deleteByIds(PrimaryKey|int|string|array ...$ids): void
+    {
+        $ids = array_map(function (PrimaryKey|int|string|array $id) {
+            return match (true) {
+                $id instanceof PrimaryKey => $id,
+                is_int($id) || is_string($id) => new PrimaryKey([array_first(static::getIdColumns()) => $id]),
+                is_array($id) => new PrimaryKey($id),
+            };
+        }, $ids);
+
+        self::getRepository()->deleteManyById(static::class, ...$ids);
+    }
+
     public function fetch(): static
     {
         if (!$this->primary()) {
@@ -350,9 +363,9 @@ abstract class Model
         $fields = [];
 
         foreach (static::getColumns() as $column) {
-//            if ($this->$column !== null) {
+            if ($this->$column !== null) {
                 $fields[$column] = $this->$column;
-//            }
+            }
         }
 
         if (empty($fields)) {

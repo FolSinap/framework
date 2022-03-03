@@ -32,6 +32,24 @@ class ModelRepository
         return $this->database->describe($class::getTableName());
     }
 
+    public function deleteManyById(string $class, PrimaryKey ...$keys): void
+    {
+        $keys = array_map(function (PrimaryKey $key) {
+            return $key->getValues();
+        }, $keys);
+
+        $columns = array_keys(array_first($keys));
+
+        $ids = [];
+
+        foreach ($columns as $column) {
+            $ids[$column] = array_column($keys, $column);
+        }
+
+        $this->database->delete($class::getTableName())->andWhereInAll($ids);
+        $this->database->execute();
+    }
+
     public function deleteMany(array|ModelCollection $models): void
     {
         if (empty($models)) {

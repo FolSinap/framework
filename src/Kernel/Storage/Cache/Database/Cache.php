@@ -13,7 +13,7 @@ class Cache extends Model
     }
 
     protected static array $casts = [
-        'id' => 'int',
+        'id' => 'string',
         'key' => 'string',
         'payload' => 'string',
         'expires_at' => Carbon::class,
@@ -22,6 +22,6 @@ class Cache extends Model
 
     public static function getColumns(): array
     {
-        return ['id', 'key', 'payload', 'expires_at', 'updated_at'];
+        return ['id', 'payload', 'expires_at', 'updated_at'];
     }
 }

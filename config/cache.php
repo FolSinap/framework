@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'driver' => 'redis', //redis, database
+    'driver' => 'database', //redis, database
 ];

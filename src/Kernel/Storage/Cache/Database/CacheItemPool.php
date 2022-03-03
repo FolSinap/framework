@@ -2,17 +2,20 @@
 
 namespace FW\Kernel\Storage\Cache\Database;
 
+use FW\Kernel\Database\ORM\ModelRepository;
 use Psr\Cache\CacheItemInterface;
 use FW\Kernel\Storage\Cache\ICacheDriver;
 
 class CacheItemPool implements ICacheDriver
 {
+    protected array $deferred = [];
+
     /**
      * @inheritDoc
      */
     public function getItem(string $key): CacheItemInterface
     {
-        // TODO: Implement getItem() method.
+        return new CacheItem($key);
     }
 
     /**
@@ -20,7 +23,13 @@ class CacheItemPool implements ICacheDriver
      */
     public function getItems(array $keys = []): iterable
     {
-        // TODO: Implement getItems() method.
+        $items = [];
+
+        foreach ($keys as $key) {
+            $items[] = $this->getItem($key);
+        }
+
+        return $items;
     }
 
     /**
@@ -28,7 +37,7 @@ class CacheItemPool implements ICacheDriver
      */
     public function hasItem(string $key): bool
     {
-        // TODO: Implement hasItem() method.
+        return (new CacheItem($key))->isHit();
     }
 
     /**
@@ -36,7 +45,9 @@ class CacheItemPool implements ICacheDriver
      */
     public function clear(): bool
     {
-        // TODO: Implement clear() method.
+        $this->deferred = [];
+
+        return true;
     }
 
     /**
@@ -44,7 +55,9 @@ class CacheItemPool implements ICacheDriver
      */
     public function deleteItem(string $key): bool
     {
-        // TODO: Implement deleteItem() method.
+        Cache::deleteByIds($key);
+
+        return true;
     }
 
     /**
@@ -52,7 +65,9 @@ class CacheItemPool implements ICacheDriver
      */
     public function deleteItems(array $keys): bool
     {
-        // TODO: Implement deleteItems() method.
+        Cache::deleteByIds(...$keys);
+
+        return true;
     }
 
     /**
@@ -60,7 +75,16 @@ class CacheItemPool implements ICacheDriver
      */
     public function save(CacheItemInterface $item): bool
     {
-        // TODO: Implement save() method.
+        /** @var ?Cache $model */
+        $model = $item->getCacheModel();
+
+        if (is_null($model)) {
+            return false;
+        }
+
+        $model->synchronize();
+
+        return true;
     }
 
     /**
@@ -68,7 +92,9 @@ class CacheItemPool implements ICacheDriver
      */
     public function saveDeferred(CacheItemInterface $item): bool
     {
-        // TODO: Implement saveDeferred() method.
+        $this->deferred[] = $item;
+
+        return true;
     }
 
     /**
@@ -76,6 +102,32 @@ class CacheItemPool implements ICacheDriver
      */
     public function commit(): bool
     {
-        // TODO: Implement commit() method.
+        $success = true;
+        $newModels = [];
+        $existingModels = [];
+
+        foreach ($this->deferred as $item) {
+            /** @var ?Cache $model */
+            $model = $item->getCacheModel();
+
+            if (is_null($model)) {
+                $success = false;
+            } else {
+                if ($model->exists()) {
+                    $existingModels[] = $model;
+                } else {
+                    $newModels[] = $model;
+                }
+            }
+        }
+
+        $repository = new ModelRepository();
+        $repository->insertMany($newModels);
+
+        foreach ($existingModels as $model) {
+            $model->update();
+        }
+
+        return $success;
     }
 }
