@@ -15,7 +15,7 @@ class CacheItem implements CacheItemInterface
     public function __construct(
         protected string $key
     ) {
-        $this->file = project_dir() . '/' . config('cache.dir') . '/' . $this->key;
+        $this->file = project_dir() . '/' . config('cache.files.dir') . '/' . $this->key;
     }
 
     /**

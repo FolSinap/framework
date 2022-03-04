@@ -9,10 +9,11 @@ use Psr\Cache\CacheItemInterface;
 class CacheItemPool implements ICacheDriver
 {
     protected array $deferred = [];
+    protected Redis $connection;
 
-    public function __construct(
-        protected Redis $connection
-    ) {
+    public function __construct()
+    {
+        $this->connection = new Redis(config('cache.redis'));
     }
 
     /**

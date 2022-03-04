@@ -12,7 +12,7 @@ class CacheItemPool implements ICacheDriver
 
     public function __construct()
     {
-        $this->dir = project_dir() . '/' . config('cache.dir');
+        $this->dir = project_dir() . '/' . config('cache.files.dir');
     }
 
     /**
