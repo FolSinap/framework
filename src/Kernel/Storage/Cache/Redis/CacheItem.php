@@ -2,7 +2,7 @@
 
 namespace FW\Kernel\Storage\Cache\Redis;
 
-use FW\Kernel\Database\Redis\Redis;
+use FW\Kernel\Database\Redis;
 use Psr\Cache\CacheItemInterface;
 use DateTimeInterface;
 use DateInterval;
