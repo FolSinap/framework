@@ -42,7 +42,9 @@ class CacheItem implements CacheItemInterface
 
         $this->deleteModelIfExpired();
 
-        return $this->model?->payload;
+        $value = $this->model?->payload;
+
+        return is_null($value) ? $value : unserialize($value);
     }
 
     /**
@@ -71,11 +73,11 @@ class CacheItem implements CacheItemInterface
         if (is_null($this->model)) {
             $this->model = Cache::createDry([
                 'id' => $this->key,
-                'payload' => $value,
+                'payload' => serialize($value),
                 'expires_at' => $this->expiresAt,
             ]);
         } else {
-            $this->model->payload = $value;
+            $this->model->payload = serialize($value);
         }
 
         return $this;

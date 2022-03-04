@@ -33,7 +33,9 @@ class CacheItem implements CacheItemInterface
     public function get(): mixed
     {
         if (!isset($this->value)) {
-            $this->value = $this->connection->get($this->key);
+            $value = $this->connection->get($this->key);
+
+            $this->value = is_null($value) ? $value : unserialize($value);
         }
 
         return $this->value;

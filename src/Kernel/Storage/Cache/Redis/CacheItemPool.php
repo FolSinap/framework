@@ -80,7 +80,7 @@ class CacheItemPool implements ICacheDriver
      */
     public function save(CacheItemInterface $item): bool
     {
-        $this->connection->set($item->getKey(), $item->get(), $item->getExpirationSeconds());
+        $this->connection->set($item->getKey(), serialize($item->get()), $item->getExpirationSeconds());
 
         return true;
     }

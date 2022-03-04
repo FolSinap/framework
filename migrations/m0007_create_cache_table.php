@@ -11,7 +11,7 @@ class m0007_create_cache_table extends Migration
         $table = $this->create('cache');
 
         $table->string('id');
-        $table->longText('payload');
+        $table->longText('payload')->nullable();
         $table->timestamp('expires_at')->nullable();
         $table->updatedAt();
         $table->primaryKeys(['id']);
