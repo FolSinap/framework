@@ -2,5 +2,23 @@
 
 return [
     'driver' => 'database', //redis, database, files
-    'dir' => 'storage/cache',
+
+    'files' => [
+        'dir' => 'storage/cache',
+    ],
+
+    'memcached' => [
+        'servers' => [
+            [
+            'host' => 'localhost',
+            'port' => 11211,
+            'weight' => 100,
+            ],
+        ],
+    ],
+
+    'redis' => [
+        'host' => '',
+        'port' => '',
+    ]
 ];
