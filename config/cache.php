@@ -1,5 +1,6 @@
 <?php
 
 return [
-    'driver' => 'database', //redis, database
+    'driver' => 'database', //redis, database, files
+    'dir' => 'storage/cache',
 ];

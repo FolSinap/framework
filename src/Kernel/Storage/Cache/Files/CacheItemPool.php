@@ -7,6 +7,14 @@ use Psr\Cache\CacheItemInterface;
 
 class CacheItemPool implements ICacheDriver
 {
+    protected array $deferred = [];
+    protected string $dir;
+
+    public function __construct()
+    {
+        $this->dir = project_dir() . '/' . config('cache.dir');
+    }
+
     /**
      * @inheritDoc
      */
@@ -34,7 +42,7 @@ class CacheItemPool implements ICacheDriver
      */
     public function hasItem(string $key): bool
     {
-        // TODO: Implement hasItem() method.
+        return $this->getItem($key)->isHit();
     }
 
     /**
@@ -42,7 +50,9 @@ class CacheItemPool implements ICacheDriver
      */
     public function clear(): bool
     {
-        // TODO: Implement clear() method.
+        $this->deferred = [];
+
+        return true;
     }
 
     /**
@@ -50,7 +60,13 @@ class CacheItemPool implements ICacheDriver
      */
     public function deleteItem(string $key): bool
     {
-        // TODO: Implement deleteItem() method.
+        $file = "$this->dir/$key";
+
+        if (!file_exists($file)) {
+            return false;
+        }
+
+        return unlink($file);
     }
 
     /**
@@ -58,7 +74,13 @@ class CacheItemPool implements ICacheDriver
      */
     public function deleteItems(array $keys): bool
     {
-        // TODO: Implement deleteItems() method.
+        $success = true;
+
+        foreach ($keys as $key) {
+            $success = $success && $this->deleteItem($key);
+        }
+
+        return $success;
     }
 
     /**
@@ -66,7 +88,13 @@ class CacheItemPool implements ICacheDriver
      */
     public function save(CacheItemInterface $item): bool
     {
-        // TODO: Implement save() method.
+        if (!is_dir($this->dir)) {
+            mkdir($this->dir, 0777, true);
+        }
+
+        $content = serialize($item->getContent());
+
+        return file_put_contents($this->dir . '/' . $item->getKey(), $content) !== false;
     }
 
     /**
@@ -74,7 +102,9 @@ class CacheItemPool implements ICacheDriver
      */
     public function saveDeferred(CacheItemInterface $item): bool
     {
-        // TODO: Implement saveDeferred() method.
+        $this->deferred[] = $item;
+
+        return true;
     }
 
     /**
@@ -82,6 +112,12 @@ class CacheItemPool implements ICacheDriver
      */
     public function commit(): bool
     {
-        // TODO: Implement commit() method.
+        $success = true;
+
+        foreach ($this->deferred as $item) {
+            $success = $success && $this->save($item);
+        }
+
+        return $success;
     }
 }

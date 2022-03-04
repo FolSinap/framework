@@ -62,7 +62,7 @@ class App
         return $this->container;
     }
 
-    public function getConfig(string $key = null, $default = null)
+    public function getConfig(string $key = null, $default = null): mixed
     {
         if ($key) {
             return $this->config->get($key, $default);

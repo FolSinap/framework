@@ -2,13 +2,20 @@
 
 namespace FW\Kernel\Storage\Cache\Files;
 
+use Carbon\Carbon;
 use Psr\Cache\CacheItemInterface;
+use DateTimeInterface;
+use DateInterval;
 
 class CacheItem implements CacheItemInterface
 {
+    protected string $file;
+    protected array $content;
+
     public function __construct(
         protected string $key
     ) {
+        $this->file = project_dir() . '/' . config('cache.dir') . '/' . $this->key;
     }
 
     /**
@@ -24,7 +31,9 @@ class CacheItem implements CacheItemInterface
      */
     public function get(): mixed
     {
-        // TODO: Implement get() method.
+        $this->deleteIfExpired();
+
+        return $this->content['value'];
     }
 
     /**
@@ -32,7 +41,10 @@ class CacheItem implements CacheItemInterface
      */
     public function isHit(): bool
     {
-        // TODO: Implement isHit() method.
+        $isHit = file_exists($this->file) && !$this->isExpired();
+        $this->deleteIfExpired();
+
+        return $isHit;
     }
 
     /**
@@ -40,22 +52,75 @@ class CacheItem implements CacheItemInterface
      */
     public function set(mixed $value): static
     {
-        // TODO: Implement set() method.
+        $this->initContent();
+        $this->content['value'] = $value;
+
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function expiresAt(?\DateTimeInterface $expiration): static
+    public function expiresAt(?DateTimeInterface $expiration): static
     {
-        // TODO: Implement expiresAt() method.
+        $this->initContent();
+        $this->content['expires_at'] = is_null($expiration) ? null : Carbon::createFromInterface($expiration);
+
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function expiresAfter(\DateInterval|int|null $time): static
+    public function expiresAfter(DateInterval|int|null $time): static
     {
-        // TODO: Implement expiresAfter() method.
+        $expiration = match (true) {
+            $time instanceof DateInterval => Carbon::now()->add($time),
+            is_int($time) => Carbon::now()->addSeconds($time),
+            default => null,
+        };
+
+        return $this->expiresAt($expiration);
+    }
+
+    public function getContent(): array
+    {
+        $this->initContent();
+
+        return $this->content;
+    }
+
+    protected function deleteIfExpired(): void
+    {
+        if ($this->isExpired()) {
+            unlink($this->file);
+
+            $this->content = ['value' => null, 'expires_at' => null];
+        }
+    }
+
+    protected function isExpired(): bool
+    {
+        $this->initContent();
+        $expiresAt = $this->content['expires_at'];
+
+        if (is_null($expiresAt)) {
+            return false;
+        }
+
+        return $expiresAt < Carbon::now();
+    }
+
+    protected function initContent(): void
+    {
+        if (isset($this->content)) {
+            return;
+        }
+
+        if (file_exists($this->file)) {
+            $this->content = unserialize(file_get_contents($this->file));
+        } else {
+            $this->content = ['value' => null, 'expires_at' => null];
+        }
     }
 }
