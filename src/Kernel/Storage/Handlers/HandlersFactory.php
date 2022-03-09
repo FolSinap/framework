@@ -36,7 +36,7 @@ class HandlersFactory
 
         switch ($driver) {
             case self::FILES:
-                $path = project_dir() . '/' . $this->config->get('filepath', 'storage/session');
+                $path = project_dir() . '/' . ($this->config->get('filepath', false) ?? 'storage/session');
 
                 return new FileSessionHandler($path, $lifetime);
             case self::REDIS:

@@ -20,9 +20,9 @@ class DriverFactory
         $this->resolver = container(ObjectResolver::class);
     }
 
-    public function create(): ICacheDriver
+    public function create(string $driver = null): ICacheDriver
     {
-        return match ($this->config->get('driver')) {
+        return match ($driver ?? $this->config->get('driver', false)) {
             'redis' => $this->resolver->resolve(RedisDriver::class),
             'database' => $this->resolver->resolve(DatabaseDriver::class),
             'files' => $this->resolver->resolve(FilesDriver::class),

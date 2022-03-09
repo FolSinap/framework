@@ -11,11 +11,16 @@ class Cache implements CacheItemPoolInterface
 {
     protected ICacheDriver $driver;
 
-    public function __construct()
+    public function __construct(string $driver = null)
     {
         $factory = new DriverFactory(config('cache'));
 
-        $this->driver = $factory->create();
+        $this->driver = $factory->create($driver);
+    }
+
+    public static function driver(string $driver): self
+    {
+        return new self($driver);
     }
 
     /**

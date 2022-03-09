@@ -5,10 +5,12 @@ namespace FW\Kernel\Storage\Cache\Redis;
 use FW\Kernel\Database\Redis;
 use Psr\Cache\CacheItemInterface;
 use FW\Kernel\Storage\Cache\CacheItemPool as AbstractPool;
+use FW\Kernel\Storage\Cache\CacheItem;
 
 class CacheItemPool extends AbstractPool
 {
     protected Redis $connection;
+    protected array $deferred = [];
 
     public function __construct()
     {
@@ -20,7 +22,13 @@ class CacheItemPool extends AbstractPool
      */
     public function getItem(string $key): CacheItemInterface
     {
-        return new CacheItem($key, $this->connection);
+        $value = $this->connection->get($key);
+
+        return new CacheItem(
+            $key,
+            is_null($value) ? null : unserialize($value),
+            $this->connection->has($key)
+        );
     }
 
     /**
@@ -48,9 +56,9 @@ class CacheItemPool extends AbstractPool
      */
     public function save(CacheItemInterface $item): bool
     {
-        $this->connection->set($item->getKey(), serialize($item->get()), $item->getExpirationSeconds());
+        $item->hit();
 
-        return true;
+        return $this->connection->set($item->getKey(), serialize($item->get()), $item->expiration());
     }
 
     /**
@@ -58,10 +66,36 @@ class CacheItemPool extends AbstractPool
      */
     public function commit(): bool
     {
+        $unlimited = [];
+        $success = true;
+
         foreach ($this->deferred as $item) {
-            $this->save($item);
+            if (is_null($item->expiration())) {
+                $unlimited[$item->getKey()] = serialize($item->get());
+            } else {
+                $success = $success && $this->save($item);
+            }
+
+            $item->hit();
         }
 
-        return true;
+        return $success && $this->connection->setMany($unlimited);
+    }
+
+    public function getItems(array $keys = []): iterable
+    {
+        $values = $this->connection->getMany($keys);
+        $items = [];
+
+        foreach ($values as $key => $value) {
+            $items[] = new CacheItem($key, $value, !is_null($value));
+        }
+
+        return $items;
+    }
+
+    public function hasItem(string $key): bool
+    {
+        return $this->connection->has($key);
     }
 }
