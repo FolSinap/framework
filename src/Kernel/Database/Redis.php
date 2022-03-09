@@ -2,7 +2,6 @@
 
 namespace FW\Kernel\Database;
 
-use FW\Kernel\Exceptions\Config\ValueIsNotConfiguredException;
 use FW\Kernel\Exceptions\Database\ConnectionException;
 use FW\Kernel\Exceptions\RequiredArrayKeysException;
 use Redis as Connection;
@@ -22,14 +21,6 @@ class Redis
         } else {
             $host = config('database.drivers.redis.host');
             $port = config('database.drivers.redis.port');
-
-            if (is_null($host)) {
-                throw new ValueIsNotConfiguredException('database.drivers.redis.host');
-            }
-
-            if (is_null($port)) {
-                throw new ValueIsNotConfiguredException('database.drivers.redis.port');
-            }
         }
 
         try {

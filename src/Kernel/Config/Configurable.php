@@ -2,16 +2,24 @@
 
 namespace FW\Kernel\Config;
 
+use FW\Kernel\Exceptions\Config\ValueIsNotConfiguredException;
+
 trait Configurable
 {
-    public function get(string $key, $default = null)
+    public function get(string $key, bool $throw = true): mixed
     {
         $keys = explode('.', $key);
 
         $config = $this->data;
 
         foreach ($keys as $key) {
-            $config = $config[$key] ?? $default;
+            if (isset($config[$key])) {
+                $config = $config[$key];
+            } elseif ($throw) {
+                throw new ValueIsNotConfiguredException(implode('.', $keys));
+            } else {
+                return null;
+            }
         }
 
         return $config;

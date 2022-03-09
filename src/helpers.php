@@ -36,9 +36,9 @@ if (!function_exists('container')) {
 }
 
 if (!function_exists('config')) {
-    function config(string $name, $default = null): mixed
+    function config(string $name, bool $throw = true): mixed
     {
-        return App::$app->getConfig($name, $default);
+        return App::$app->getConfig($name, $throw);
     }
 }
 
