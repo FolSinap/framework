@@ -5,6 +5,7 @@ namespace FW\Kernel\Storage\Cache\Memcached;
 use FW\Kernel\Database\Memcached;
 use Psr\Cache\CacheItemInterface;
 use FW\Kernel\Storage\Cache\CacheItemPool as AbstractPool;
+use FW\Kernel\Storage\Cache\CacheItem;
 
 class CacheItemPool extends AbstractPool
 {
@@ -18,7 +19,11 @@ class CacheItemPool extends AbstractPool
      */
     public function getItem(string $key): CacheItemInterface
     {
-        return new CacheItem($this->connection, $key);
+        return new CacheItem(
+            $key,
+            $this->connection->get($key),
+            $this->connection->has($key)
+        );
     }
 
     /**
@@ -44,7 +49,9 @@ class CacheItemPool extends AbstractPool
      */
     public function save(CacheItemInterface $item): bool
     {
-        return $this->connection->set($item->getKey(), $item->get(), $item->getExpiresAt() ?? 0);
+        $item->hit();
+
+        return $this->connection->set($item->getKey(), $item->get(), $item->expiration() ?? 0);
     }
 
     /**
@@ -53,17 +60,18 @@ class CacheItemPool extends AbstractPool
     public function commit(): bool
     {
         $unlimited = [];
+        $success = true;
 
         foreach ($this->deferred as $item) {
-            if (is_null($item->getExpiresAt())) {
+            $item->hit();
+
+            if (is_null($item->expiration())) {
                 $unlimited[$item->getKey()] = $item->get();
             } else {
-                $this->save($item);
+                $success = $success && $this->save($item);
             }
         }
 
-        $this->connection->setMany($unlimited);
-
-        return true;
+        return $success && $this->connection->setMany($unlimited);
     }
 }

@@ -70,13 +70,13 @@ class CacheItemPool extends AbstractPool
         $success = true;
 
         foreach ($this->deferred as $item) {
+            $item->hit();
+
             if (is_null($item->expiration())) {
                 $unlimited[$item->getKey()] = serialize($item->get());
             } else {
                 $success = $success && $this->save($item);
             }
-
-            $item->hit();
         }
 
         return $success && $this->connection->setMany($unlimited);
