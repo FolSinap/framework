@@ -2,12 +2,11 @@
 
 namespace FW\Kernel\Storage\Cache\Files;
 
-use FW\Kernel\Storage\Cache\ICacheDriver;
 use Psr\Cache\CacheItemInterface;
+use FW\Kernel\Storage\Cache\CacheItemPool as AbstractPool;
 
-class CacheItemPool implements ICacheDriver
+class CacheItemPool extends AbstractPool
 {
-    protected array $deferred = [];
     protected string $dir;
 
     public function __construct()
@@ -21,38 +20,6 @@ class CacheItemPool implements ICacheDriver
     public function getItem(string $key): CacheItemInterface
     {
         return new CacheItem($key);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getItems(array $keys = []): iterable
-    {
-        $items = [];
-
-        foreach ($keys as $key) {
-            $items[] = $this->getItem($key);
-        }
-
-        return $items;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function hasItem(string $key): bool
-    {
-        return $this->getItem($key)->isHit();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function clear(): bool
-    {
-        $this->deferred = [];
-
-        return true;
     }
 
     /**
@@ -95,16 +62,6 @@ class CacheItemPool implements ICacheDriver
         $content = serialize($item->getContent());
 
         return file_put_contents($this->dir . '/' . $item->getKey(), $content) !== false;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function saveDeferred(CacheItemInterface $item): bool
-    {
-        $this->deferred[] = $item;
-
-        return true;
     }
 
     /**

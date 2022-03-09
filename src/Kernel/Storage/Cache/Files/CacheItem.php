@@ -3,27 +3,19 @@
 namespace FW\Kernel\Storage\Cache\Files;
 
 use Carbon\Carbon;
-use Psr\Cache\CacheItemInterface;
 use DateTimeInterface;
 use DateInterval;
+use FW\Kernel\Storage\Cache\CacheItem as AbstractCacheItem;
 
-class CacheItem implements CacheItemInterface
+class CacheItem extends AbstractCacheItem
 {
     protected string $file;
     protected array $content;
 
-    public function __construct(
-        protected string $key
-    ) {
-        $this->file = project_dir() . '/' . config('cache.files.dir') . '/' . $this->key;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getKey(): string
+    public function __construct(string $key)
     {
-        return $this->key;
+        $this->file = project_dir() . '/' . config('cache.files.dir') . '/' . $this->key;
+        parent::__construct($key);
     }
 
     /**

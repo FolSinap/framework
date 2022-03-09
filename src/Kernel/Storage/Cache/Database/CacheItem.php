@@ -4,31 +4,18 @@ namespace FW\Kernel\Storage\Cache\Database;
 
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
-use Psr\Cache\CacheItemInterface;
 use DateTimeInterface;
 use DateInterval;
+use FW\Kernel\Storage\Cache\CacheItem as AbstractCacheItem;
 
-class CacheItem implements CacheItemInterface
+class CacheItem extends AbstractCacheItem
 {
     protected ?Cache $model;
     protected ?CarbonInterface $expiresAt = null;
 
-    public function __construct(
-        protected string $key
-    ) {
-    }
-
     public function getCacheModel(): ?Cache
     {
         return $this->model;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getKey(): string
-    {
-        return $this->key;
     }
 
     /**

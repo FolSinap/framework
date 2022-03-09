@@ -2,41 +2,23 @@
 
 namespace FW\Kernel\Storage\Cache\Memcached;
 
+use FW\Kernel\Database\Memcached;
 use Psr\Cache\CacheItemInterface;
-use FW\Kernel\Storage\Cache\ICacheDriver;
+use FW\Kernel\Storage\Cache\CacheItemPool as AbstractPool;
 
-class CacheItemPool implements ICacheDriver
+class CacheItemPool extends AbstractPool
 {
+    public function __construct(
+        protected Memcached $connection
+    ) {
+    }
+
     /**
      * @inheritDoc
      */
     public function getItem(string $key): CacheItemInterface
     {
-        // TODO: Implement getItem() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getItems(array $keys = []): iterable
-    {
-        // TODO: Implement getItems() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function hasItem(string $key): bool
-    {
-        // TODO: Implement hasItem() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function clear(): bool
-    {
-        // TODO: Implement clear() method.
+        return new CacheItem($this->connection, $key);
     }
 
     /**
@@ -44,7 +26,7 @@ class CacheItemPool implements ICacheDriver
      */
     public function deleteItem(string $key): bool
     {
-        // TODO: Implement deleteItem() method.
+        return $this->connection->delete($key);
     }
 
     /**
@@ -52,7 +34,9 @@ class CacheItemPool implements ICacheDriver
      */
     public function deleteItems(array $keys): bool
     {
-        // TODO: Implement deleteItems() method.
+        $this->connection->deleteMany(...$keys);
+
+        return true;
     }
 
     /**
@@ -60,15 +44,7 @@ class CacheItemPool implements ICacheDriver
      */
     public function save(CacheItemInterface $item): bool
     {
-        // TODO: Implement save() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function saveDeferred(CacheItemInterface $item): bool
-    {
-        // TODO: Implement saveDeferred() method.
+        return $this->connection->set($item->getKey(), $item->get(), $item->getExpiresAt() ?? 0);
     }
 
     /**
@@ -76,6 +52,18 @@ class CacheItemPool implements ICacheDriver
      */
     public function commit(): bool
     {
-        // TODO: Implement commit() method.
+        $unlimited = [];
+
+        foreach ($this->deferred as $item) {
+            if (is_null($item->getExpiresAt())) {
+                $unlimited[$item->getKey()] = $item->get();
+            } else {
+                $this->save($item);
+            }
+        }
+
+        $this->connection->setMany($unlimited);
+
+        return true;
     }
 }

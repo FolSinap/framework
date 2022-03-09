@@ -4,50 +4,16 @@ namespace FW\Kernel\Storage\Cache\Database;
 
 use FW\Kernel\Database\ORM\ModelRepository;
 use Psr\Cache\CacheItemInterface;
-use FW\Kernel\Storage\Cache\ICacheDriver;
+use FW\Kernel\Storage\Cache\CacheItemPool as AbstractPool;
 
-class CacheItemPool implements ICacheDriver
+class CacheItemPool extends AbstractPool
 {
-    protected array $deferred = [];
-
     /**
      * @inheritDoc
      */
     public function getItem(string $key): CacheItemInterface
     {
         return new CacheItem($key);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getItems(array $keys = []): iterable
-    {
-        $items = [];
-
-        foreach ($keys as $key) {
-            $items[] = $this->getItem($key);
-        }
-
-        return $items;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function hasItem(string $key): bool
-    {
-        return (new CacheItem($key))->isHit();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function clear(): bool
-    {
-        $this->deferred = [];
-
-        return true;
     }
 
     /**
@@ -83,16 +49,6 @@ class CacheItemPool implements ICacheDriver
         }
 
         $model->synchronize();
-
-        return true;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function saveDeferred(CacheItemInterface $item): bool
-    {
-        $this->deferred[] = $item;
 
         return true;
     }

@@ -44,15 +44,32 @@ class Memcached
         return $this->connection->set($key, $value, $expiration);
     }
 
+    public function setMany(array $values): bool
+    {
+        return $this->connection->setMulti($values);
+    }
+
+    public function has(string $key): bool
+    {
+        $this->connection->get($key);
+
+        return $this->connection->getResultCode() !== Connection::RES_NOTFOUND;
+    }
+
     public function get(string $key): mixed
     {
         $value = $this->connection->get($key);
 
-        return $value === false ? null : $value;
+        return $this->connection->getResultCode() === Connection::RES_NOTFOUND ? null : $value;
     }
 
     public function delete(string $key): bool
     {
         return $this->connection->delete($key);
+    }
+
+    public function deleteMany(string ...$keys): void
+    {
+        $this->connection->deleteMulti($keys);
     }
 }

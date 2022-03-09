@@ -3,28 +3,21 @@
 namespace FW\Kernel\Storage\Cache\Redis;
 
 use FW\Kernel\Database\Redis;
-use Psr\Cache\CacheItemInterface;
 use DateTimeInterface;
 use DateInterval;
+use FW\Kernel\Storage\Cache\CacheItem as AbstractCacheItem;
 
-class CacheItem implements CacheItemInterface
+class CacheItem extends AbstractCacheItem
 {
     protected bool $isHit;
     protected mixed $value;
     protected int $expiresAfter;
 
     public function __construct(
-        protected string $key,
+        string $key,
         protected Redis $connection
     ) {
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getKey(): string
-    {
-        return $this->key;
+        parent::__construct($key);
     }
 
     /**

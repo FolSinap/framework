@@ -2,21 +2,27 @@
 
 namespace FW\Kernel\Storage\Cache\Memcached;
 
-use Psr\Cache\CacheItemInterface;
+use Carbon\Carbon;
+use FW\Kernel\Database\Memcached;
+use DateTimeInterface;
+use DateInterval;
+use FW\Kernel\Storage\Cache\CacheItem as AbstractCacheItem;
 
-class CacheItem implements CacheItemInterface
+class CacheItem extends AbstractCacheItem
 {
+    protected mixed $value;
+    protected ?Carbon $expiresAt = null;
+
     public function __construct(
-        protected string $key
+        protected Memcached $connection,
+        string $key
     ) {
+        parent::__construct($key);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getKey(): string
+    public function getExpiresAt(): ?Carbon
     {
-        return $this->key;
+        return $this->expiresAt;
     }
 
     /**
@@ -24,7 +30,11 @@ class CacheItem implements CacheItemInterface
      */
     public function get(): mixed
     {
-        // TODO: Implement get() method.
+        if (!isset($this->value)) {
+            $this->value = $this->connection->get($this->key);
+        }
+
+        return $this->value;
     }
 
     /**
@@ -32,7 +42,7 @@ class CacheItem implements CacheItemInterface
      */
     public function isHit(): bool
     {
-        // TODO: Implement isHit() method.
+        return $this->connection->has($this->key);
     }
 
     /**
@@ -40,22 +50,32 @@ class CacheItem implements CacheItemInterface
      */
     public function set(mixed $value): static
     {
-        // TODO: Implement set() method.
+        $this->value = $value;
+
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function expiresAt(?\DateTimeInterface $expiration): static
+    public function expiresAt(?DateTimeInterface $expiration): static
     {
-        // TODO: Implement expiresAt() method.
+        $this->expiresAt = is_null($expiration) ? null : Carbon::createFromInterface($expiration);
+
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function expiresAfter(\DateInterval|int|null $time): static
+    public function expiresAfter(DateInterval|int|null $time): static
     {
-        // TODO: Implement expiresAfter() method.
+        $expiration = match (true) {
+            $time instanceof DateInterval => Carbon::now()->add($time),
+            is_int($time) => Carbon::now()->addSeconds($time),
+            default => null,
+        };
+
+        return $this->expiresAt($expiration);
     }
 }
