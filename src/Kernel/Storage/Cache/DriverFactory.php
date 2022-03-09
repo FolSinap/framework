@@ -8,6 +8,7 @@ use FW\Kernel\Storage\Cache\Redis\CacheItemPool as RedisDriver;
 use FW\Kernel\Storage\Cache\Database\CacheItemPool as DatabaseDriver;
 use FW\Kernel\Storage\Cache\Files\CacheItemPool as FilesDriver;
 use FW\Kernel\Storage\Cache\Memcached\CacheItemPool as MemcachedDriver;
+use FW\Kernel\Storage\Cache\Array\CacheItemPool as ArrayDriver;
 
 class DriverFactory
 {
@@ -26,6 +27,7 @@ class DriverFactory
             'database' => $this->resolver->resolve(DatabaseDriver::class),
             'files' => $this->resolver->resolve(FilesDriver::class),
             'memcached' => $this->resolver->resolve(MemcachedDriver::class),
+            default => $this->resolver->resolve(ArrayDriver::class),
         };
     }
 }

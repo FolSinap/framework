@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'driver' => 'database', //redis, database, files, memcached
+    'driver' => 'database', //redis, database, files, memcached, array
 
     'files' => [
         'dir' => 'storage/cache',
