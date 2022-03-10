@@ -1,12 +1,12 @@
 <?php
 
-namespace FW\Kernel\Storage\Cache\Array;
+namespace FW\Kernel\Storage\Cache\Drivers;
 
 use FW\Kernel\Storage\Cache\CacheItemPool as AbstractPool;
 use FW\Kernel\Storage\Cache\CacheItem;
 use Psr\Cache\CacheItemInterface;
 
-class CacheItemPool extends AbstractPool
+class ArrayDriver extends AbstractPool
 {
     protected static array $storage = [];
 

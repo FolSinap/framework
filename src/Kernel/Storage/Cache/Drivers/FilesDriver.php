@@ -1,13 +1,13 @@
 <?php
 
-namespace FW\Kernel\Storage\Cache\Files;
+namespace FW\Kernel\Storage\Cache\Drivers;
 
 use Carbon\Carbon;
 use Psr\Cache\CacheItemInterface;
 use FW\Kernel\Storage\Cache\CacheItemPool as AbstractPool;
 use FW\Kernel\Storage\Cache\CacheItem;
 
-class CacheItemPool extends AbstractPool
+class FilesDriver extends AbstractPool
 {
     protected string $dir;
 

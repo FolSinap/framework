@@ -1,13 +1,13 @@
 <?php
 
-namespace FW\Kernel\Storage\Cache\Memcached;
+namespace FW\Kernel\Storage\Cache\Drivers;
 
 use FW\Kernel\Database\Memcached;
 use Psr\Cache\CacheItemInterface;
 use FW\Kernel\Storage\Cache\CacheItemPool as AbstractPool;
 use FW\Kernel\Storage\Cache\CacheItem;
 
-class CacheItemPool extends AbstractPool
+class MemcachedDriver extends AbstractPool
 {
     public function __construct(
         protected Memcached $connection

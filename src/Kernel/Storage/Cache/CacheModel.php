@@ -1,11 +1,11 @@
 <?php
 
-namespace FW\Kernel\Storage\Cache\Database;
+namespace FW\Kernel\Storage\Cache;
 
 use Carbon\Carbon;
 use FW\Kernel\Database\ORM\Models\Model;
 
-class Cache extends Model
+class CacheModel extends Model
 {
     public static function getTableName(): string
     {
