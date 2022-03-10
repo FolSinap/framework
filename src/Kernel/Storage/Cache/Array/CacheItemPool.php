@@ -3,18 +3,25 @@
 namespace FW\Kernel\Storage\Cache\Array;
 
 use FW\Kernel\Storage\Cache\CacheItemPool as AbstractPool;
+use FW\Kernel\Storage\Cache\CacheItem;
 use Psr\Cache\CacheItemInterface;
 
 class CacheItemPool extends AbstractPool
 {
+    protected static array $storage = [];
+
     public function getItem(string $key): CacheItemInterface
     {
-        return new CacheItem($key);
+        if (array_key_exists($key, self::$storage)) {
+            return new CacheItem($key, self::$storage[$key], true);
+        }
+
+        return new CacheItem($key, null, false);
     }
 
     public function deleteItem(string $key): bool
     {
-        CacheItem::delete($key);
+        unset(self::$storage[$key]);
 
         return true;
     }
@@ -30,7 +37,7 @@ class CacheItemPool extends AbstractPool
 
     public function save(CacheItemInterface $item): bool
     {
-        CacheItem::save($item);
+        self::$storage[$item->getKey()] = $item->get();
 
         return true;
     }
@@ -40,6 +47,8 @@ class CacheItemPool extends AbstractPool
         foreach ($this->deferred as $item) {
             $this->save($item);
         }
+
+        $this->clear();
 
         return true;
     }
