@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'driver' => 'redis', //null, files, redis, memcached
+    'driver' => 'database', //null, files, database, redis, memcached, array
     'lifetime' => 15 * 60, //seconds, 15 min by default
 
     'files' => [

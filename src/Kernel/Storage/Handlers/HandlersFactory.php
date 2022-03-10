@@ -47,6 +47,8 @@ class HandlersFactory
                 $this->config->get('database.table')
             ),
 
+            'array' => new ArraySessionHandler(),
+
             default => null,
         };
     }
