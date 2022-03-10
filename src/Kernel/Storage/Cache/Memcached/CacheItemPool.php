@@ -72,6 +72,8 @@ class CacheItemPool extends AbstractPool
             }
         }
 
+        $this->clear();
+
         return $success && $this->connection->setMany($unlimited);
     }
 }

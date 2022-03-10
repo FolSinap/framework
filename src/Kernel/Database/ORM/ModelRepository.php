@@ -34,6 +34,10 @@ class ModelRepository
 
     public function deleteManyById(string $class, PrimaryKey ...$keys): void
     {
+        if (empty($keys)) {
+            return;
+        }
+
         $keys = array_map(function (PrimaryKey $key) {
             return $key->getValues();
         }, $keys);

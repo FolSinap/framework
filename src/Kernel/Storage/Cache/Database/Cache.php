@@ -14,7 +14,6 @@ class Cache extends Model
 
     protected static array $casts = [
         'id' => 'string',
-        'key' => 'string',
         'payload' => 'string',
         'expires_at' => Carbon::class,
         'updated_at' => Carbon::class,

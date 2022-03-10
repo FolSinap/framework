@@ -91,6 +91,8 @@ class CacheItemPool extends AbstractPool
             $success = $success && $this->save($item);
         }
 
+        $this->clear();
+
         return $success;
     }
 

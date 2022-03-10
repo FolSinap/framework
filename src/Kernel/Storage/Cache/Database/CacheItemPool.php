@@ -2,18 +2,74 @@
 
 namespace FW\Kernel\Storage\Cache\Database;
 
+use Carbon\Carbon;
 use FW\Kernel\Database\ORM\ModelRepository;
 use Psr\Cache\CacheItemInterface;
 use FW\Kernel\Storage\Cache\CacheItemPool as AbstractPool;
+use FW\Kernel\Storage\Cache\CacheItem;
 
 class CacheItemPool extends AbstractPool
 {
+    protected array $existenceMap = [];
+
     /**
      * @inheritDoc
      */
     public function getItem(string $key): CacheItemInterface
     {
-        return new CacheItem($key);
+        if (array_key_exists($key, $this->existenceMap)) {
+            $cache = $this->existenceMap[$key] ? Cache::find($key) : null;
+        } else {
+            $cache = Cache::find($key);
+        }
+
+        $cache = $this->deleteModelIfExpired($cache);
+
+        if (is_null($cache)) {
+            $this->existenceMap[$key] = false;
+
+            return new CacheItem($key, null, false);
+        }
+
+        $this->existenceMap[$key] = true;
+
+        return new CacheItem($key, unserialize($cache->payload), true);
+    }
+
+    public function getItems(array $keys = []): iterable
+    {
+        $models = Cache::whereIn('id', $keys)->fetch();
+        $items = [];
+        $forDeletion = [];
+
+        foreach ($keys as $key) {
+            $isFound = false;
+
+            foreach ($models as $model) {
+                if ($key === $model->id) {
+                    if ($this->isExpired($model)) {
+                        $forDeletion[] = $key;
+
+                        break;
+                    }
+
+                    $items[$key] = new CacheItem($key, unserialize($model->payload), true);
+                    $this->existenceMap[$key] = true;
+                    $isFound = true;
+
+                    break;
+                }
+            }
+
+            if (!$isFound) {
+                $this->existenceMap[$key] = false;
+                $items[$key] = new CacheItem($key, null, false);
+            }
+        }
+
+        Cache::deleteByIds(...$forDeletion);
+
+        return $items;
     }
 
     /**
@@ -21,6 +77,7 @@ class CacheItemPool extends AbstractPool
      */
     public function deleteItem(string $key): bool
     {
+        $this->existenceMap[$key] = false;
         Cache::deleteByIds($key);
 
         return true;
@@ -31,6 +88,10 @@ class CacheItemPool extends AbstractPool
      */
     public function deleteItems(array $keys): bool
     {
+        foreach ($keys as $key) {
+            $this->existenceMap[$key] = false;
+        }
+
         Cache::deleteByIds(...$keys);
 
         return true;
@@ -41,14 +102,26 @@ class CacheItemPool extends AbstractPool
      */
     public function save(CacheItemInterface $item): bool
     {
-        /** @var ?Cache $model */
-        $model = $item->getCacheModel();
+        $item->hit();
 
-        if (is_null($model)) {
-            return false;
+        if (array_key_exists($item->getKey(), $this->existenceMap)) {
+            if ($this->existenceMap[$item->getKey()]) {
+                $this->updateModel($item);
+            } else {
+                $this->createModel($item);
+            }
+        } else {
+            //identity map should return old model if it has already been fetched before
+            $model = Cache::find($item->getKey());
+
+            if (is_null($model)) {
+                $this->createModel($item);
+            } else {
+                $this->updateModel($item, $model);
+            }
         }
 
-        $model->synchronize();
+        $this->existenceMap[$item->getKey()] = true;
 
         return true;
     }
@@ -58,32 +131,92 @@ class CacheItemPool extends AbstractPool
      */
     public function commit(): bool
     {
-        $success = true;
         $newModels = [];
-        $existingModels = [];
 
         foreach ($this->deferred as $item) {
-            /** @var ?Cache $model */
-            $model = $item->getCacheModel();
+            $item->hit();
+
+            if (array_key_exists($item->getKey(), $this->existenceMap)) {
+                if ($this->existenceMap[$item->getKey()]) {
+                    $this->updateModel($item);
+                } else {
+                    $newModels[] = $this->createDryModel($item);
+                }
+
+                $this->existenceMap[$item->getKey()] = true;
+
+                continue;
+            }
+
+            //identity map should return old model if it has already been fetched before
+            $model = Cache::find($item->getKey());
 
             if (is_null($model)) {
-                $success = false;
+                $newModels[] = $this->createDryModel($item);
             } else {
-                if ($model->exists()) {
-                    $existingModels[] = $model;
-                } else {
-                    $newModels[] = $model;
-                }
+                $this->updateModel($item, $model);
             }
+
+            $this->existenceMap[$item->getKey()] = true;
         }
 
         $repository = new ModelRepository();
         $repository->insertMany($newModels);
 
-        foreach ($existingModels as $model) {
-            $model->update();
+        $this->clear();
+
+        return true;
+    }
+
+    protected function createDryModel(CacheItemInterface $item): Cache
+    {
+        return Cache::createDry([
+            'id' => $item->getKey(),
+            'payload' => serialize($item->get()),
+            'expires_at' => $item->expiration(),
+        ]);
+    }
+
+    protected function createModel(CacheItemInterface $item): Cache
+    {
+        return Cache::create([
+            'id' => $item->getKey(),
+            'payload' => serialize($item->get()),
+            'expires_at' => $item->expiration(),
+        ]);
+    }
+
+    protected function updateModel(CacheItemInterface $item, Cache $model = null): Cache
+    {
+        $model = is_null($model) ? Cache::find($item->getKey()) : $model;
+
+        $model?->update([
+            'payload' => serialize($item->get()),
+            'expires_at' => $item->expiration(),
+        ]);
+
+        return $model;
+    }
+
+    protected function deleteModelIfExpired(?Cache $model): ?Cache
+    {
+        if ($this->isExpired($model)) {
+            $model->delete();
+
+            return null;
         }
 
-        return $success;
+        return $model;
+    }
+
+    protected function isExpired(?Cache $model): bool
+    {
+        $isExpired = false;
+
+        if (!is_null($model?->expires_at)) {
+            $isExpired = $model->expires_at < Carbon::now();
+        }
+
+        return $isExpired;
     }
 }

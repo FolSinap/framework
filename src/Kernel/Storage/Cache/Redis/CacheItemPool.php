@@ -79,6 +79,8 @@ class CacheItemPool extends AbstractPool
             }
         }
 
+        $this->clear();
+
         return $success && $this->connection->setMany($unlimited);
     }
 
@@ -88,7 +90,7 @@ class CacheItemPool extends AbstractPool
         $items = [];
 
         foreach ($values as $key => $value) {
-            $items[] = new CacheItem($key, $value, !is_null($value));
+            $items[$key] = new CacheItem($key, $value, !is_null($value));
         }
 
         return $items;
