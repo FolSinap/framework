@@ -4,20 +4,12 @@ namespace FW\Kernel\Storage\Handlers;
 
 use FW\Kernel\Config\FileConfig;
 use FW\Kernel\Database\Database;
-use FW\Kernel\Exceptions\IllegalValueException;
+use FW\Kernel\Database\Memcached;
+use FW\Kernel\Database\Redis;
 use SessionHandlerInterface;
 
 class HandlersFactory
 {
-    protected const FILES = 'files';
-    protected const REDIS = 'redis';
-    protected const DATABASE = 'database';
-    protected const DRIVERS = [
-        self::FILES => FileSessionHandler::class,
-        self::REDIS => RedisSessionHandler::class,
-        self::DATABASE => DatabaseSessionHandler::class,
-    ];
-
     public function __construct(
         protected FileConfig $config
     ) {
@@ -31,22 +23,31 @@ class HandlersFactory
             return null;
         }
 
-        IllegalValueException::checkValue($driver, array_keys(self::DRIVERS));
         $lifetime = $this->config->get('lifetime');
 
-        switch ($driver) {
-            case self::FILES:
-                $path = project_dir() . '/' . ($this->config->get('filepath', false) ?? 'storage/session');
+        return match ($driver) {
+            'files' => new FileSessionHandler(
+                project_dir() . '/' . $this->config->get('files.dir'),
+                $lifetime
+            ),
 
-                return new FileSessionHandler($path, $lifetime);
-            case self::REDIS:
-                return new RedisSessionHandler($lifetime);
-            case self::DATABASE:
-                $table = $this->config->get('table');
+            'redis' => new RedisSessionHandler(
+                new Redis($this->config->get('redis', false)),
+                $lifetime
+            ),
 
-                return new DatabaseSessionHandler(container(Database::class), $lifetime, $table);
-            default:
-                return null;
-        }
+            'memcached' => new MemcachedSessionHandler(
+                new Memcached($this->config->get('memcached.servers', false)),
+                $lifetime
+            ),
+
+            'database' => new DatabaseSessionHandler(
+                container(Database::class),
+                $lifetime,
+                $this->config->get('database.table')
+            ),
+
+            default => null,
+        };
     }
 }

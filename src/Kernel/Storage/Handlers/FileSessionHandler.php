@@ -7,13 +7,10 @@ use SessionHandlerInterface;
 
 class FileSessionHandler implements SessionHandlerInterface
 {
-    protected string $path;
-    protected int $lifetime;
-
-    public function __construct(string $path, int $lifetime = null)
-    {
-        $this->path = $path;
-        $this->lifetime = $lifetime ?? 15 * 60;
+    public function __construct(
+        protected string $path,
+        protected int $lifetime
+    ) {
     }
 
     public function open($path, $name): bool

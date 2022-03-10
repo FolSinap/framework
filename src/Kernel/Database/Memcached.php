@@ -2,6 +2,7 @@
 
 namespace FW\Kernel\Database;
 
+use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use FW\Kernel\Exceptions\Database\ConnectionException;
 use Memcached as Connection;
@@ -15,11 +16,7 @@ class Memcached
         $this->connection = new Connection();
         $this->connection->resetServerList();
 
-        if (is_null($servers)) {
-            $servers = config('cache.memcached.servers');
-        }
-
-        if (!$this->connection->addServers($servers)) {
+        if (!$this->connection->addServers($servers ?? config('database.drivers.memcached.servers'))) {
             throw new ConnectionException('Error connecting to Memcached, check hosts and ports data.');
         }
     }
@@ -37,9 +34,28 @@ class Memcached
         return new self($servers);
     }
 
+    public function keys(): array
+    {
+        $keys = $this->connection->getAllKeys();
+
+        if ($keys === false) {
+            throw new ConnectionException('Couldn\'t fetch keys from memcached.');
+        }
+
+        return $keys;
+    }
+
     public function set(string $key, mixed $value, CarbonInterface|int $expiration = 0): bool
     {
-        $expiration = $expiration instanceof CarbonInterface ? $expiration->getTimestamp() : $expiration;
+        if ($expiration instanceof CarbonInterface) {
+            $diff = Carbon::now()->diffInSeconds($expiration);
+
+            if ($diff > 60 * 60 * 24 * 30) {
+                $expiration = $expiration->getTimestamp();
+            } else {
+                $expiration = $diff;
+            }
+        }
 
         return $this->connection->set($key, $value, $expiration);
     }

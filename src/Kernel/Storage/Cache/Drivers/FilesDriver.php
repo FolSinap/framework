@@ -9,11 +9,9 @@ use FW\Kernel\Storage\Cache\CacheItem;
 
 class FilesDriver extends AbstractPool
 {
-    protected string $dir;
-
-    public function __construct()
-    {
-        $this->dir = project_dir() . '/' . config('cache.files.dir');
+    public function __construct(
+        protected string $dir
+    ) {
     }
 
     /**

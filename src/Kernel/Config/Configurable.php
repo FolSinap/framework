@@ -16,7 +16,10 @@ trait Configurable
             if (isset($config[$key])) {
                 $config = $config[$key];
             } elseif ($throw) {
-                throw new ValueIsNotConfiguredException(implode('.', $keys));
+                throw new ValueIsNotConfiguredException(
+                    ($this instanceof FileConfig ? $this->getFileName() . '.' : '')
+                    . implode('.', $keys)
+                );
             } else {
                 return null;
             }

@@ -10,14 +10,20 @@ class FileConfig implements ArrayAccess
 
     protected array $data;
 
-    public function __construct(string $name)
-    {
+    public function __construct(
+        protected string $name
+    ) {
         $this->data = require Config::getFullPathToConfig() . "/$name.php";
     }
 
     public static function from(string $name): self
     {
         return new static($name);
+    }
+
+    public function getFileName(): string
+    {
+        return $this->name;
     }
 
     public function toArray(): array

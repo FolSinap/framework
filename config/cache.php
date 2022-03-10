@@ -7,6 +7,7 @@ return [
         'dir' => 'storage/cache',
     ],
 
+    //set to null for default connection from database config
     'memcached' => [
         'servers' => [
             [

@@ -9,12 +9,11 @@ use FW\Kernel\Storage\Cache\CacheItem;
 
 class RedisDriver extends AbstractPool
 {
-    protected Redis $connection;
     protected array $deferred = [];
 
-    public function __construct()
-    {
-        $this->connection = new Redis(config('cache.redis'));
+    public function __construct(
+        protected Redis $connection,
+    ) {
     }
 
     /**
