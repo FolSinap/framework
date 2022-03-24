@@ -9,11 +9,9 @@ use FW\Kernel\View\TemplateEngine\ExpressionParser;
 
 abstract class InvokableDirective extends Directive
 {
-    protected ExpressionParser $parser;
-
-    public function __construct(ExpressionParser $parser)
-    {
-        $this->parser = $parser;
+    public function __construct(
+        protected ExpressionParser $parser
+    ) {
     }
 
     abstract public function __invoke(...$args): string;

@@ -18,11 +18,10 @@ class ExpressionParser
     protected const OPERATORS = [
         '+', '-', '&&', '||', '??', '?', ':', '.', '*', '/', '%', '**', '==', '!=', '===', '!==', '<>','>', '>=', '<', '<=', '!'
     ];
-    protected VariableContainer $container;
 
-    public function __construct(VariableContainer $container)
-    {
-        $this->container = $container;
+    public function __construct(
+        protected VariableContainer $container
+    ) {
     }
 
     public function processExpression(string $expression): mixed
@@ -115,38 +114,53 @@ class ExpressionParser
         }
     }
 
-    public function isOperator(string $expression): bool
+    public function getFunctionArgsFromExpression(string $argsExpression): array
+    {
+        if ($argsExpression === '') {
+            return [];
+        }
+
+        $args = explode(',', $argsExpression);
+
+        foreach ($args as $position => $arg) {
+            $args[$position] = $this->processExpression($arg);
+        }
+
+        return $args;
+    }
+
+    protected function isOperator(string $expression): bool
     {
         return in_array($expression, self::OPERATORS);
     }
 
-    public function isArrayVar(string $var): bool
+    protected function isArrayVar(string $var): bool
     {
         return str_contains($var, '[') && str_contains($var, ']');
     }
 
-    public function isCustomArrayVar(string $var): bool
+    protected function isCustomArrayVar(string $var): bool
     {
         return str_starts_with($var, '[') && str_ends_with($var, ']');
     }
 
-    public function isObjectExpression(string $expression): bool
+    protected function isObjectExpression(string $expression): bool
     {
         return str_contains($expression, self::METHOD_CALL_OPERATOR);
     }
 
-    public function isNumericVar(string $var): bool
+    protected function isNumericVar(string $var): bool
     {
         return is_numeric($var);
     }
 
-    public function isStringVar(string $var): bool
+    protected function isStringVar(string $var): bool
     {
         return str_ends_with($var, "'") && str_starts_with($var, "'")
             || str_ends_with($var, '"') && str_starts_with($var, '"');
     }
 
-    public function isBoolVar(string $var): bool
+    protected function isBoolVar(string $var): bool
     {
         if(in_array(strtolower($var), ['true', 'false'])) {
             return true;
@@ -155,12 +169,12 @@ class ExpressionParser
         return false;
     }
 
-    public function isFunctionCall(string $expression): bool
+    protected function isFunctionCall(string $expression): bool
     {
         return preg_match('/^[a-zA-z]{1,50}\((.|\n){0,50}\)/', $expression);
     }
 
-    public function callFunction(string $functionCall)
+    protected function callFunction(string $functionCall)
     {
         $functionName = $this->getFunctionName($functionCall);
         $args = $this->getFunctionArgs($functionCall);
@@ -172,7 +186,7 @@ class ExpressionParser
         throw new BadFunctionCallException("Function $functionName does not exist.");
     }
 
-    public function getBoolVar(string $var): bool
+    protected function getBoolVar(string $var): bool
     {
         if (!$this->isBoolVar($var)) {
             throw new VariableParsingException($var, 'bool');
@@ -185,7 +199,7 @@ class ExpressionParser
         return false;
     }
 
-    public function getStringVar(string $var): string
+    protected function getStringVar(string $var): string
     {
         if (!$this->isStringVar($var)) {
             throw new VariableParsingException($var, 'string');
@@ -194,7 +208,7 @@ class ExpressionParser
         return trim(trim($var, "'"), '"');
     }
 
-    public function getNumericVar(string $var)
+    protected function getNumericVar(string $var)
     {
         if (!$this->isNumericVar($var)) {
             throw new VariableParsingException($var, 'numeric');
@@ -207,7 +221,7 @@ class ExpressionParser
         return (int) $var;
     }
 
-    public function parseObjectExpression(string $expression)
+    protected function parseObjectExpression(string $expression)
     {
         if (!$this->isObjectExpression($expression)) {
             throw new VariableParsingException($expression, 'object');
@@ -231,7 +245,7 @@ class ExpressionParser
         return $object;
     }
 
-    public function getFunctionName(string $functionCall)
+    protected function getFunctionName(string $functionCall)
     {
         if (!$this->isFunctionCall($functionCall)) {
             throw new VariableParsingException($functionCall, 'callable');
@@ -240,7 +254,7 @@ class ExpressionParser
         return explode('(', $functionCall)[0];
     }
 
-    public function getFunctionArgs(string $functionCall): array
+    protected function getFunctionArgs(string $functionCall): array
     {
         if (!$this->isFunctionCall($functionCall)) {
             throw new VariableParsingException($functionCall, 'callable');
@@ -251,22 +265,7 @@ class ExpressionParser
         return $this->getFunctionArgsFromExpression($args);
     }
 
-    public function getFunctionArgsFromExpression(string $argsExpression): array
-    {
-        if ($argsExpression === '') {
-            return [];
-        }
-
-        $args = explode(',', $argsExpression);
-
-        foreach ($args as $position => $arg) {
-            $args[$position] = $this->processExpression($arg);
-        }
-
-        return $args;
-    }
-
-    public function getArrayVar(string $expression)
+    protected function getArrayVar(string $expression)
     {
         $expression = trim($expression, ' ');
         $explode = explode('[', $expression);
@@ -307,7 +306,7 @@ class ExpressionParser
         return $variable;
     }
 
-    public function createArray(string $expression): array
+    protected function createArray(string $expression): array
     {
         if (!$this->isArrayVar($expression)) {
             throw new VariableParsingException($expression, 'array');
@@ -338,10 +337,5 @@ class ExpressionParser
         }
 
         return $array;
-    }
-
-    public function getVariables(): VariableContainer
-    {
-        return $this->container;
     }
 }

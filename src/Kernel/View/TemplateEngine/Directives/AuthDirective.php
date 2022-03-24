@@ -8,11 +8,9 @@ use FW\Kernel\Login\Authentication;
 
 class AuthDirective extends Directive
 {
-    protected Authentication $auth;
-
-    public function __construct(Authentication $auth)
-    {
-        $this->auth = $auth;
+    public function __construct(
+        protected Authentication $auth
+    ) {
     }
 
     public function getRegex(): string

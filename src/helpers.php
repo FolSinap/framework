@@ -69,3 +69,10 @@ if (!function_exists('array_last')) {
         return $array[array_key_last($array)] ?? null;
     }
 }
+
+if (!function_exists('resolve')) {
+    function resolve(string $class): object
+    {
+        return container(\FW\Kernel\ObjectResolver::class)->resolve($class);
+    }
+}
