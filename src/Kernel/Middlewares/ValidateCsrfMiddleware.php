@@ -41,7 +41,7 @@ class ValidateCsrfMiddleware implements IMiddleware
 
     protected function validateCsrf(): bool
     {
-        $isEnabled = config('app.csrf.enable', false);
+        $isEnabled = config('app.csrf.enable', false) ?? false;
 
         if (!is_bool($isEnabled)) {
             throw new InvalidConfigTypeException($isEnabled, ['bool']);

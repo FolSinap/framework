@@ -38,7 +38,7 @@ class SessionTableCommand extends MakeMigrationCommand
 
     protected function make(Input $input, Output $output): void
     {
-        $name = $this->normalizeMigrationName($this->getParameters($input)['name'] ?? self::DEFAULT_NAME);
+        $name = $this->normalizeMigrationName($this->getParameters($input)['name'] ?? static::DEFAULT_NAME);
 
         $this->stubReplacements = [
             'className' => $name,

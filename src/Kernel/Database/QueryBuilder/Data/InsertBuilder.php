@@ -13,7 +13,7 @@ class InsertBuilder extends Builder
 
         foreach ($data as $field => $value) {
             $this->params[$field] = $value;
-            $this->data[$field] = ":$field";
+            $this->data["`$field`"] = ":$field";
         }
     }
 

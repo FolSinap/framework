@@ -9,15 +9,11 @@ use FW\Kernel\View\VariableContainer;
 
 class ForeachDirective extends Directive
 {
-    protected ExpressionParser $parser;
-    protected VariableContainer $container;
-    protected TemplateRenderer $renderer;
-
-    public function __construct(ExpressionParser $parser, VariableContainer $container, TemplateRenderer $renderer)
-    {
-        $this->parser = $parser;
-        $this->container = $container;
-        $this->renderer = $renderer;
+    public function __construct(
+        protected ExpressionParser $parser,
+        protected VariableContainer $container,
+        protected TemplateRenderer $renderer
+    ) {
     }
 
     public function getRegex(): string

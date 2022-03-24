@@ -8,16 +8,12 @@ use SessionHandlerInterface;
 
 class DatabaseSessionHandler implements SessionHandlerInterface
 {
-    protected Database $connection;
-    protected int $lifetime;
-
-    public function __construct(Database $connection, int $lifetime = null, string $table = null)
-    {
-        $this->connection = $connection;
-        $this->lifetime = $lifetime ?? 15 * 60;
-        $table = $table ?? 'sessions';
-
-        AnonymousModel::setTableName($table);
+    public function __construct(
+        protected Database $connection,
+        protected int $lifetime,
+        string $table = null
+    ) {
+        AnonymousModel::setTableName($table ?? 'sessions');
     }
 
     public function open($path, $name): bool

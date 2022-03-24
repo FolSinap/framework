@@ -9,29 +9,30 @@ class ColumnBuilder
     public const INT = 'INT';
     public const BIGINT = 'BIGINT';
     public const VARCHAR = 'VARCHAR';
+    public const TINYTEXT = 'TINYTEXT';
+    public const TEXT = 'TEXT';
     public const MEDIUMTEXT = 'MEDIUMTEXT';
+    public const LONGTEXT = 'LONGTEXT';
     public const TIMESTAMP = 'TIMESTAMP';
     public const BIT = 'BIT';
     public const TYPES = [self::INT, self::BIGINT, self::VARCHAR, self::BIT, self::MEDIUMTEXT, self::TIMESTAMP];
     public const CURRENT_TIMESTAMP = 'CURRENT_TIMESTAMP';
 
-    protected TableBuilder $table;
-    protected string $name;
-    protected string $type;
     protected bool $isUnique = false;
     protected array $options = ['nullable' => false];
 
-    public function __construct(TableBuilder $table, string $name, string $type, array $options = [])
-    {
-        $this->table = $table;
-        $this->name = $name;
-        $this->type = $type;
+    public function __construct(
+        protected TableBuilder $table,
+        protected string $name,
+        protected string $type,
+        array $options = []
+    ) {
         $this->options = array_merge($this->options, $options);
     }
 
     public function buildQuery(): string
     {
-        return "$this->name $this->type"
+        return "`$this->name` $this->type"
             . $this->buildLength()
             . $this->buildNullable()
             . $this->buildAutoIncrement()

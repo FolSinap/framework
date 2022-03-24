@@ -29,16 +29,16 @@ if (!function_exists('env')) {
 }
 
 if (!function_exists('container')) {
-    function container(string $name, $default = null)
+    function container(string $name, mixed $default = null): mixed
     {
         return App::$app->getContainer()->get($name) ?? $default;
     }
 }
 
 if (!function_exists('config')) {
-    function config(string $name, $default = null)
+    function config(string $name, bool $throw = true): mixed
     {
-        return App::$app->getConfig($name, $default);
+        return App::$app->getConfig($name, $throw);
     }
 }
 
@@ -57,15 +57,22 @@ if (!function_exists('project_dir')) {
 }
 
 if (!function_exists('array_first')) {
-    function array_first(array $array)
+    function array_first(array $array): mixed
     {
         return $array[array_key_first($array)] ?? null;
     }
 }
 
 if (!function_exists('array_last')) {
-    function array_last(array $array)
+    function array_last(array $array): mixed
     {
         return $array[array_key_last($array)] ?? null;
+    }
+}
+
+if (!function_exists('resolve')) {
+    function resolve(string $class): object
+    {
+        return container(\FW\Kernel\ObjectResolver::class)->resolve($class);
     }
 }

@@ -140,6 +140,7 @@ class Database
 
     public function execute(): PDOStatement
     {
+//        dump($this->queryBuilder->getQuery());
         $query = $this->queryBuilder->getQuery();
         $this->logger->log($query);
 
