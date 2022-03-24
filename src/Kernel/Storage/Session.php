@@ -2,6 +2,8 @@
 
 namespace FW\Kernel\Storage;
 
+use FW\Kernel\Storage\Handlers\HandlersFactory;
+
 class Session
 {
     protected static self $instance;

@@ -10,15 +10,14 @@ use ArrayIterator;
 //todo: implement psr-11
 class Container implements ArrayAccess, IteratorAggregate, Countable
 {
-    protected array $data;
     protected static array $instances;
 
-    protected function __construct(array $data = [])
-    {
-        $this->data = $data;
+    protected function __construct(
+        protected array $data = []
+    ) {
     }
 
-    public static function getInstance(array $data = []): self
+    public static function getInstance(array $data = []): static
     {
         $class = static::class;
 

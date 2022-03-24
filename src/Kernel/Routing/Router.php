@@ -71,7 +71,7 @@ class Router
             }
 
             $middlewares = container(MiddlewareMapper::class)
-                ->mapMany(array_merge(config('app.middlewares.default', []), $route->getMiddlewares()));
+                ->mapMany(array_merge(config('app.middlewares.default', false) ?? [], $route->getMiddlewares()));
 
             return $pipeline->through($middlewares)->addPipe($route->resolveCallback());
         } else {

@@ -10,17 +10,17 @@ abstract class UserModel extends Model
 {
     private static PasswordHasher $hasher;
 
-    public static function create(array $data): Model
+    public static function create(array $data): static
     {
         return parent::create(self::findAndHashPassword($data));
     }
 
-    public static function createDry(array $data): Model
+    public static function createDry(array $data): static
     {
         return parent::createDry(self::findAndHashPassword($data));
     }
 
-    public static function getByUsername(string $username): ?self
+    public static function getByUsername(string $username): ?static
     {
         $user = static::where(static::getUsernameColumn(), $username)->fetch();
 
@@ -31,7 +31,7 @@ abstract class UserModel extends Model
         return $user[0];
     }
 
-    public static function login(array $data)
+    public static function login(array $data): static
     {
         $passwordField = self::getPasswordField();
         $hasher = self::getPasswordHasher();

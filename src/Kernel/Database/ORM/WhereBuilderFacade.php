@@ -10,19 +10,14 @@ use ReflectionProperty;
 
 class WhereBuilderFacade
 {
-    protected SelectBuilder $builder;
-    protected Database $database;
-    protected string $class;
-
-    public function __construct(Database $database, SelectBuilder $builder, string $class)
-    {
+    public function __construct(
+        protected Database $database,
+        protected SelectBuilder $builder,
+        protected string $class
+    ) {
         if (!is_subclass_of($class, Model::class)) {
             throw new InvalidExtensionException($class, Model::class);
         }
-
-        $this->class = $class;
-        $this->database = $database;
-        $this->builder = $builder;
     }
 
     public function fetch(): ModelCollection
@@ -35,13 +30,35 @@ class WhereBuilderFacade
                 $models[$key] = $map->find($model::class, $model->getPrimaryKey());
 
                 unset($model);
+            } else {
+                UnitOfWork::getInstance()->registerClean($model);
             }
         }
 
         $this->setExists($models);
-        UnitOfWork::getInstance()->registerClean($models);
 
         return $models;
+    }
+
+    public function first(): ?Model
+    {
+        $this->builder->limit(1);
+        $model = array_first($this->database->fetchAsObject($this->class));
+
+        if (is_null($model)) {
+            return null;
+        }
+
+        $map = IdentityMap::getInstance();
+
+        if ($map->isManaged($model)) {
+            return $map->find($model::class, $model->getPrimaryKey());
+        }
+
+        $this->setExists($model);
+        UnitOfWork::getInstance()->registerClean($model);
+
+        return $model;
     }
 
     //todo: add and() and or() methods
@@ -87,8 +104,10 @@ class WhereBuilderFacade
         return $this;
     }
 
-    private function setExists(ModelCollection $models): void
+    private function setExists(Model|ModelCollection $models): void
     {
+        $models = $models instanceof Model ? new ModelCollection([$models]) : $models;
+
         foreach ($models as $model) {
             $reflection = new ReflectionProperty(Model::class, 'exists');
             $reflection->setAccessible(true);

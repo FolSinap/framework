@@ -2,14 +2,15 @@
 
 namespace FW\Kernel\Storage\Handlers;
 
-use FW\Kernel\Database\Redis;
+use Carbon\Carbon;
+use FW\Kernel\Database\Memcached;
 use SessionHandlerInterface;
 
-class RedisSessionHandler implements SessionHandlerInterface
+class MemcachedSessionHandler implements SessionHandlerInterface
 {
     public function __construct(
-        protected Redis $connection,
-        protected int $lifetime
+        protected Memcached $connection,
+        protected int $lifetime,
     ) {
     }
 
@@ -20,16 +21,12 @@ class RedisSessionHandler implements SessionHandlerInterface
 
     public function close(): bool
     {
-        $this->connection->disconnect();
-
         return true;
     }
 
     public function destroy($id): bool
     {
-        $this->connection->delete($id);
-
-        return true;
+        return $this->connection->delete($id);
     }
 
     public function gc($max_lifetime): bool
@@ -37,15 +34,13 @@ class RedisSessionHandler implements SessionHandlerInterface
         return true;
     }
 
-    public function read($id)
+    public function read($id): string
     {
         return $this->connection->get($id) ?? '';
     }
 
     public function write($id, $data): bool
     {
-        $this->connection->set($id, $data, $this->lifetime);
-
-        return true;
+        return $this->connection->set($id, $data, Carbon::now()->addSeconds($this->lifetime));
     }
 }

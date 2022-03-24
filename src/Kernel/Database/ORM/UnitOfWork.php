@@ -63,8 +63,12 @@ class UnitOfWork
         }
     }
 
-    public function registerClean(ModelCollection|Model|array $models)
+    public function registerClean(ModelCollection|Model|array|null $models): void
     {
+        if (is_null($models)) {
+            return;
+        }
+
         $models = $models instanceof Model ? new ModelCollection([$models]) : $models;
 
         $this->addToIdentityMap($models);

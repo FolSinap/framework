@@ -38,7 +38,7 @@ class ForeignKeyColumn extends ColumnBuilder
     public function buildForeign(): string
     {
         $index = $this->buildIndex();
-        $sql = "CONSTRAINT $index FOREIGN KEY ($this->name) REFERENCES $this->referenceTable ($this->referenceColumn)";
+        $sql = "CONSTRAINT $index FOREIGN KEY ($this->name) REFERENCES $this->referenceTable (`$this->referenceColumn`)";
 
         if (isset($this->onDelete)) {
             $sql .= " ON DELETE $this->onDelete";
