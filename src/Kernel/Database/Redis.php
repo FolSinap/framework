@@ -76,6 +76,11 @@ class Redis
         $this->connection->del($key1, ...$otherKeys);
     }
 
+    public function getConnection(): Connection
+    {
+        return $this->connection;
+    }
+
     public function disconnect(): void
     {
         if (!$this->connection->close()) {
