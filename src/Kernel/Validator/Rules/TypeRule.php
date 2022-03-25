@@ -40,7 +40,7 @@ class TypeRule implements IRule
 
         foreach ($allowedTypes as $type) {
             if (!class_exists($type) && !in_array($type, self::BASIC_TYPES)) {
-                throw new IllegalValueException($type, self::BASIC_TYPES);
+                throw IllegalValueException::illegalValue($type, self::BASIC_TYPES);
             }
         }
 

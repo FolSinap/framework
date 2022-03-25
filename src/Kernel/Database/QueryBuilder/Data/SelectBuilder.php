@@ -114,6 +114,6 @@ class SelectBuilder extends Builder
                 return;
         }
 
-        throw new IllegalValueException($type, [self::LEFT_JOIN, self::RIGHT_JOIN, self::INNER_JOIN, self::CROSS_JOIN]);
+        throw IllegalValueException::illegalValue($type, [self::LEFT_JOIN, self::RIGHT_JOIN, self::INNER_JOIN, self::CROSS_JOIN]);
     }
 }
