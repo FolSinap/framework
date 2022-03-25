@@ -18,6 +18,11 @@ class Config extends Container
         parent::__construct($config);
     }
 
+    public static function load(): self
+    {
+        return self::getInstance();
+    }
+
     protected function readConfigFiles(): array
     {
         $dir = self::getFullPathToConfig();
@@ -28,7 +33,7 @@ class Config extends Container
 
         foreach ($loader->baseNames() as $file) {
             $file = str_replace('.php', '', $file);
-            $config[$file] = new FileConfig($file);
+            $config[$file] = FileConfig::from($file);
         }
 
         return $config;
