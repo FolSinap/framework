@@ -5,9 +5,19 @@ namespace FW\Kernel\Logging;
 use FW\Kernel\Config\FileConfig;
 use FW\Kernel\Database\Redis;
 use FW\Kernel\Exceptions\IllegalValueException;
+use FW\Kernel\Exceptions\InvalidExtensionException;
+use FW\Kernel\ObjectResolver;
+use Monolog\Formatter\FormatterInterface;
+use Monolog\Formatter\HtmlFormatter;
+use Monolog\Formatter\JsonFormatter;
+use Monolog\Formatter\LineFormatter;
+use Monolog\Formatter\NormalizerFormatter;
+use Monolog\Formatter\ScalarFormatter;
+use Monolog\Handler\BufferHandler;
 use Monolog\Handler\FingersCrossedHandler;
 use Monolog\Handler\FleepHookHandler;
 use Monolog\Handler\FlowdockHandler;
+use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\IFTTTHandler;
 use Monolog\Handler\MandrillHandler;
 use Monolog\Handler\NativeMailerHandler;
@@ -50,6 +60,14 @@ class Log implements LoggerInterface
         'socket' => SocketHandler::class,
         'redis' => RedisHandler::class,
         'fingers_crossed' => FingersCrossedHandler::class,
+        'buffer' => BufferHandler::class,
+    ];
+    public const FORMATTERS = [
+        'line' => LineFormatter::class,
+        'html' => HtmlFormatter::class,
+        'normalizer' => NormalizerFormatter::class,
+        'scalar' => ScalarFormatter::class,
+        'json' => JsonFormatter::class,
     ];
 
     /** @var Logger[] $loggers */
@@ -93,13 +111,16 @@ class Log implements LoggerInterface
         return $logger->setHandlers($handlers);
     }
 
-    protected function createHandler(string $handlerName)
+    protected function createHandler(string $handlerName): HandlerInterface
     {
         $handlerConfig = $this->config->get("handlers.$handlerName");
         $type = $handlerConfig['type'];
-        unset($handlerConfig['type']);
+        $formatter = $handlerConfig['formatter'] ?? null;
+        unset($handlerConfig['type'], $handlerConfig['formatter']);
 
         switch ($type) {
+            case 'redis':
+                $handlerConfig['redis'] = (new Redis(config('database.drivers.redis')))->getConnection();
             case 'stream':
             case 'rotating_file':
             case 'syslog':
@@ -117,19 +138,50 @@ class Log implements LoggerInterface
             case 'ifttt':
             case 'telegram':
             case 'socket':
-                return new (self::HANDLER_TYPES[$type])(...$handlerConfig);
-            case 'redis':
-                return new RedisHandler(
-                    (new Redis(config('database.drivers.redis')))->getConnection(),
-                    ...$handlerConfig
-                );
-            case 'fingers_crossed':
-                $handlerConfig['handler'] = $this->createHandler($this->config->get("handlers.$handlerName.handler"));
+                $handler = new (self::HANDLER_TYPES[$type])(...$handlerConfig);
 
-                return new FingersCrossedHandler(...$handlerConfig);
+                break;
+            case 'fingers_crossed':
+            case 'buffer':
+                $handlerConfig['handler'] = $this->createHandler($this->config->get("handlers.$handlerName.handler"));
+                $handler = new (self::HANDLER_TYPES[$type])(...$handlerConfig);
+
+                break;
             default:
+                if (class_exists($type) && in_array(HandlerInterface::class, class_implements($type))) {
+                    $resolver = container(ObjectResolver::class);
+
+                    return $resolver->resolve($type);
+                }
+
                 throw IllegalValueException::illegalValue($type, array_keys(self::HANDLER_TYPES), valueName: 'Handler type');
-            }
+        }
+
+        if (isset($formatter)) {
+            $handler->setFormatter($this->createFormatter($formatter));
+        }
+
+        return $handler;
+    }
+
+    protected function createFormatter(string $formatter): FormatterInterface
+    {
+        switch ($formatter) {
+            case 'line':
+            case 'json':
+            case 'html':
+            case 'normalizer':
+            case 'scalar':
+                return new (self::FORMATTERS[$formatter])();
+            default:
+                if (class_exists($formatter) && in_array(FormatterInterface::class, class_implements($formatter))) {
+                    $resolver = container(ObjectResolver::class);
+
+                    return $resolver->resolve($formatter);
+                }
+
+                throw IllegalValueException::illegalValue($formatter, array_keys(self::FORMATTERS), valueName: 'Formatter');
+        }
     }
 
     public function emergency(Stringable|string $message, array $context = []): void

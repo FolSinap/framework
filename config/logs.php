@@ -2,7 +2,7 @@
 
 return [
     'channels' => [
-        'all' => ['redis_crossed'],
+        'all' => ['buffer'],
     ],
 
     'handlers' => [
@@ -28,13 +28,16 @@ return [
         'redis' => [
             'type' => 'redis',
             'key' => 'logs',
+            'formatter' => 'html',
         ],
         'redis_crossed' => [
             'type' => 'fingers_crossed',
             'handler' => 'redis',
             'activationStrategy' => 'warning'
         ],
+        'buffer' => [
+            'type' => 'buffer',
+            'handler' => 'redis',
+        ]
     ],
-
-    'processors' => [],
 ];
