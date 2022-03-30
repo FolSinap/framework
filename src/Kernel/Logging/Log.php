@@ -4,6 +4,8 @@ namespace FW\Kernel\Logging;
 
 use FW\Kernel\Config\FileConfig;
 use FW\Kernel\Database\Redis;
+use FW\Kernel\Exceptions\IllegalValueException;
+use Monolog\Handler\FingersCrossedHandler;
 use Monolog\Handler\FleepHookHandler;
 use Monolog\Handler\FlowdockHandler;
 use Monolog\Handler\IFTTTHandler;
@@ -46,6 +48,8 @@ class Log implements LoggerInterface
         'ifttt' => IFTTTHandler::class,
         'telegram' => TelegramBotHandler::class,
         'socket' => SocketHandler::class,
+        'redis' => RedisHandler::class,
+        'fingers_crossed' => FingersCrossedHandler::class,
     ];
 
     /** @var Logger[] $loggers */
@@ -83,34 +87,49 @@ class Log implements LoggerInterface
         $handlers = [];
 
         foreach ($handlerNames as $handlerName) {
-            $handlerConfig = $this->config->get("handlers.$handlerName");
-            $type = $handlerConfig['type'];
-            unset($handlerConfig['type']);
-
-            $handlers[] = match ($type) {
-                'stream' => new StreamHandler (...$handlerConfig),
-                'rotating_file' => new RotatingFileHandler (...$handlerConfig),
-                'syslog' => new SyslogHandler (...$handlerConfig),
-                'error_log' => new ErrorLogHandler (...$handlerConfig),
-                'process' => new ProcessHandler (...$handlerConfig),
-                'native_mail' => new NativeMailerHandler (...$handlerConfig),
-                'swift_mail' => new SwiftMailerHandler (...$handlerConfig),
-                'pushover' => new PushoverHandler (...$handlerConfig),
-                'flowdock' => new FlowdockHandler (...$handlerConfig),
-                'slack_webhook' => new SlackWebhookHandler (...$handlerConfig),
-                'slack' => new SlackHandler (...$handlerConfig),
-                'send_grid' => new SendGridHandler (...$handlerConfig),
-                'mandrill' => new MandrillHandler (...$handlerConfig),
-                'fleep' => new FleepHookHandler (...$handlerConfig),
-                'ifttt' => new IFTTTHandler (...$handlerConfig),
-                'telegram' => new TelegramBotHandler (...$handlerConfig),
-                'socket' => new SocketHandler (...$handlerConfig),
-                'redis' => new RedisHandler((new Redis())->getConnection(), $handlerConfig['key'])
-            };
-//            $handlers[] = new (self::HANDLER_TYPES[$type])(...$handlerConfig);
+            $handlers[] = $this->createHandler($handlerName);
         }
 
         return $logger->setHandlers($handlers);
+    }
+
+    protected function createHandler(string $handlerName)
+    {
+        $handlerConfig = $this->config->get("handlers.$handlerName");
+        $type = $handlerConfig['type'];
+        unset($handlerConfig['type']);
+
+        switch ($type) {
+            case 'stream':
+            case 'rotating_file':
+            case 'syslog':
+            case 'error_log':
+            case 'process':
+            case 'native_mail':
+            case 'swift_mail':
+            case 'pushover':
+            case 'flowdock':
+            case 'slack_webhook':
+            case 'slack':
+            case 'send_grid':
+            case 'mandrill':
+            case 'fleep':
+            case 'ifttt':
+            case 'telegram':
+            case 'socket':
+                return new (self::HANDLER_TYPES[$type])(...$handlerConfig);
+            case 'redis':
+                return new RedisHandler(
+                    (new Redis(config('database.drivers.redis')))->getConnection(),
+                    ...$handlerConfig
+                );
+            case 'fingers_crossed':
+                $handlerConfig['handler'] = $this->createHandler($this->config->get("handlers.$handlerName.handler"));
+
+                return new FingersCrossedHandler(...$handlerConfig);
+            default:
+                throw IllegalValueException::illegalValue($type, array_keys(self::HANDLER_TYPES), valueName: 'Handler type');
+            }
     }
 
     public function emergency(Stringable|string $message, array $context = []): void

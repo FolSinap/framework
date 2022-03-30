@@ -2,7 +2,7 @@
 
 return [
     'channels' => [
-        'all' => ['redis'],
+        'all' => ['redis_crossed'],
     ],
 
     'handlers' => [
@@ -28,6 +28,11 @@ return [
         'redis' => [
             'type' => 'redis',
             'key' => 'logs',
+        ],
+        'redis_crossed' => [
+            'type' => 'fingers_crossed',
+            'handler' => 'redis',
+            'activationStrategy' => 'warning'
         ],
     ],
 
