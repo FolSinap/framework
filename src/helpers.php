@@ -36,7 +36,7 @@ if (!function_exists('container')) {
 }
 
 if (!function_exists('config')) {
-    function config(string $name, bool $throw = true): mixed
+    function config(string $name = null, bool $throw = true): mixed
     {
         return App::$app->getConfig($name, $throw);
     }
@@ -50,9 +50,16 @@ if (!function_exists('app')) {
 }
 
 if (!function_exists('project_dir')) {
-    function project_dir(): string
+    function project_dir(string $additionalPath = null): string
     {
-        return App::$app->getProjectDir();
+        return App::$app->getProjectDir() . (isset($additionalPath) ? "/$additionalPath" : '');
+    }
+}
+
+if (!function_exists('storage_dir')) {
+    function storage_dir(string $additionalPath = null): string
+    {
+        return config('app.storage_dir') . (isset($additionalPath) ? "/$additionalPath" : '');
     }
 }
 

@@ -71,9 +71,91 @@ class Redis
         return $this->connection->mset($values);
     }
 
+    public function getValue(string $key): mixed
+    {
+        return match ($this->connection->type($key)) {
+            Connection::REDIS_LIST      => $this->lRange($key),
+            Connection::REDIS_HASH      => $this->hGetAll($key),
+            Connection::REDIS_SET       => $this->sMembers($key),
+            Connection::REDIS_STREAM    => $this->xRead([$key]),
+            Connection::REDIS_STRING    => $this->get($key),
+            Connection::REDIS_ZSET      => $this->zRangeByScore($key),
+            Connection::REDIS_NOT_FOUND => null,
+        };
+    }
+
+    public function hGetAll(string $key): array
+    {
+        return $this->connection->hGetAll($key);
+    }
+
+    public function hGet(string $key, string $hashKey): ?string
+    {
+        $value = $this->connection->hGet($key, $hashKey);
+
+        return $value !== false ? $value : null;
+    }
+
+    public function hExists(string $key, string $hashKey): bool
+    {
+        return $this->connection->hExists($key, $hashKey);
+    }
+
+    public function hSet(string $key, string $hashKey, string $value): void
+    {
+        $this->connection->hSet($key, $hashKey, $value);
+    }
+
+    public function lRange(string $key, int $start = 0, int $end = -1): array
+    {
+        return $this->connection->lRange($key, $start, $end);
+    }
+
+    public function sMembers(string $key): array
+    {
+        return $this->connection->sMembers($key);
+    }
+
+    public function xRead(array $streams, int|string $count = null, int|string $block = null): array
+    {
+        return $this->connection->xRead($streams, $count, $block);
+    }
+
+    public function zRangeByScore(string $key, int $start = null, int $end = null, array $options = []): array
+    {
+        return $this->connection->zRangeByScore($key, $start ?? -INF, $end ?? INF, $options);
+    }
+
+    public function zAdd(string $key, array $valueScore, array $options = []): void
+    {
+        $args = [];
+        $args[] = $key;
+
+        if (!empty($options)) {
+            $args[] = $options;
+        }
+
+        foreach ($valueScore as $value => $score) {
+            $args[] = $score;
+            $args[] = $value;
+        }
+
+        $this->connection->zAdd(...$args);
+    }
+
+    public function type(string $key): int
+    {
+        return $this->connection->type($key);
+    }
+
     public function delete($key1, ...$otherKeys): void
     {
         $this->connection->del($key1, ...$otherKeys);
+    }
+
+    public function getConnection(): Connection
+    {
+        return $this->connection;
     }
 
     public function disconnect(): void

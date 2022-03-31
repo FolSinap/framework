@@ -92,7 +92,7 @@ class App
 
     protected function initConfig(): void
     {
-        $this->config = Config::getInstance();
+        $this->config = Config::load();
     }
 
     protected function initRoutes(): void

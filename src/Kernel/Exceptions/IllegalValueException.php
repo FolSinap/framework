@@ -7,56 +7,57 @@ use Throwable;
 
 class IllegalValueException extends DomainException
 {
-    public function __construct($value, array $range, $code = 500, Throwable $previous = null)
+    public static function illegalValue(
+        mixed $value,
+        array $range,
+        $code = 500,
+        Throwable $previous = null,
+        string $valueName = null
+    ): static
     {
-        $value = $this->normalizeValue($value);
+        $value = self::normalizeValue($value);
 
-        $message = 'Value must be one of: ';
+        $range = array_map(function (mixed $value) {
+            return self::normalizeValue($value);
+        }, $range);
 
-        $lastKey = array_key_last($range);
-
-        foreach ($range as $key => $item) {
-            $message .= $key === $lastKey ? $this->normalizeValue($item) : $this->normalizeValue($item) . ', ';
-        }
+        $message = (isset($valueName) ? ucfirst(strtolower($valueName)) : 'Value')
+            . ' must be one of: ' . implode(', ', $range);
 
         $message .= ". \nGot $value instead.";
 
-        parent::__construct($message, $code, $previous);
+        return new static($message, $code, $previous);
     }
 
-    public static function checkValue($value, array $range): void
+    public static function checkValue(mixed $value, array $range, string $subject = null): void
     {
         if (!in_array($value, $range)) {
-            throw new self($value, $range);
+            throw self::illegalValue($value, $range, valueName: $subject);
         }
     }
 
-    protected function normalizeValue($value)
+    protected static function normalizeValue(mixed $value): mixed
     {
-        $value = $this->normalizeArrayValue($value);
-        $value = $this->normalizeNullValue($value);
+        $value = self::normalizeArrayValue($value);
+        $value = self::normalizeNullValue($value);
 
-        return $this->normalizeBoolValue($value);
+        return self::normalizeBoolValue($value);
     }
 
-    protected function normalizeArrayValue($value)
+    private static function normalizeArrayValue(mixed $value): mixed
     {
         if (is_array($value)) {
-            $stringValue = '[';
-
-            $lastKey = array_key_last($value);
-
-            foreach ($value as $key => $item) {
-                $stringValue .= $key === $lastKey ? $this->normalizeValue($item) : $this->normalizeValue($item) . ',';
-            }
-
-            return $stringValue . ']';
+            return '['
+                . implode(', ', array_map(function (mixed $item) {
+                    return self::normalizeValue($item);
+                }, $value))
+                . ']';
         }
 
         return $value;
     }
 
-    protected function normalizeBoolValue($value)
+    private static function normalizeBoolValue(mixed $value): mixed
     {
         if (is_bool($value) && $value) {
             return 'true';
@@ -67,7 +68,7 @@ class IllegalValueException extends DomainException
         return $value;
     }
 
-    protected function normalizeNullValue($value)
+    private static function normalizeNullValue(mixed $value): mixed
     {
         if (is_null($value)) {
             return 'null';
