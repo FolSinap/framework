@@ -30,6 +30,15 @@ use Monolog\Handler\SlackWebhookHandler;
 use Monolog\Handler\SocketHandler;
 use Monolog\Handler\SwiftMailerHandler;
 use Monolog\Handler\TelegramBotHandler;
+use Monolog\Processor\GitProcessor;
+use Monolog\Processor\IntrospectionProcessor;
+use Monolog\Processor\MemoryPeakUsageProcessor;
+use Monolog\Processor\MemoryUsageProcessor;
+use Monolog\Processor\ProcessIdProcessor;
+use Monolog\Processor\ProcessorInterface;
+use Monolog\Processor\PsrLogMessageProcessor;
+use Monolog\Processor\UidProcessor;
+use Monolog\Processor\WebProcessor;
 use Stringable;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Handler\RotatingFileHandler;
@@ -69,6 +78,16 @@ class Log implements LoggerInterface
         'scalar' => ScalarFormatter::class,
         'json' => JsonFormatter::class,
     ];
+    public const PROCESSORS = [
+        'psr' => PsrLogMessageProcessor::class,
+        'introspection' => IntrospectionProcessor::class,
+        'web' => WebProcessor::class,
+        'memory_usage' => MemoryUsageProcessor::class,
+        'memory_peak_usage' => MemoryPeakUsageProcessor::class,
+        'process_id' => ProcessIdProcessor::class,
+        'uid' => UidProcessor::class,
+        'git' => GitProcessor::class,
+    ];
 
     /** @var Logger[] $loggers */
     protected array $loggers;
@@ -85,7 +104,7 @@ class Log implements LoggerInterface
         }
 
         if (empty($loggers)) {
-            foreach ($defaultChannels as $channel) {
+            foreach ($defaultChannels as $channel => $handlers) {
                 $loggers[$channel] = $this->createLogger($channel);
             }
         }
@@ -100,15 +119,20 @@ class Log implements LoggerInterface
 
     protected function createLogger(string $channel): Logger
     {
-        $handlerNames = $this->config->get("channels.$channel");
-        $logger = new Logger($channel);
+        $handlerNames = $this->config->get("channels.$channel.handlers");
+        $processorNames = $this->config->get("channels.$channel.processors", false) ?? [];
         $handlers = [];
+        $processors = [];
 
         foreach ($handlerNames as $handlerName) {
             $handlers[] = $this->createHandler($handlerName);
         }
 
-        return $logger->setHandlers($handlers);
+        foreach ($processorNames as $processorName) {
+            $processors[] = $this->createProcessor($processorName);
+        }
+
+        return new Logger($channel, $handlers, $processors);
     }
 
     protected function createHandler(string $handlerName): HandlerInterface
@@ -116,7 +140,8 @@ class Log implements LoggerInterface
         $handlerConfig = $this->config->get("handlers.$handlerName");
         $type = $handlerConfig['type'];
         $formatter = $handlerConfig['formatter'] ?? null;
-        unset($handlerConfig['type'], $handlerConfig['formatter']);
+        $processors = $handlerConfig['processors'] ?? [];
+        unset($handlerConfig['type'], $handlerConfig['formatter'], $handlerConfig['processors']);
 
         switch ($type) {
             case 'redis':
@@ -149,9 +174,9 @@ class Log implements LoggerInterface
                 break;
             default:
                 if (class_exists($type) && in_array(HandlerInterface::class, class_implements($type))) {
-                    $resolver = container(ObjectResolver::class);
+                    $handler = container(ObjectResolver::class)->resolve($type);
 
-                    return $resolver->resolve($type);
+                    break;
                 }
 
                 throw IllegalValueException::illegalValue($type, array_keys(self::HANDLER_TYPES), valueName: 'Handler type');
@@ -161,27 +186,37 @@ class Log implements LoggerInterface
             $handler->setFormatter($this->createFormatter($formatter));
         }
 
+        foreach ($processors as $processorName) {
+            $handler->pushProcessor($this->createProcessor($processorName));
+        }
+
         return $handler;
     }
 
     protected function createFormatter(string $formatter): FormatterInterface
     {
-        switch ($formatter) {
-            case 'line':
-            case 'json':
-            case 'html':
-            case 'normalizer':
-            case 'scalar':
-                return new (self::FORMATTERS[$formatter])();
-            default:
-                if (class_exists($formatter) && in_array(FormatterInterface::class, class_implements($formatter))) {
-                    $resolver = container(ObjectResolver::class);
+        $args = $this->config->get("formatters.$formatter", false) ?? [];
 
-                    return $resolver->resolve($formatter);
-                }
-
-                throw IllegalValueException::illegalValue($formatter, array_keys(self::FORMATTERS), valueName: 'Formatter');
+        if (in_array($formatter, array_keys(self::FORMATTERS))) {
+            return new (self::FORMATTERS[$formatter])(...$args);
+        } elseif (class_exists($formatter) && in_array(FormatterInterface::class, class_implements($formatter))) {
+            return container(ObjectResolver::class)->resolve($formatter, $args);
         }
+
+        throw IllegalValueException::illegalValue($formatter, array_keys(self::FORMATTERS), valueName: 'Formatter');
+    }
+
+    protected function createProcessor(string $processor): ProcessorInterface
+    {
+        $args = $this->config->get("processors.$processor", false) ?? [];
+
+        if (in_array($processor, array_keys(self::PROCESSORS))) {
+            return new (self::PROCESSORS[$processor])(...$args);
+        } elseif (class_exists($processor) && in_array(ProcessorInterface::class, class_implements($processor))) {
+            return container(ObjectResolver::class)->resolve($processor, $args);
+        }
+
+        throw IllegalValueException::illegalValue($processor, array_keys(self::PROCESSORS), valueName: 'Processor');
     }
 
     public function emergency(Stringable|string $message, array $context = []): void

@@ -2,7 +2,22 @@
 
 return [
     'channels' => [
-        'all' => ['buffer'],
+        'all' => [
+            'handlers' => ['redis'],
+//            'processors' => ['psr'],
+        ],
+    ],
+
+    'processors' => [
+//        'psr' => [
+//            'dateFormat' => 'Y-m',
+//        ],
+    ],
+
+    'formatters' => [
+//        'line' => [
+//            'dateFormat' => 'Y-m',
+//        ],
     ],
 
     'handlers' => [
@@ -28,7 +43,8 @@ return [
         'redis' => [
             'type' => 'redis',
             'key' => 'logs',
-            'formatter' => 'html',
+//            'processors' => ['psr'],
+//            'formatter' => 'line',
         ],
         'redis_crossed' => [
             'type' => 'fingers_crossed',
