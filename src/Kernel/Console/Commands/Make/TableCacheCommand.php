@@ -2,13 +2,13 @@
 
 namespace FW\Kernel\Console\Commands\Make;
 
-class CacheTableCommand extends SessionTableCommand
+class TableCacheCommand extends TableSessionCommand
 {
     protected const DEFAULT_NAME = 'create_cache_table';
 
     public function getName(): string
     {
-        return 'cache:table';
+        return 'table:cache';
     }
 
     public function getDescription(): string

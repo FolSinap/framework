@@ -5,6 +5,6 @@ use FW\Kernel\Database\Connection;
 
 return [
     Connection::class => [
-        'config' => FileConfig::from('database')->toArray(),
+        'config' => config('database')->toArray(),
     ],
 ];

@@ -129,7 +129,7 @@ class Route
 
     public function addVerb(string $verb): self
     {
-        IllegalValueException::checkValue($verb, self::VERBS);
+        IllegalValueException::checkValue($verb, self::VERBS, 'Http verb');
 
         $this->verbs[] = $verb;
 

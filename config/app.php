@@ -3,9 +3,7 @@
 $projectDir = project_dir();
 
 return [
-    'app' => [
-        'dir' => $projectDir . '/app',
-    ],
+    'storage_dir' => $projectDir . '/storage',
     'migrations' => [
         'dir' => $projectDir . '/migrations',
         'namespace' => '\\App\\Migrations',

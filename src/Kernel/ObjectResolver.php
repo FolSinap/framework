@@ -18,13 +18,13 @@ class ObjectResolver
         $this->presetDependencies = config('dependencies');
     }
 
-    public function resolve(string $class): object
+    public function resolve(string $class, array $preset = []): object
     {
         if (App::$app->getContainer()->exists($class)) {
             return App::$app->getContainer()->get($class);
         }
 
-        $parameters = $this->resolveDependencies($class);
+        $parameters = $this->resolveDependencies($class, preset: $preset);
 
         return new $class(...$parameters);
     }

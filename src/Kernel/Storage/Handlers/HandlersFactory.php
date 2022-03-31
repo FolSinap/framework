@@ -18,11 +18,6 @@ class HandlersFactory
     public function create(): ?SessionHandlerInterface
     {
         $driver = $this->config->get('driver');
-
-        if (!$driver) {
-            return null;
-        }
-
         $lifetime = $this->config->get('lifetime');
 
         return match ($driver) {
