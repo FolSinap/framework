@@ -5,13 +5,13 @@ namespace FW\Kernel\Console\Commands\Make;
 use FW\Kernel\Console\Input;
 use FW\Kernel\Console\Output\Output;
 
-class SessionTableCommand extends MakeMigrationCommand
+class TableSessionCommand extends MakeMigrationCommand
 {
     protected const DEFAULT_NAME = 'create_sessions_table';
 
     public function getName(): string
     {
-        return 'session:table';
+        return 'table:session';
     }
 
     public function getDescription(): string
