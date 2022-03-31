@@ -17,10 +17,12 @@ use Monolog\Handler\BufferHandler;
 use Monolog\Handler\FingersCrossedHandler;
 use Monolog\Handler\FleepHookHandler;
 use Monolog\Handler\FlowdockHandler;
+use Monolog\Handler\FormattableHandlerInterface;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\IFTTTHandler;
 use Monolog\Handler\MandrillHandler;
 use Monolog\Handler\NativeMailerHandler;
+use Monolog\Handler\ProcessableHandlerInterface;
 use Monolog\Handler\ProcessHandler;
 use Monolog\Handler\PushoverHandler;
 use Monolog\Handler\RedisHandler;
@@ -70,6 +72,7 @@ class Log implements LoggerInterface
         'redis' => RedisHandler::class,
         'fingers_crossed' => FingersCrossedHandler::class,
         'buffer' => BufferHandler::class,
+        'database' => DatabaseHandler::class,
     ];
     public const FORMATTERS = [
         'line' => LineFormatter::class,
@@ -163,6 +166,7 @@ class Log implements LoggerInterface
             case 'ifttt':
             case 'telegram':
             case 'socket':
+            case 'database':
                 $handler = new (self::HANDLER_TYPES[$type])(...$handlerConfig);
 
                 break;
@@ -182,12 +186,14 @@ class Log implements LoggerInterface
                 throw IllegalValueException::illegalValue($type, array_keys(self::HANDLER_TYPES), valueName: 'Handler type');
         }
 
-        if (isset($formatter)) {
+        if (isset($formatter) && $handler instanceof FormattableHandlerInterface) {
             $handler->setFormatter($this->createFormatter($formatter));
         }
 
-        foreach ($processors as $processorName) {
-            $handler->pushProcessor($this->createProcessor($processorName));
+        if (!empty($processors) && $handler instanceof ProcessableHandlerInterface) {
+            foreach ($processors as $processorName) {
+                $handler->pushProcessor($this->createProcessor($processorName));
+            }
         }
 
         return $handler;
@@ -211,6 +217,10 @@ class Log implements LoggerInterface
         $args = $this->config->get("processors.$processor", false) ?? [];
 
         if (in_array($processor, array_keys(self::PROCESSORS))) {
+            if ($processor === 'introspection') {
+                $args['skipStackFramesCount'] = 2;
+            }
+
             return new (self::PROCESSORS[$processor])(...$args);
         } elseif (class_exists($processor) && in_array(ProcessorInterface::class, class_implements($processor))) {
             return container(ObjectResolver::class)->resolve($processor, $args);

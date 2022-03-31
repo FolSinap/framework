@@ -3,8 +3,8 @@
 return [
     'channels' => [
         'all' => [
-            'handlers' => ['redis'],
-//            'processors' => ['psr'],
+            'handlers' => ['stream'],
+            'processors' => ['psr', 'introspection', 'memory_usage'],
         ],
     ],
 
@@ -51,9 +51,16 @@ return [
             'handler' => 'redis',
             'activationStrategy' => 'warning'
         ],
-        'buffer' => [
+        'buffer-redis' => [
             'type' => 'buffer',
             'handler' => 'redis',
-        ]
+        ],
+        'buffer-database' => [
+            'type' => 'buffer',
+            'handler' => 'database',
+        ],
+        'database' => [
+            'type' => 'database',
+        ],
     ],
 ];

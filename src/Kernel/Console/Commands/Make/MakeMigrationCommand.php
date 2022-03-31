@@ -28,7 +28,7 @@ class MakeMigrationCommand extends MakeCommand
     public function getRequiredParameters(): array
     {
         return [
-            'name' => 'Name of migration class.',
+            'name' => 'Name of migration.',
         ];
     }
 
