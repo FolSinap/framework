@@ -10,23 +10,51 @@ use FW\Kernel\Middlewares\MiddlewareMapper;
 use FW\Kernel\Response\Response;
 use FW\Kernel\Routing\Router;
 use FW\Kernel\Config\Config;
+use Whoops\Handler\JsonResponseHandler;
+use Whoops\Handler\PlainTextHandler;
+use Whoops\Handler\PrettyPageHandler;
+use Whoops\Run;
+use Whoops\Util\Misc;
 
 class App
 {
     public static self $app;
-    protected string $projectDir;
     protected Container $container;
     protected Config $config;
+    protected string $env;
 
-    public function __construct(string $projectDir)
+    public function __construct(
+        protected string $projectDir
+    )
     {
         self::$app = $this;
-        $this->projectDir = $projectDir;
 
         $this->initEnv();
         $this->initConfig();
         $this->bootContainer();
         $this->initRoutes();
+        $this->env = config('app.env');
+        $this->initErrorHandler();
+    }
+
+    protected function initErrorHandler()
+    {
+        if ($this->env === 'dev') {
+            $whoops = new Run();
+
+            if (Misc::isAjaxRequest()) {
+                $handler = new JsonResponseHandler();
+                $handler->setJsonApi(true);
+            } elseif (Misc::isCommandLine()) {
+                $handler = new PlainTextHandler();
+            } else {
+                $handler = new PrettyPageHandler();
+            }
+
+            $whoops->appendHandler($handler);
+
+            $whoops->register();
+        }
     }
 
     public function run(): void

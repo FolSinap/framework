@@ -27,6 +27,7 @@
       "ext-ds": "*",
         "psr/cache": "^3.0",
       "ext-memcached": "*",
-        "monolog/monolog": "^2.4"
+        "monolog/monolog": "^2.4",
+        "filp/whoops": "^2.14"
     }
 }
