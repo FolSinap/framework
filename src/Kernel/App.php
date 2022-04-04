@@ -5,6 +5,7 @@ namespace FW\Kernel;
 use Dotenv\Dotenv;
 use FW\Kernel\Database\Connection;
 use FW\Kernel\Database\Database;
+use FW\Kernel\ErrorHandlers\ProductionHandler;
 use FW\Kernel\Exceptions\Router\InvalidResponseValue;
 use FW\Kernel\Middlewares\MiddlewareMapper;
 use FW\Kernel\Response\Response;
@@ -39,9 +40,9 @@ class App
 
     protected function initErrorHandler()
     {
-        if ($this->env === 'dev') {
-            $whoops = new Run();
+        $whoops = new Run();
 
+        if ($this->env === 'dev') {
             if (Misc::isAjaxRequest()) {
                 $handler = new JsonResponseHandler();
                 $handler->setJsonApi(true);
@@ -50,11 +51,13 @@ class App
             } else {
                 $handler = new PrettyPageHandler();
             }
-
-            $whoops->appendHandler($handler);
-
-            $whoops->register();
+        } else {
+            $handler = new ProductionHandler();
         }
+
+        $whoops->appendHandler($handler);
+
+        $whoops->register();
     }
 
     public function run(): void
