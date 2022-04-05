@@ -4,6 +4,7 @@ $projectDir = project_dir();
 
 return [
     'env' => env('ENV', 'dev'),
+    'debug' => env('DEBUG', 'false'),
 
     'migrations' => [
         'dir' => $projectDir . '/migrations',

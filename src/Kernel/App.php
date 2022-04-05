@@ -23,6 +23,7 @@ class App
     protected Container $container;
     protected Config $config;
     protected string $env;
+    protected bool $debug;
 
     public function __construct(
         protected string $projectDir
@@ -33,15 +34,16 @@ class App
         $this->initConfig();
         $this->bootContainer();
         $this->initRoutes();
-        $this->env = config('app.env');
+        $this->env = $this->config->get('app.env');
+        $this->debug = $this->config->get('app.debug') === 'true';
         $this->initErrorHandler();
     }
 
     protected function initErrorHandler()
     {
-        $whoops = new Run();
+        if ($this->debug || Misc::isCommandLine()) {
+            $whoops = new Run();
 
-        if ($this->env === 'dev') {
             if (Misc::isAjaxRequest()) {
                 $handler = new JsonResponseHandler();
                 $handler->setJsonApi(true);
@@ -51,14 +53,16 @@ class App
             } else {
                 $handler = new PrettyPageHandler();
             }
+
+            $whoops->appendHandler($handler);
+            $whoops->register();
         } else {
-            //todo: production handler shows fatal error message
             $handler = new ProductionHandler();
+
+            error_reporting(0);
+            register_shutdown_function([$handler, 'handle']);
+            set_error_handler([$handler, 'handle']);
         }
-
-        $whoops->appendHandler($handler);
-
-        $whoops->register();
     }
 
     public function run(): void
