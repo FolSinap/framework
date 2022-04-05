@@ -61,7 +61,6 @@ class App
 
             error_reporting(0);
             register_shutdown_function([$handler, 'handle']);
-            set_error_handler([$handler, 'handle']);
         }
     }
 
