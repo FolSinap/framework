@@ -2,6 +2,9 @@
 
 namespace FW\Kernel\Response;
 
+use FW\Kernel\Exceptions\View\TemplateNotFoundException;
+use FW\Kernel\View\TemplateEngine\Templates\BaseTemplate;
+use FW\Kernel\View\TemplateEngine\Templates\Template;
 use FW\Kernel\View\View;
 
 class Response
@@ -22,14 +25,24 @@ class Response
 
     public static function notFound(): self
     {
-        //todo: put it in config
-        return new self(View::create('errors/_404.html'), 404);
+        try {
+            $template = Template::fromName('errors/_404.tmt.html');
+        } catch (TemplateNotFoundException) {
+            $template = new Template(dirname(__DIR__) . '/View/errors/_404.html');
+        }
+
+        return new self(new View($template), 404);
     }
 
     public static function unauthorized(): self
     {
-        //todo: put it in config
-        return new self(View::create('errors/_401.html'), 401);
+        try {
+            $template = Template::fromName('errors/_401.tmt.html');
+        } catch (TemplateNotFoundException) {
+            $template = new Template(dirname(__DIR__) . '/View/errors/_401.html');
+        }
+
+        return new self(new View($template), 401);
     }
 
     public function setCode(int $code): self

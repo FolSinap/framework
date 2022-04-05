@@ -29,10 +29,12 @@ class TextBuilder
         return $this->text;
     }
 
-    public function if(bool $expression, $text): self
+    public function if(bool $expression, string $text, string $else = null): self
     {
         if ($expression) {
             $this->write($text);
+        } elseif (isset($else)) {
+            $this->write($else);
         }
 
         return $this;

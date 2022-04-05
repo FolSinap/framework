@@ -3,7 +3,6 @@
 namespace FW\Kernel\View;
 
 use FW\Kernel\View\TemplateEngine\Templates\Template;
-use FW\Kernel\View\TemplateEngine\TemplateFactory;
 use FW\Kernel\View\TemplateEngine\TemplateRenderer;
 
 class View
@@ -11,10 +10,9 @@ class View
     protected Template $template;
     protected TemplateRenderer $renderer;
 
-    protected function __construct(string $template, array $data = [])
+    public function __construct(Template $template, array $data = [])
     {
         app()->getContainer()->set(VariableContainer::class, VariableContainer::getInstance($data));
-        $template = (new TemplateFactory())->create($template);
 
         $this->setTemplate($template);
         $this->renderer = new TemplateRenderer();
@@ -22,6 +20,8 @@ class View
 
     public static function create(string $template, array $data = []): self
     {
+        $template = Template::fromName($template);
+
         return new self($template, $data);
     }
 

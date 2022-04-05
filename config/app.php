@@ -3,7 +3,9 @@
 $projectDir = project_dir();
 
 return [
-    'storage_dir' => $projectDir . '/storage',
+    'env' => env('ENV', 'dev'),
+    'debug' => env('DEBUG', 'false'),
+
     'migrations' => [
         'dir' => $projectDir . '/migrations',
         'namespace' => '\\App\\Migrations',

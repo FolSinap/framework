@@ -14,7 +14,7 @@ class LoginController extends Controller
 {
     public function registrationForm(): Response
     {
-        return $this->render('login/register-form.php');
+        return $this->render('login/register-form');
     }
 
     public function register(RegisterRequestValidator $validator): RedirectResponse
@@ -30,7 +30,7 @@ class LoginController extends Controller
 
     public function loginForm(): Response
     {
-        return $this->render('login/login-form.php');
+        return $this->render('login/login-form');
     }
 
     public function login(Request $request, Authentication $auth): RedirectResponse

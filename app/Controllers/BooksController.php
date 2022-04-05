@@ -16,14 +16,14 @@ class BooksController extends Controller
         $books = Book::all(['author', 'genres']);
         $user = $this->getUser();
 
-        return $this->render('books/index.php', compact('books', 'user'));
+        return $this->render('books/index', compact('books', 'user'));
     }
 
     public function create(): Response
     {
         $genres = Genre::all();
 
-        return $this->render('books/create.php', compact('genres'));
+        return $this->render('books/create', compact('genres'));
     }
 
     public function store(CreateRequestValidator $validator): RedirectResponse
@@ -56,7 +56,7 @@ class BooksController extends Controller
             return $genre->id;
         });
 
-        return $this->render('/books/edit.php', compact('book', 'genres', 'bookGenreIds'));
+        return $this->render('/books/edit', compact('book', 'genres', 'bookGenreIds'));
     }
 
     public function update(CreateRequestValidator $validator, Book $book): RedirectResponse

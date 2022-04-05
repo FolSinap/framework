@@ -5,28 +5,63 @@ namespace FW\Kernel;
 use Dotenv\Dotenv;
 use FW\Kernel\Database\Connection;
 use FW\Kernel\Database\Database;
+use FW\Kernel\ErrorHandlers\ConsoleOutputHandler;
+use FW\Kernel\ErrorHandlers\ProductionHandler;
 use FW\Kernel\Exceptions\Router\InvalidResponseValue;
 use FW\Kernel\Middlewares\MiddlewareMapper;
 use FW\Kernel\Response\Response;
 use FW\Kernel\Routing\Router;
 use FW\Kernel\Config\Config;
+use Whoops\Handler\JsonResponseHandler;
+use Whoops\Handler\PrettyPageHandler;
+use Whoops\Run;
+use Whoops\Util\Misc;
 
 class App
 {
     public static self $app;
-    protected string $projectDir;
     protected Container $container;
     protected Config $config;
+    protected string $env;
+    protected bool $debug;
 
-    public function __construct(string $projectDir)
-    {
+    public function __construct(
+        protected string $projectDir
+    ) {
         self::$app = $this;
-        $this->projectDir = $projectDir;
 
         $this->initEnv();
         $this->initConfig();
         $this->bootContainer();
         $this->initRoutes();
+        $this->env = $this->config->get('app.env');
+        $this->debug = $this->config->get('app.debug') === 'true';
+        $this->initErrorHandler();
+    }
+
+    protected function initErrorHandler()
+    {
+        if ($this->debug || Misc::isCommandLine()) {
+            $whoops = new Run();
+
+            if (Misc::isAjaxRequest()) {
+                $handler = new JsonResponseHandler();
+                $handler->setJsonApi(true);
+                $handler->addTraceToOutput(true);
+            } elseif (Misc::isCommandLine()) {
+                $handler = new ConsoleOutputHandler();
+            } else {
+                $handler = new PrettyPageHandler();
+            }
+
+            $whoops->appendHandler($handler);
+            $whoops->register();
+        } else {
+            $handler = new ProductionHandler();
+
+            error_reporting(0);
+            register_shutdown_function([$handler, 'handle']);
+        }
     }
 
     public function run(): void

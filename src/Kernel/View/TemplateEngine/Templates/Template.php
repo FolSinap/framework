@@ -2,34 +2,36 @@
 
 namespace FW\Kernel\View\TemplateEngine\Templates;
 
-use FW\Kernel\App;
 use FW\Kernel\Exceptions\View\InheritException;
 use FW\Kernel\Exceptions\View\TemplateNotFoundException;
-use FW\Kernel\Exceptions\View\UnknownArgumentException;
-use FW\Kernel\View\TemplateEngine\TemplateFactory;
 use FW\Kernel\View\TemplateEngine\TemplateRegexBuilder;
-use FW\Kernel\View\VariableContainer;
 
 class Template
 {
-    protected string $path;
     protected string $template;
     protected string $content;
+    protected string $path;
     protected ?self $parent = null;
-    protected TemplateFactory $factory;
     /**
      * @var Block[] $blocks
      */
     protected array $blocks;
 
-    public function __construct(string $template)
+    public function __construct(string $path)
     {
-        $this->factory = new TemplateFactory();
-        $this->template = $template;
-        $this->setPath(App::$app->getConfig('app.templates.dir') . '/' . $template);
+        $this->template = basename($path);
 
+        $this->setPath($path);
         $this->loadContent();
         $this->initInherits();
+    }
+
+    public static function fromName(string $name): self
+    {
+        $template = str_ends_with($name, '.tmt.html') ? $name : $name . '.tmt.html';
+        $path = config('app.templates.dir') . '/' . $template;
+
+        return new self($path);
     }
 
     public function getParent(): ?self
@@ -44,20 +46,6 @@ class Template
         $this->parent->blocks = $blocks;
 
         return $this;
-    }
-
-    public function getContent(): string
-    {
-        return $this->content;
-    }
-
-    public function setContent($content): void
-    {
-        if (!is_string($content)) {
-            throw new \Exception('Something went wrong');
-        }
-
-        $this->content = $content;
     }
 
     public function getTemplate(): string
@@ -91,6 +79,30 @@ class Template
         return $this;
     }
 
+    public function getContent(): string
+    {
+        return $this->content;
+    }
+
+    public function setContent(string $content): void
+    {
+        $this->content = $content;
+    }
+
+    protected function loadContent(): void
+    {
+        $this->content = file_get_contents($this->path);
+    }
+
+    protected function setPath(string $path): void
+    {
+        if (file_exists($path)) {
+            $this->path = $path;
+        } else {
+            throw new TemplateNotFoundException($path);
+        }
+    }
+
     protected function removeExtraBlocks(): self
     {
         $regexBuilder = TemplateRegexBuilder::getBuilder()
@@ -101,11 +113,6 @@ class Template
         $this->setContent(preg_replace($regexBuilder->getRegex(), '', $this->content));
 
         return $this;
-    }
-
-    protected function loadContent(): void
-    {
-        $this->content = file_get_contents($this->path);
     }
 
     protected function initInherits(): void
@@ -126,7 +133,7 @@ class Template
             return;
         }
 
-        $parent = new self($inherits[0][1]);
+        $parent = self::fromName($inherits[0][1]);
 
         $regexBuilder->name('#block')->useNumbers();
 
@@ -160,14 +167,5 @@ class Template
         }
 
         $this->inherit($parent, $contentBlocks);
-    }
-
-    protected function setPath(string $path): void
-    {
-        if (file_exists($path)) {
-            $this->path = $path;
-        } else {
-            throw new TemplateNotFoundException($path);
-        }
     }
 }

@@ -36,6 +36,13 @@ trait Colorable
         return $this;
     }
 
+    public function startGray(): self
+    {
+        $this->text .= self::GRAY;
+
+        return $this;
+    }
+
     public function startRed(): self
     {
         $this->text .= self::RED;
