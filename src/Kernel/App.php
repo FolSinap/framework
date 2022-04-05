@@ -26,8 +26,7 @@ class App
 
     public function __construct(
         protected string $projectDir
-    )
-    {
+    ) {
         self::$app = $this;
 
         $this->initEnv();
@@ -46,6 +45,7 @@ class App
             if (Misc::isAjaxRequest()) {
                 $handler = new JsonResponseHandler();
                 $handler->setJsonApi(true);
+                $handler->addTraceToOutput(true);
             } elseif (Misc::isCommandLine()) {
                 $handler = new ConsoleOutputHandler();
             } else {
