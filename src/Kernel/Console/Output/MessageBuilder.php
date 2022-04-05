@@ -9,6 +9,7 @@ class MessageBuilder extends TextBuilder
     use Colorable;
 
     protected const DEFAULT_TERMINAL_WIDTH = 80;
+    protected const GRAY = "\e[90m";
     protected const BLACK = "\e[30m";
     protected const RED = "\e[31m";
     protected const GREEN = "\e[32m";
@@ -28,7 +29,11 @@ class MessageBuilder extends TextBuilder
 
     public function __construct()
     {
-        $this->terminalWidth = app()->getTerminalWidth() ?? self::DEFAULT_TERMINAL_WIDTH;
+        $app = app();
+
+        $this->terminalWidth = method_exists($app, 'getTerminalWidth')
+            ? $app->getTerminalWidth()
+            : self::DEFAULT_TERMINAL_WIDTH;
     }
 
     public static function getBuilder(): self

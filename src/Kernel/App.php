@@ -5,6 +5,7 @@ namespace FW\Kernel;
 use Dotenv\Dotenv;
 use FW\Kernel\Database\Connection;
 use FW\Kernel\Database\Database;
+use FW\Kernel\ErrorHandlers\ConsoleOutputHandler;
 use FW\Kernel\ErrorHandlers\ProductionHandler;
 use FW\Kernel\Exceptions\Router\InvalidResponseValue;
 use FW\Kernel\Middlewares\MiddlewareMapper;
@@ -12,7 +13,6 @@ use FW\Kernel\Response\Response;
 use FW\Kernel\Routing\Router;
 use FW\Kernel\Config\Config;
 use Whoops\Handler\JsonResponseHandler;
-use Whoops\Handler\PlainTextHandler;
 use Whoops\Handler\PrettyPageHandler;
 use Whoops\Run;
 use Whoops\Util\Misc;
@@ -47,11 +47,12 @@ class App
                 $handler = new JsonResponseHandler();
                 $handler->setJsonApi(true);
             } elseif (Misc::isCommandLine()) {
-                $handler = new PlainTextHandler();
+                $handler = new ConsoleOutputHandler();
             } else {
                 $handler = new PrettyPageHandler();
             }
         } else {
+            //todo: production handler shows fatal error message
             $handler = new ProductionHandler();
         }
 
