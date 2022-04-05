@@ -9,7 +9,7 @@ use FW\Kernel\Response\Response;
 $router = app()->getRouter();
 
 $router->get('/', function () {
-    return Response::create(View::create('index.php'));
+    return Response::create(View::create('index'));
 }, 'main')->middleware('authenticate');
 
 $router->get('/books', [BooksController::class, 'index'])->name('books_index');

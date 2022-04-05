@@ -26,13 +26,9 @@ class Response
     public static function notFound(): self
     {
         try {
-            $template = new Template('errors/_404.php');
+            $template = Template::fromName('errors/_404.tmt.html');
         } catch (TemplateNotFoundException) {
-            try {
-                $template = new Template('errors/_404.php');
-            } catch (TemplateNotFoundException) {
-                $template = new BaseTemplate(dirname(__DIR__) . '/View/errors/_404.html');
-            }
+            $template = new Template(dirname(__DIR__) . '/View/errors/_404.html');
         }
 
         return new self(new View($template), 404);
@@ -41,13 +37,9 @@ class Response
     public static function unauthorized(): self
     {
         try {
-            $template = new Template('errors/_401.php');
+            $template = Template::fromName('errors/_401.tmt.html');
         } catch (TemplateNotFoundException) {
-            try {
-                $template = new Template('errors/_401.php');
-            } catch (TemplateNotFoundException) {
-                $template = new BaseTemplate(dirname(__DIR__) . '/View/errors/_401.html');
-            }
+            $template = new Template(dirname(__DIR__) . '/View/errors/_401.html');
         }
 
         return new self(new View($template), 401);

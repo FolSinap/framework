@@ -22,13 +22,9 @@ class ProductionHandler extends Handler
         }
 
         try {
-            $template = new Template('errors/_500.html');
+            $template = Template::fromName('errors/_500');
         } catch (TemplateNotFoundException) {
-            try {
-                $template = new Template('errors/_500.php');
-            } catch (TemplateNotFoundException) {
-                $template = new BaseTemplate(dirname(__DIR__) . '/View/errors/_500.html');
-            }
+            $template = new Template(dirname(__DIR__) . '/View/errors/_500.html');
         }
 
         $view = new View($template);

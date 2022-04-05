@@ -3,7 +3,6 @@
 namespace FW\Kernel\View;
 
 use FW\Kernel\View\TemplateEngine\Templates\Template;
-use FW\Kernel\View\TemplateEngine\TemplateFactory;
 use FW\Kernel\View\TemplateEngine\TemplateRenderer;
 
 class View
@@ -21,7 +20,7 @@ class View
 
     public static function create(string $template, array $data = []): self
     {
-        $template = (new TemplateFactory())->create($template);
+        $template = Template::fromName($template);
 
         return new self($template, $data);
     }

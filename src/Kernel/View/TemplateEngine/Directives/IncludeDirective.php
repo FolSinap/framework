@@ -19,7 +19,7 @@ class IncludeDirective extends Directive
     {
         $path = $matches[1];
 
-        return (new Template($path))->getContent();
+        return (Template::fromName($path))->getContent();
     }
 
     public function getName(): string
